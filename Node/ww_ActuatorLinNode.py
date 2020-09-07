@@ -7,7 +7,7 @@ VK_ESCAPE =0x1B
 class Shared(bpy.types.PropertyGroup):
     bl_idname = 'ww_Share'
 
-    ww_data = { "Ptime"  : 0,
+    ww_base_data = { "Ptime"  : 0,
                 "Btime"  : 0,
                 "X-Soll" : -1.0 ,
                 "Y-Soll" : -1.0,
@@ -17,10 +17,21 @@ class Shared(bpy.types.PropertyGroup):
                 "Z-Ist"  : 0.0,
                 "Destroy": False}
 
-    def Probe(self):
-        print('#############')
-        print(dir)
+    ww_data = {"Name_IP_RPort_SPort": ww_base_data}
 
+    def add_actuator(self,actuator):
+
+        print(actuator.actuator_name,
+              actuator.socket_ip,
+              actuator.rsocket_port,
+              actuator.ssocket_port)
+
+        ID = (actuator.actuator_name+'_'+
+              str(actuator.socket_ip)+'_'+
+              str(actuator.rsocket_port)+'_'+
+              str(actuator.ssocket_port))
+
+        self.ww_data[ID] = self.ww_base_data
 
 class ww_ActuatorLinNode(bpy.types.Node):
     '''ww Linear Actuator'''
@@ -33,7 +44,6 @@ class ww_ActuatorLinNode(bpy.types.Node):
     @classmethod
     def poll(cls, ntree):
         return ntree.bl_idname == 'ww_NodeTree'
-
 
     def update_func(self,context):
         #print('k')
@@ -96,19 +106,21 @@ class ww_ActuatorLinNode(bpy.types.Node):
                                     description = "Operator Started",
                                     default = False)
     def init(self, context):
-        Shared.Probe(self)
-        #self.operator_started_bit1 : bpy.props.BoolProperty(name = "Operator Started",
-        #                            description = "Operator Started",
-        #                            default = False)
-        #bpy.ops.ww.actuator_connect('INVOKE_DEFAULT')        
         pass
 
     def copy(self, node):
         print("copied node", node)
 
     def free(self):
-        self.Shared.ww_data["Destroy"] = True
-        print("Node removed", self)
+        ID = (self.actuator_name+'_'+
+              str(self.socket_ip)+'_'+
+              str(self.rsocket_port)+'_'+
+              str(self.ssocket_port))
+        print("NODE")
+        print(ID)
+        print(self.Shared.ww_data)
+        self.Shared.ww_data[ID]["Destroy"] = True
+        print("Node removed", ID, self)
 
     def draw_buttons(self, context, layout):
         #print(dir(self))
