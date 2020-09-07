@@ -16,12 +16,19 @@ To Try the add-on:
 go to the UClients_and_helpers dir and start the three clients
 
 get the wiredworks_winches dir into the addons dir of Blender
+
 Start Blender
+
 Load it with the preferences Menue
+
 doublicate the Cube 2 times so that you hve Cube, Cube.001 and Cube.002
+
 open a node editor choose ww_SFX_Nodes
-add a new tree 
+
+add a new tree
+
 add a new node
+
 set the adress to 127.0.0.1, the recPort (left field) to 15021 and the sendPort (right field) to 15022
 push the start button
 tick the left checkbox
