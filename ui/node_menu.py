@@ -14,6 +14,7 @@ class ActuatorMenu(bpy.types.Menu):
 
     def draw(self,context):
         layout = self.layout
+        insertNode(layout, "ww_StartCommOp", "Start", {},"CURVE_NCIRCLE")
         insertNode(layout, "ww_ActuatorLin", "Linear",{},"ARROW_LEFTRIGHT")
         insertNode(layout, "ww_ActuatorRot", "Rotational",{},"PROP_CON")
 

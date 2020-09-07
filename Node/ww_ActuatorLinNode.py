@@ -7,31 +7,18 @@ VK_ESCAPE =0x1B
 class Shared(bpy.types.PropertyGroup):
     bl_idname = 'ww_Share'
 
-    ww_base_data = { "Ptime"  : 0,
-                "Btime"  : 0,
-                "X-Soll" : -1.0 ,
-                "Y-Soll" : -1.0,
-                "Z-Soll" : -1,
-                "X-Ist"  : 0.0,
-                "Y-Ist"  : 0.0,
-                "Z-Ist"  : 0.0,
-                "Destroy": False}
+    ww_base_data = { "Ptime"           : 0,
+                     "Btime"           : 0,
+                     "X-Soll"          : -1.0 ,
+                     "Y-Soll"          : -1.0,
+                     "Z-Soll"          : -1,
+                     "X-Ist"           : 0.0,
+                     "Y-Ist"           : 0.0,
+                     "Z-Ist"           : 0.0,
+                     "EndCommOPerator" : False,
+                     "Destroy"         : False}
 
     ww_data = {"Name_IP_RPort_SPort": ww_base_data}
-
-    def add_actuator(self,actuator):
-
-        print(actuator.actuator_name,
-              actuator.socket_ip,
-              actuator.rsocket_port,
-              actuator.ssocket_port)
-
-        ID = (actuator.actuator_name+'_'+
-              str(actuator.socket_ip)+'_'+
-              str(actuator.rsocket_port)+'_'+
-              str(actuator.ssocket_port))
-
-        self.ww_data[ID] = self.ww_base_data
 
 class ww_ActuatorLinNode(bpy.types.Node):
     '''ww Linear Actuator'''
@@ -94,17 +81,18 @@ class ww_ActuatorLinNode(bpy.types.Node):
                                         description = "IP of Actuator",
                                         default = "127.0.0.1",
                                         )
-    rsocket_port: bpy.props.StringProperty(name = "Socket port",
-                                        description = "Port of Actuator",
+    rsocket_port: bpy.props.StringProperty(name = "Receive Socket port",
+                                        description = "Receive Port of Actuator",
                                         default = "15021",
                                         )
-    ssocket_port: bpy.props.StringProperty(name = "Socket port",
-                                        description = "Port of Actuator",
+    ssocket_port: bpy.props.StringProperty(name = "Send Socket port",
+                                        description = "Send Port of Actuator",
                                         default = "15022",
                                         )
-    operator_started_bit1 : bpy.props.BoolProperty(name = "Operator Started",
+    actuator_registered_bit1 : bpy.props.BoolProperty(name = "Operator Started",
                                     description = "Operator Started",
                                     default = False)
+
     def init(self, context):
         pass
 
@@ -116,9 +104,9 @@ class ww_ActuatorLinNode(bpy.types.Node):
               str(self.socket_ip)+'_'+
               str(self.rsocket_port)+'_'+
               str(self.ssocket_port))
-        print("NODE")
-        print(ID)
-        print(self.Shared.ww_data)
+        #print("NODE")
+        #print(ID)
+        #print(self.Shared.ww_data)
         self.Shared.ww_data[ID]["Destroy"] = True
         print("Node removed", ID, self)
 
@@ -157,10 +145,10 @@ class ww_ActuatorLinNode(bpy.types.Node):
         col.label(text='Ist Vel')
         col.prop(self, 'ist_Vel' , text = '')
         col = split.column()
-        if not(self.operator_started_bit1):
-            col.operator('ww.actuator_connect',text ='Start')
+        if not(self.actuator_registered_bit1):
+            col.operator('ww.actuator_register',text ='Register')
         else:
-           col.operator('ww.connector_already_started',text ='Started')
+           col.operator('ww.actuator_already_registered',text ='Registered')
         col.operator('ww.actuator_enable',text ='Enable')
         #print(Shared.ww_data['X-Soll'])
  
@@ -170,11 +158,108 @@ class ww_ActuatorLinNode(bpy.types.Node):
         layout.prop(self, 'rsocket_port', text = 'Rec Port')
         layout.prop(self, 'ssocket_port', text = 'Send Port')
 
-
-
     #OPTIONAL
     #we can use this function to dynamically define the label of
     #   the node, however defining the bl_label explicitly overrides it
     #def draw_label(self):
     #   return "this label is shown"
 
+class ww_ActuatorStartCommNode(bpy.types.Node):
+    '''ww Starts Comm Operator'''
+    bl_idname = 'ww_StartCommOp'
+    bl_label = 'Comm Operator'
+    bl_icon = 'CURVE_NCIRCLE'
+    bl_width_min = 160
+    bl_width_max = 160
+
+    @classmethod
+    def poll(cls, ntree):
+        return ntree.bl_idname == 'ww_NodeTree'
+
+    def update_func(self,context):
+        #print('k')
+        #print(Shared)
+        pass
+
+    Shared : bpy.props.PointerProperty(type = Shared,
+                                        update = update_func)
+
+    soll_Pos : bpy.props.FloatProperty(name = "Soll Pos",
+                                    description = "Soll Position",
+                                    precision = 3,
+                                    default = 0.001,
+                                    update = update_func)
+    ist_Pos : bpy.props.FloatProperty(name = "Ist Pos",
+                                    description = "Ist Position",
+                                    precision = 3,
+                                    default = 0.001,
+                                    update = update_func)
+    soll_Vel : bpy.props.FloatProperty(name = "Soll Vel",
+                                    description = "Soll Velocity",
+                                    precision = 3,
+                                    default = 0.001,
+                                    update = update_func)
+    ist_Vel : bpy.props.FloatProperty(name = "Ist Vel",
+                                    description = "Ist Velocity",
+                                    precision = 3,
+                                    default = 0.001,
+                                    update = update_func)
+    actuator_connected_bit1 : bpy.props.BoolProperty(name = "Connected",
+                                    description = " Actuator Connected ?",
+                                    default = False,
+                                    update = update_func)
+    actuator_connected_bit2 : bpy.props.BoolProperty(name = "Connected",
+                                    description = " Actuator Connected ?",
+                                    default = False,
+                                    update = update_func)
+    cycle_time : bpy.props.FloatProperty(name = "Cycle Time",
+                                    description = "Round Trip Time",
+                                    precision = 3,
+                                    default = 0.001,
+                                    update = update_func)
+    actuator_name: bpy.props.StringProperty(name = "Actuator Name",
+                                        description = "Name of Actuator",
+                                        default = "Anton",
+                                        )    
+    socket_ip: bpy.props.StringProperty(name = "Socket ip",
+                                        description = "IP of Actuator",
+                                        default = "127.0.0.1",
+                                        )
+    rsocket_port: bpy.props.StringProperty(name = "Receive Socket port",
+                                        description = "Receive Port of Actuator",
+                                        default = "15019",
+                                        )
+    ssocket_port: bpy.props.StringProperty(name = "Send Socket port",
+                                        description = "Send Port of Actuator",
+                                        default = "15020",
+                                        )
+    operator_started_bit1 : bpy.props.BoolProperty(name = "Operator Started",
+                                    description = "Operator Started",
+                                    default = False)
+    def init(self, context):
+        pass
+
+    def copy(self, node):
+        print("copied node", node)
+
+    def free(self):
+        ID = (self.actuator_name+'_'+
+              str(self.socket_ip)+'_'+
+              str(self.rsocket_port)+'_'+
+              str(self.ssocket_port))
+        print("NODE")
+        print(ID)
+        print(self.Shared.ww_data)
+        self.Shared.ww_data[ID]["Destroy"] = True
+        print("Node removed", ID, self)
+
+    def draw_buttons(self, context, layout):
+        split = layout.split()
+        col = split.column()
+        if not(self.operator_started_bit1):
+            col.operator('ww.start_comm',text ='Start')
+        else:
+           col.operator('ww.comm_already_started',text ='Started')
+      
+    def draw_buttons_ext(self, context, layout):
+        pass
