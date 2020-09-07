@@ -30,24 +30,39 @@ add a new tree
 add a new node
 
 set the adress to 127.0.0.1, the recPort (left field) to 15021 and the sendPort (right field) to 15022
+
 push the start button
+
 tick the left checkbox
+
 --> the communication with the first Client should be started
+
 ad another node
+
 set the adress to 127.0.0.1, the recPort (left field) to 15023 and the sendPort (right field) to 15024
+
 push the start button
+
 tick the left checkbox
+
 --> the communication with the second Client should be started
+
 ad another node
+
 set the adress to 127.0.0.1, the recPort (left field) to 15025 and the sendPort (right field) to 15026
+
 push the start button
+
 tick the left checkbox
+
 --> the communication with the first Client should be started
 
 moving the Joystick will move the Cubes.
 
 Known Problems:
+
   Key error when destroying an Actuator Node
+  
   each operator starts a timer so the frequency of the communication is dependent on the number of nodes
   
   
