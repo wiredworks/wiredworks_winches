@@ -65,6 +65,21 @@ Known Problems:
   
   each operator starts a timer so the frequency of the communication is dependent on the number of nodes
   
+  # After Restructuring
+  
+  got rid of Key error when destroying an Actuator node
+  
+  only one timer running
+  
+  once the communication with the Actuators has started it seems to be stable
+  
+  # But
+  
+  During registering of the Actuators sometimes strange behavior can be observed
+  
+  especially when trying to register an actuator to an already opened USocket.
+  
+  MOre experiments are needed. But my knowledge of the internals of Blender are limited
   
 
 
