@@ -138,6 +138,8 @@ class ConnectActuatorOperator(bpy.types.Operator):
                                     # A non-blocking socket operation could
                                     # not be completed immediately --- No Data
                 data ="NO DATA"
+        except AttributeError :
+            print('NO RSOCK')
         if data != "NO DATA":
             message = json.loads(data.decode('utf-8'))
 
@@ -163,8 +165,10 @@ class ConnectActuatorOperator(bpy.types.Operator):
 
         self.Node_Context_ww_data[self.ID]["Btime"] = time.time_ns()
         MESSAGE = json.dumps(self.Node_Context_ww_data[self.ID]).encode('utf-8')
-        self.ssock.sendto(MESSAGE, (self.UDP_IP, self.SUDP_PORT))
-
+        try:
+            self.ssock.sendto(MESSAGE, (self.UDP_IP, self.SUDP_PORT))
+        except AttributeError :
+            print('NO SSOCK')
         return {'PASS_THROUGH'}
 
     def destroy(self,context):
