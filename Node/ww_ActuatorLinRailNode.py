@@ -20,10 +20,10 @@ class Shared(bpy.types.PropertyGroup):
 
     ww_data = {"Name_IP_RPort_SPort": ww_base_data}
 
-class ww_ActuatorLinNode(bpy.types.Node):
-    '''ww Linear Actuator'''
-    bl_idname = 'ww_ActuatorLin'
-    bl_label = 'Lin Actuator'
+class ww_ActuatorLinRailNode(bpy.types.Node):
+    '''ww Linear Rail Actuator'''
+    bl_idname = 'ww_ActuatorLinRail'
+    bl_label = 'Rail Actuator'
     bl_icon = 'ARROW_LEFTRIGHT'
     bl_width_min = 920
     bl_width_max = 5000

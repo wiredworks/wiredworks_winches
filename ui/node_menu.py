@@ -15,7 +15,12 @@ class ActuatorMenu(bpy.types.Menu):
     def draw(self,context):
         layout = self.layout
         insertNode(layout, "ww_StartCommOp", "Start", {},"CURVE_NCIRCLE")
-        insertNode(layout, "ww_ActuatorLin", "Linear",{},"ARROW_LEFTRIGHT")
+        insertNode(layout, "ww_ActuatorLinRail", "Rail",{},"ARROW_LEFTRIGHT")
+        insertNode(layout, "ww_ActuatorLinOpenPath", "Open Path",{},"ARROW_LEFTRIGHT")
+        insertNode(layout, "ww_ActuatorLinHighLine", "High Line",{},"ARROW_LEFTRIGHT")
+        insertNode(layout, "ww_ActuatorDistance", "Distance",{},"ARROW_LEFTRIGHT")
+        insertNode(layout, "ww_ActuatorCylinder", "Cylinder",{},"ARROW_LEFTRIGHT")
+        insertNode(layout, "ww_ActuatorClosedPath", "Closed Path",{},"ARROW_LEFTRIGHT")
         insertNode(layout, "ww_ActuatorRot", "Rotational",{},"PROP_CON")
 
 
