@@ -1,8 +1,8 @@
 import bpy
 
-class ActuatorAlreadyRegistred(bpy.types.Operator):
+class ActuatorAlreadyRegistered(bpy.types.Operator):
     ''' Enabeles the editing of the Actuator properties '''
-    bl_idname = "ww.actuator_props_edit"
+    bl_idname = "ww.actuator_already_registered"
     bl_label = "Edit"
 
     def execute(self, context):

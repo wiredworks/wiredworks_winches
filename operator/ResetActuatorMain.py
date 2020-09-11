@@ -1,8 +1,8 @@
 import bpy
 
-class ResetActuatorGuider(bpy.types.Operator):
-    ''' Sends a reset Signal to the Guider Amplifier '''
-    bl_idname = "ww.actuator_guider_reset"
+class ResetActuatorMain(bpy.types.Operator):
+    ''' Sends a reset Signal to the Main Amplifier '''
+    bl_idname = "ww.actuator_main_reset"
     bl_label = "Reset"
 
     def execute(self, context):
@@ -13,4 +13,4 @@ class ResetActuatorGuider(bpy.types.Operator):
         return wm.invoke_props_dialog(self)
 
     def draw(self,context):
-        self.layout.label(text='Reset Guider Amplifier')
+        self.layout.label(text='Reset Main Amplifier')
