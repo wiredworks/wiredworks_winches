@@ -1,6 +1,6 @@
 import bpy
 
-class ww_input_Socket(bpy.types.NodeSocket):
+class ww_input_Actuator_Socket(bpy.types.NodeSocket):
     '''ww Actuator Input Socket'''
     bl_idname = 'ww_input_Socket'
     bl_label = "ww Actuator Input Socket"

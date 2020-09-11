@@ -4,6 +4,8 @@ import ctypes
 
 from .. exchange_data.Share import Shared
 from .. exchange_data.ww_actuator_basic_props import ww_Actuator_basic_props
+from .. sockets import ww_input_actuator_socket
+from .. sockets import ww_output_actuator_socket
 
 class ww_ActuatorLinRailNode(bpy.types.Node):
     '''ww Linear Rail Actuator'''
@@ -58,7 +60,10 @@ class ww_ActuatorLinRailNode(bpy.types.Node):
 
 
     def init(self, context):
-        pass
+        self.inputs.new('ww_input_Socket',name= 'Set Pos/Vel/Force')
+
+        self.outputs.new('ww_output_Socket',name= 'Is Pos/Vel/Force')
+
 
     def copy(self, node):
         print("copied node", node)
