@@ -3,7 +3,7 @@ import bpy
 class ActuatorAlreadyRegistered(bpy.types.Operator):
     ''' Enabeles the editing of the Actuator properties '''
     bl_idname = "ww.actuator_already_registered"
-    bl_label = "Edit"
+    bl_label = "Registred"
 
     def execute(self, context):
         return {'FINISHED'}
@@ -13,4 +13,4 @@ class ActuatorAlreadyRegistered(bpy.types.Operator):
         return wm.invoke_props_dialog(self)
 
     def draw(self,context):
-        self.layout.label(text='Edit Actuator Properties')
+        self.layout.label(text='Actuator Already Registred')

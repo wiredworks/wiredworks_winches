@@ -2,10 +2,13 @@ import bpy
 import time
 import ctypes
 
+from mathutils import Vector
+
 from .. exchange_data.Share import Shared
 from .. exchange_data.ww_actuator_basic_props import ww_Actuator_basic_props
 from .. sockets import ww_input_actuator_socket
 from .. sockets import ww_output_actuator_socket
+from .. operator import SFX_Exists
 
 class ww_ActuatorLinRailNode(bpy.types.Node):
     '''ww Linear Rail Actuator'''
@@ -64,6 +67,7 @@ class ww_ActuatorLinRailNode(bpy.types.Node):
 
         self.outputs.new('ww_output_Socket',name= 'Is Pos/Vel/Force')
 
+        self.draw_model(context)
 
     def copy(self, node):
         print("copied node", node)
@@ -73,7 +77,11 @@ class ww_ActuatorLinRailNode(bpy.types.Node):
               str(self.socket_ip)+'_'+
               str(self.rsocket_port)+'_'+
               str(self.ssocket_port))
-        self.Shared.ww_data[ID]["Destroy"] = True
+        try:
+            self.Shared.ww_data[ID]["Destroy"] = True
+        except KeyError:
+            #print('not yet registered')
+            pass
         print("Node removed", ID, self)
 
     def draw_buttons(self, context, layout):
@@ -94,7 +102,7 @@ class ww_ActuatorLinRailNode(bpy.types.Node):
         if not(self.actuator_registered_bit1):
             row7.operator('ww.actuator_register',text ='Register')
         else:
-           row7.operator('ww.actuator_already_registered',text ='Registered')    
+            row7.operator('ww.actuator_already_registered',text ='Registered')    
         row8.prop(self, 'ssocket_port', text = '')
         row9.prop(self, 'rsocket_port', text = '')
         row10.prop(self, 'socket_ip', text = '')
@@ -112,6 +120,57 @@ class ww_ActuatorLinRailNode(bpy.types.Node):
         layout.prop(self, 'rsocket_port', text = 'Rec Port')
         layout.prop(self, 'ssocket_port', text = 'Send Port')
 
+    def draw_model(self,context):
+
+        if 'ww SFX_Nodes' in bpy.context.scene.collection.children.keys():            
+            Actcollection = bpy.data.collections.new(self.name)
+            bpy.data.collections.get("ww SFX_Nodes").children.link(Actcollection)
+            #Add Bevel Thingy
+            coords_list = ([[0.01,0.02,0], [0.06,0.06,0],[0.02,0.01,0],[0.02,-0.01,0],
+                            [0.06,-0.06,0], [0.01,-0.02,0],[-0.01,-0.02,0],[-0.06,-0.06,0],
+                            [-0.02,-0.01,0], [-0.02,0.01,0],[-0.06,0.06,0],[-0.01,0.02,0],[0.01,0.02,0]])
+            extr = bpy.data.curves.new('crv', 'CURVE')
+            extr.dimensions = '3D'
+            spline = extr.splines.new(type='POLY')
+            spline.points.add(len(coords_list)-1) # theres already one point by default
+            for p, new_co in zip(spline.points, coords_list):
+                p.co = (new_co + [1.0]) # (add nurbs weight)
+            Extr = bpy.data.objects.new(self.name+'_extr', extr)
+            Actcollection.objects.link(Extr)
+            # Add Path
+            coords_list = ([[0,0,0], [0,0,0]])
+            path = bpy.data.curves.new(self.name+'_path', 'CURVE')
+            path.dimensions = "3D"
+            spline = path.splines.new(type='POLY')
+            spline.points.add(len(coords_list)-1)
+            for p, new_co in zip(spline.points, coords_list):
+                p.co = (new_co + [1.0]) # (add nurbs weight)
+            Path = bpy.data.objects.new(self.name+'_Path', path)
+            Actcollection.objects.link(Path)
+            # Bevel Bevel Thingy
+            Path.data.bevel_object = Extr
+            # Add Empties as hooks
+            # In hook 
+            In = bpy.data.objects.new( self.name+"_In", None )
+            In.empty_display_size = 2
+            In.empty_display_type = 'ARROWS'
+            Actcollection.objects.link( In )
+            # Out hook
+            Out = bpy.data.objects.new( self.name+"_Out", None )
+            Out.empty_display_size = 2
+            Out.empty_display_type = 'ARROWS'
+            Actcollection.objects.link( Out )
+            # hook modifier left
+            hook_left = Path.modifiers.new(name= 'hook_left', type = 'HOOK')
+            Path.modifiers['hook_left'].object = bpy.data.objects[self.name+'_In']
+            Path.modifiers['hook_left'].vertex_indices_set([0])
+            # hook modifier right 
+            hook_right = Path.modifiers.new(name= 'hook_right', type = 'HOOK')
+            Path.modifiers['hook_right'].object = bpy.data.objects[self.name+'_Out']
+            Path.modifiers['hook_right'].vertex_indices_set([1])
+        else:
+            bpy.ops.ww.sfxexists('INVOKE_DEFAULT')
+            pass
     #OPTIONAL
     #we can use this function to dynamically define the label of
     #   the node, however defining the bl_label explicitly overrides it
