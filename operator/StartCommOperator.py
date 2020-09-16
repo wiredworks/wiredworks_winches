@@ -22,7 +22,7 @@ class ConnectActuatorOperator(bpy.types.Operator):
                     not(self.Node_Context_Active_Node.actuator_connected_bit2)):
                     # Bit1 (try connect) True Bit2 (connected) False ->
                     # init stuff and setup ports.
-                    ret = self.connecting(context)
+                    ret = self.connect(context)
                     return ret
                 elif (self.Node_Context_Active_Node.actuator_connected_bit1 and      # exchange
                     (self.Node_Context_Active_Node.actuator_connected_bit2)):
@@ -102,8 +102,8 @@ class ConnectActuatorOperator(bpy.types.Operator):
     def draw(self,context):
         print('Communication -- Start draw')
 
-    def connecting(self,context):
-        print('Communication Start -- connecting')
+    def connect(self,context):
+        print('Communication Start -- connect')
         socketerr = False
         if hasattr(self,'rsock'):
             self.Node_Context_Active_Node.actuator_connected_bit2 = True
@@ -178,7 +178,10 @@ class ConnectActuatorOperator(bpy.types.Operator):
             self.Node_Context_Active_Node_Joystick_props.Button10       =message['Buttons'][9]
             self.Node_Context_Active_Node_Joystick_props.Button11       =message['Buttons'][10]
             self.Node_Context_Active_Node_Joystick_props.Button12       =message['Buttons'][11]
-
+            # excange Data with output
+            self.Node_Context_Active_Node.outputs["Joy Values"].default_value_set = message
+            self.Node_Context_Active_Node.outputs["Joy Float"].default_value = message['X-Achse']
+            # Trigger update and show Tick Time
             self.Node_Context_Active_Node.TickTime_prop = (time.time_ns()-message["Ptime"])/1000000.0
 
         self.Node_Context_ww_Joy[self.ID]["Btime"] = time.time_ns()

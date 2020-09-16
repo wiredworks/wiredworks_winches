@@ -17,22 +17,20 @@ class ww_ActuatorStartCommNode(bpy.types.Node):
         return ntree.bl_idname == 'ww_NodeTree'
 
     def update_func(self,context):
+        #self.output = self.TickTime_prop
         #print('k')
         pass
 
-    Shared : bpy.props.PointerProperty(type = Shared,
-                                        update = update_func)
-
+    Shared : bpy.props.PointerProperty(type = Shared)
+ 
     ww_Joystick_props : bpy.props.PointerProperty(type = ww_Joystick_props)
 
     actuator_connected_bit1 : bpy.props.BoolProperty(name = "Connected",
                                     description = " Actuator Connected ?",
-                                    default = False,
-                                    update = update_func)
+                                    default = False)
     actuator_connected_bit2 : bpy.props.BoolProperty(name = "Connected",
                                     description = " Actuator Connected ?",
-                                    default = False,
-                                    update = update_func)
+                                    default = False)
     actuator_name: bpy.props.StringProperty(name = "Actuator Name",
                                     description = "Name of Actuator",
                                     default = "Joystick"                                    )    
@@ -51,8 +49,7 @@ class ww_ActuatorStartCommNode(bpy.types.Node):
     TickTime_prop: bpy.props.FloatProperty(name = "Tick Time",
                                     description ="Sanity Check message round trip Time",
                                     default=0.1,
-                                    precision=1,
-                                    update = update_func)
+                                    precision=1)
     expand_Joystick_data : bpy.props.BoolProperty(name = "Joystick Data",
                                     description = "Show Joystick Data",
                                     default = False)
@@ -60,9 +57,17 @@ class ww_ActuatorStartCommNode(bpy.types.Node):
     def init(self, context):
         self.draw_model(context)
 
-        output = self.outputs.new('ww_Joystick_output_Socket',name= 'Joy Values')
-        output.value_property = ww_Joystick_props
-        
+        self.outputs.new('NodeSocketFloat',name= 'Joy Float')
+        self.outputs["Joy Float"].default_value = self.TickTime_prop
+
+        self.outputs.new('ww_Joystick_Socket',name= 'Joy Values')
+        self.outputs["Joy Values"].default_value_set = ww_Joystick_props
+
+        print ((self.outputs.keys()))
+        print (dir(self.outputs['Joy Values']))
+
+        print ((self.outputs.keys()))
+        print (dir(self.outputs['Joy Float']))
 
     def copy(self, node):
         print("copied node", node)
