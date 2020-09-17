@@ -10,13 +10,16 @@ class ConnectActuatorOperator(bpy.types.Operator):
 
     def modal(self, context, event):
         if event.type == 'TIMER':
+            self.Node_Context_Active_Node.TickTime_prop = (time.time_ns() - self.old_time)/1000000.0
             try:
                 A = self.Node_Context_ww_data[self.ID]["Destroy"]
             except KeyError:
+                self.old_time = time.time_ns()
                 return {'PASS_THROUGH'}
             if self.Node_Context_ww_data[self.ID]["Destroy"]:
                 self.Node_Context_ww_data.pop(self.ID)
                 ret =self.destroy(context)
+                self.old_time = time.time_ns()
                 return ret
             else:
                 if (self.Node_Context_Active_Node.actuator_connected_bit1 and        # connect
@@ -24,18 +27,21 @@ class ConnectActuatorOperator(bpy.types.Operator):
                     # Bit1 (try connect) True Bit2 (connected) False ->
                     # init stuff and setup ports.
                     ret = self.connecting(context)
+                    self.old_time = time.time_ns()
                     return ret
                 elif (self.Node_Context_Active_Node.actuator_connected_bit1 and      # exchange
                     (self.Node_Context_Active_Node.actuator_connected_bit2)):
                     # Bit1 (try connect) True Bit2 (connected) True ->
                     # excange data
                     ret = self.exchange_data(context)
+                    self.old_time = time.time_ns()
                     return ret
                 elif (not(self.Node_Context_Active_Node.actuator_connected_bit1) and # dis-connect
                     (self.Node_Context_Active_Node.actuator_connected_bit2)):
                     # Bit1 (try connect) False Bit2 (connected) True ->
                     # close sockets.
                     ret = self.dis_connect(context)
+                    self.old_time = time.time_ns()
                     return ret
                 elif (not(self.Node_Context_Active_Node.actuator_connected_bit1) and # do nothing
                     not(self.Node_Context_Active_Node.actuator_connected_bit2)):
@@ -43,12 +49,14 @@ class ConnectActuatorOperator(bpy.types.Operator):
                     # do nothing.
                     #print('nothing')                 
                     pass
+                self.old_time = time.time_ns()
                 return {'PASS_THROUGH'}
         return {'PASS_THROUGH'}
 
     def execute(self, context):
         print('execute')
         context.window_manager.modal_handler_add(self)
+        self.old_time = time.time_ns()
         return {'RUNNING_MODAL'}
 
     def invoke(self, context, event):

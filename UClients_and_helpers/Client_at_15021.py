@@ -4,8 +4,8 @@ import json
 import joystickapi
 
 UDP_IP = "127.0.0.1"
-UDP_SENDPORT = 15023
-UDP_RECPORT  = 15025
+UDP_SENDPORT = 15021
+UDP_RECPORT  = 15022
 
 print("UDP target IP: %s" % UDP_IP)
 print("UDP target port: %s" % UDP_RECPORT)

@@ -23,22 +23,39 @@ class ww_ActuatorLinRailNode(bpy.types.Node):
     def poll(cls, ntree):
         return ntree.bl_idname == 'ww_NodeTree'
 
-    def update_func(self,context):
-        pass    
+    def update_value(self,context):
+        self.update()
+        pass
+
+    set_Vel : bpy.props.IntProperty(name = "Set Vel",
+                                        description = "Set Vel",
+                                        default = 0)
+    enable_Act : bpy.props.BoolProperty(name='enable',
+                                    description = 'Enable Actuator',
+                                    default = False)
+    selected_Act : bpy.props.BoolProperty(name='selected',
+                                    description = 'Select Actuator',
+                                    default = False)
+    ist_Vel : bpy.props.FloatProperty(name = "Ist Vel",
+                                     description = "Ist Vel",
+                                    default = 0.0)
+    ist_Pos : bpy.props.FloatProperty(name = "Ist Pos",
+                                    description = "Ist Pos",
+                                    default = 0.0)
+    ist_Force : bpy.props.FloatProperty(name = "Ist Force",
+                                    description = "Ist Force",
+                                    default = 0.0)
 
     Shared : bpy.props.PointerProperty(type = Shared,
-                                        update = update_func)
+                                        update = update_value)
     ww_Actuator_basic_props : bpy.props.PointerProperty(type = ww_Actuator_basic_props)
-
 
     actuator_connected_bit1 : bpy.props.BoolProperty(name = "Connected",
                                         description = " Actuator Connected ?",
-                                        default = False,
-                                        update = update_func)
+                                        default = False)
     actuator_connected_bit2 : bpy.props.BoolProperty(name = "Connected",
                                         description = " Actuator Connected ?",
-                                        default = False,
-                                        update = update_func)
+                                        default = False)
     actuator_name: bpy.props.StringProperty(name = "Actuator Name",
                                         description = "Name of Actuator",
                                         default = "Anton")    
@@ -57,21 +74,21 @@ class ww_ActuatorLinRailNode(bpy.types.Node):
     TickTime_prop: bpy.props.FloatProperty(name = "Tick Time",
                                         description ="Sanity Check message round trip Time",
                                         default=0.014,
-                                        precision=3)
+                                        precision=3,
+                                        update = update_value)
     expand_Actuator_basic_data : bpy.props.BoolProperty(name = "Expand Basic Data",
                                     description = "Expand Basic Data",
                                     default = False)
 
-
     def init(self, context):
         self.inputs.new('ww_actuator_input_set_vel', "Set Vel")
-        self.inputs["Set Vel"].default_value = 0.0
+        self.inputs["Set Vel"].set_vel = 0.0
 
-        self.inputs.new('ww_actuator_input_select', "enable")
-        self.inputs["enable"].default_value = 0.0
+        self.inputs.new('ww_actuator_input_select', "select_Act")
+        self.inputs["select_Act"].select = False
 
-        self.inputs.new('ww_actuator_input_enable', "select")
-        self.inputs["select"].default_value = 0.0
+        self.inputs.new('ww_actuator_input_enable', "enable_Act")
+        self.inputs["enable_Act"].enable = False
 
         self.outputs.new('ww_actuator_output_ist_vel',name= 'Ist Pos')
         self.outputs["Ist Pos"].default_value = 0.0
@@ -134,6 +151,50 @@ class ww_ActuatorLinRailNode(bpy.types.Node):
         layout.prop(self, 'socket_ip', text = 'IP')
         layout.prop(self, 'rsocket_port', text = 'Rec Port')
         layout.prop(self, 'ssocket_port', text = 'Send Port')
+
+    def update(self):
+        try:
+            out1 = self.outputs["Ist Pos"]
+            out2 = self.outputs["Ist Vel"]
+            out3 = self.outputs["Ist Force"]
+            inp1 = self.inputs['Set Vel']
+            inp2 = self.inputs['enable_Act']
+            inp3 = self.inputs['select_Act']
+            can_continue = True
+        except:
+            can_continue = False
+
+        if can_continue:
+            if inp1.is_linked:
+                for i1 in inp1.links:
+                    if i1.is_valid:
+                        self.inputs["Set Vel"].set_vel=i1.from_socket.node.outputs[i1.from_socket.name].ww_out_value
+                        pass
+            if inp2.is_linked:
+                for i1 in inp2.links:
+                    if i1.is_valid:
+                        self.inputs["enable_Act"].enabel=i1.from_socket.node.outputs[i1.from_socket.name].ww_out
+                        pass
+            if inp3.is_linked:
+                for i1 in inp3.links:
+                    if i1.is_valid:
+                        self.inputs["select_Act"].select=i1.from_socket.node.outputs[i1.from_socket.name].ww_out
+                        pass
+            if out1.is_linked:
+                for o in out1.links:
+                    if i1.is_valid:
+                        o.to_socket.node.inputs[o.to_socket.name].default_value = self.ist_Vel
+                        pass
+            if out2.is_linked:
+                for i1 in out2.links:
+                    if i1.is_valid:
+                        o.to_socket.node.inputs[o.to_socket.name].default_value = self.ist_Pos
+                        pass
+            if out3.is_linked:
+                for i1 in out3.links:
+                    if i1.is_valid:
+                        o.to_socket.node.inputs[o.to_socket.name].default_value = self.ist_Force
+                        pass
 
     def draw_model(self,context):
 

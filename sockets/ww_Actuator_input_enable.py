@@ -14,4 +14,4 @@ class ww_Actuator_input_enabel_socket(bpy.types.NodeSocket):
 
     # Socket color
     def draw_color(self, context, node):
-        return (1.0, 0.4, 0.216, 0.5)
+        return (1.0,0,0, 0.5)
