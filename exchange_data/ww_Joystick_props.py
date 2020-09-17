@@ -39,6 +39,10 @@ class ww_Joystick_props(bpy.types.PropertyGroup):
                                     description = "Z-Rot",
                                     precision = 3,
                                     default = 0.001)
+    Slider : bpy.props.FloatProperty(name = "Z-Rot",
+                                    description = "Z-Rot",
+                                    precision = 3,
+                                    default = 0.001)
     Button1 : bpy.props.BoolProperty(name = "Button 1",
                                     description = "Button 1",
                                     default = 0)

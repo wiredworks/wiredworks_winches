@@ -61,13 +61,7 @@ class ww_ActuatorStartCommNode(bpy.types.Node):
         self.outputs["Joy Float"].default_value = self.TickTime_prop
 
         self.outputs.new('ww_Joystick_Socket',name= 'Joy Values')
-        self.outputs["Joy Values"].default_value_set = ww_Joystick_props
-
-        print ((self.outputs.keys()))
-        print (dir(self.outputs['Joy Values']))
-
-        print ((self.outputs.keys()))
-        print (dir(self.outputs['Joy Float']))
+        self.outputs["Joy Values"].default_value_set = 14#ww_Joystick_props
 
     def copy(self, node):
         print("copied node", node)

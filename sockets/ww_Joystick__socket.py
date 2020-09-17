@@ -2,7 +2,7 @@ import bpy
 
 from .. exchange_data.ww_Joystick_props import ww_Joystick_props 
 
-class ww_Joystick_output_Socket(bpy.types.NodeSocket):
+class ww_Joystick_Socket(bpy.types.NodeSocket):
     '''ww Joystick Socket'''
     bl_idname = 'ww_Joystick_Socket'
     bl_label = "ww Joystick Socket"
@@ -11,7 +11,7 @@ class ww_Joystick_output_Socket(bpy.types.NodeSocket):
 
     # Optional function for drawing the socket input value
     def draw(self, context, layout, node, text):
-            layout.label(text="Joystick")
+        layout.label(text=text)
 
     # Socket color
     def draw_color(self, context, node):

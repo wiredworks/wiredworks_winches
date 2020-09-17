@@ -6,6 +6,7 @@ from mathutils import Vector
 
 from .. exchange_data.Share import Shared
 from .. exchange_data.ww_actuator_basic_props import ww_Actuator_basic_props
+from .. exchange_data.ww_Joystick_props import ww_Joystick_props
 from .. sockets import ww_input_actuator_socket
 from .. sockets import ww_output_actuator_socket
 from .. operator import SFX_Exists
@@ -15,7 +16,7 @@ class ww_ActuatorLinRailNode(bpy.types.Node):
     bl_idname = 'ww_ActuatorLinRail'
     bl_label = 'Rail Actuator'
     bl_icon = 'ARROW_LEFTRIGHT'
-    bl_width_min = 600 # 920 to draw ww_Actuator_Props properly
+    bl_width_min = 580 # 920 to draw ww_Actuator_Props properly
     bl_width_max = 5000
 
     @classmethod
@@ -63,10 +64,24 @@ class ww_ActuatorLinRailNode(bpy.types.Node):
 
 
     def init(self, context):
-        self.inputs.new('ww_input_Socket',name= 'Set Pos/Vel/Force')
+        self.inputs.new('ww_actuator_input_set_vel', "Set Vel")
+        self.inputs["Set Vel"].default_value = 0.0
 
-        self.outputs.new('ww_output_Socket',name= 'Is Pos/Vel/Force')
+        self.inputs.new('ww_actuator_input_select', "enable")
+        self.inputs["enable"].default_value = 0.0
 
+        self.inputs.new('ww_actuator_input_enable', "select")
+        self.inputs["select"].default_value = 0.0
+
+        self.outputs.new('ww_actuator_output_ist_vel',name= 'Ist Pos')
+        self.outputs["Ist Pos"].default_value = 0.0
+        
+        self.outputs.new('ww_actuator_output_ist_pos',name= 'Ist Vel')
+        self.outputs["Ist Vel"].default_value = 0.0
+        
+        self.outputs.new('ww_actuator_output_ist_force',name= 'Ist Force')
+        self.outputs["Ist Force"].default_value = 0.0
+        
         self.draw_model(context)
 
     def copy(self, node):

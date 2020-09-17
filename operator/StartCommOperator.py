@@ -179,7 +179,31 @@ class ConnectActuatorOperator(bpy.types.Operator):
             self.Node_Context_Active_Node_Joystick_props.Button11       =message['Buttons'][10]
             self.Node_Context_Active_Node_Joystick_props.Button12       =message['Buttons'][11]
             # excange Data with output
-            self.Node_Context_Active_Node.outputs["Joy Values"].default_value_set = message
+            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.Ptime          =message["Ptime"]
+            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.Btime          =message["Btime"]
+            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.X_Achse        =message["X-Achse"]
+            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.Y_Achse        =message["Y-Achse"]
+            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.Z_Achse        =message["Z-Achse"]
+            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.X_Rot          =message["X-Rot"]
+            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.Y_Rot          =message["Y-Rot"]
+            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.Z_Rot          =message["Z-Rot"]
+            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.Slider         =message["Slider"]
+            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.HAT_Switch     =message["HAT-Switch"]
+            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.EndCommOPerator=message["EndCommOPerator"]
+            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.Destroy        =message["Destroy"]
+            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.Button1        =message['Buttons'][0]
+            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.Button2        =message['Buttons'][1]
+            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.Button3        =message['Buttons'][2]
+            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.Button4        =message['Buttons'][3]
+            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.Button5        =message['Buttons'][4]
+            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.Button6        =message['Buttons'][5]
+            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.Button7        =message['Buttons'][6]
+            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.Button8        =message['Buttons'][7]
+            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.Button9        =message['Buttons'][8]
+            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.Button10       =message['Buttons'][9]
+            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.Button11       =message['Buttons'][10]
+            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.Button12       =message['Buttons'][11]
+            # Set Joy Float to X-Achse
             self.Node_Context_Active_Node.outputs["Joy Float"].default_value = message['X-Achse']
             # Trigger update and show Tick Time
             self.Node_Context_Active_Node.TickTime_prop = (time.time_ns()-message["Ptime"])/1000000.0
