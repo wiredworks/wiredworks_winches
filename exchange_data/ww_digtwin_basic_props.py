@@ -7,15 +7,25 @@ class ww_DigTwin_basic_props(bpy.types.PropertyGroup):
 
     ww_DigTwin_props : bpy.props.PointerProperty(type = ww_DigTwin_props)
 
+    def update_start_loc(self,context):
+        bpy.context.collection.children[context.active_node.name].objects['Rail Actuator_In'].location=self.start_Loc
+        pass
 
-    start_Loc : bpy.props.FloatProperty(name = "Start Loc",
+    def update_end_loc(self,context):
+        bpy.context.collection.children[context.active_node.name].objects['Rail Actuator_Out'].location=self.end_Loc
+        pass
+
+
+    start_Loc : bpy.props.FloatVectorProperty(name = "Start Loc",
                                     description = "Start Location",
                                     precision = 3,
-                                    default = 0.001)
-    end_Loc : bpy.props.FloatProperty(name = "End Loc",
+                                    default = (0.0,0.0,0.0),
+                                    update = update_start_loc)
+    end_Loc : bpy.props.FloatVectorProperty(name = "End Loc",
                                     description = "End Location",
                                     precision = 3,
-                                    default = 0.001)
+                                    default = (0.0,0.0,0.0),
+                                    update = update_end_loc)
     length : bpy.props.FloatProperty(name = "Length",
                                     description = "Length",
                                     precision = 3,

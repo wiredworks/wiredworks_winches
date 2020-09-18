@@ -114,6 +114,7 @@ class ww_ActuatorLinRailNode(bpy.types.Node):
         except KeyError:
             #print('not yet registered')
             pass
+        bpy.data.collections.remove(bpy.data.collections.get(self.name))
         print("Node removed", ID, self)
 
     def draw_buttons(self, context, layout):
@@ -199,8 +200,9 @@ class ww_ActuatorLinRailNode(bpy.types.Node):
     def draw_model(self,context):
 
         if 'ww SFX_Nodes' in bpy.context.scene.collection.children.keys():            
-            Actcollection = bpy.data.collections.new(self.name)
-            bpy.data.collections.get("ww SFX_Nodes").children.link(Actcollection)
+            ww_Actcollection = bpy.data.collections.new(self.name)
+            bpy.data.collections.get("ww SFX_Nodes").children.link(ww_Actcollection)
+            bpy.data.collections.get("Collection").children.link(ww_Actcollection)
             #Add Bevel Thingy
             coords_list = ([[0.01,0.02,0], [0.06,0.06,0],[0.02,0.01,0],[0.02,-0.01,0],
                             [0.06,-0.06,0], [0.01,-0.02,0],[-0.01,-0.02,0],[-0.06,-0.06,0],
@@ -212,7 +214,7 @@ class ww_ActuatorLinRailNode(bpy.types.Node):
             for p, new_co in zip(spline.points, coords_list):
                 p.co = (new_co + [1.0]) # (add nurbs weight)
             Extr = bpy.data.objects.new(self.name+'_extr', extr)
-            Actcollection.objects.link(Extr)
+            ww_Actcollection.objects.link(Extr)
             # Add Path
             coords_list = ([[0,0,0], [0,0,0]])
             path = bpy.data.curves.new(self.name+'_path', 'CURVE')
@@ -222,7 +224,7 @@ class ww_ActuatorLinRailNode(bpy.types.Node):
             for p, new_co in zip(spline.points, coords_list):
                 p.co = (new_co + [1.0]) # (add nurbs weight)
             Path = bpy.data.objects.new(self.name+'_Path', path)
-            Actcollection.objects.link(Path)
+            ww_Actcollection.objects.link(Path)
             # Bevel Bevel Thingy
             Path.data.bevel_object = Extr
             # Add Empties as hooks
@@ -230,12 +232,12 @@ class ww_ActuatorLinRailNode(bpy.types.Node):
             In = bpy.data.objects.new( self.name+"_In", None )
             In.empty_display_size = 2
             In.empty_display_type = 'ARROWS'
-            Actcollection.objects.link( In )
+            ww_Actcollection.objects.link( In )
             # Out hook
             Out = bpy.data.objects.new( self.name+"_Out", None )
             Out.empty_display_size = 2
             Out.empty_display_type = 'ARROWS'
-            Actcollection.objects.link( Out )
+            ww_Actcollection.objects.link( Out )
             # hook modifier left
             hook_left = Path.modifiers.new(name= 'hook_left', type = 'HOOK')
             Path.modifiers['hook_left'].object = bpy.data.objects[self.name+'_In']
@@ -244,9 +246,11 @@ class ww_ActuatorLinRailNode(bpy.types.Node):
             hook_right = Path.modifiers.new(name= 'hook_right', type = 'HOOK')
             Path.modifiers['hook_right'].object = bpy.data.objects[self.name+'_Out']
             Path.modifiers['hook_right'].vertex_indices_set([1])
+
+            Out.location = (0,0,5)
         else:
-            bpy.ops.ww.sfxexists('INVOKE_DEFAULT')
-            pass
+           bpy.ops.ww.sfxexists('INVOKE_DEFAULT')
+        
     #OPTIONAL
     #we can use this function to dynamically define the label of
     #   the node, however defining the bl_label explicitly overrides it
