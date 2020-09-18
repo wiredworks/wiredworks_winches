@@ -114,6 +114,16 @@ class ww_ActuatorLinRailNode(bpy.types.Node):
         except KeyError:
             #print('not yet registered')
             pass
+        obj1 = bpy.data.collections[self.name].objects[self.name+'_extr']
+        bpy.data.objects.remove(obj1, do_unlink=True)
+        obj2 = bpy.data.collections[self.name].objects[self.name+'_In']
+        bpy.data.objects.remove(obj2, do_unlink=True)
+        obj3 = bpy.data.collections[self.name].objects[self.name+'_Out']
+        bpy.data.objects.remove(obj3, do_unlink=True)
+        obj4 = bpy.data.collections[self.name].objects[self.name+'_Path']
+        bpy.data.objects.remove(obj4, do_unlink=True)
+        obj5 = bpy.data.collections[self.name].objects[self.name+'_Connector']
+        bpy.data.objects.remove(obj5, do_unlink=True)
         bpy.data.collections.remove(bpy.data.collections.get(self.name))
         print("Node removed", ID, self)
 
@@ -199,57 +209,64 @@ class ww_ActuatorLinRailNode(bpy.types.Node):
 
     def draw_model(self,context):
 
-        if 'ww SFX_Nodes' in bpy.context.scene.collection.children.keys():            
-            ww_Actcollection = bpy.data.collections.new(self.name)
-            bpy.data.collections.get("ww SFX_Nodes").children.link(ww_Actcollection)
-            bpy.data.collections.get("Collection").children.link(ww_Actcollection)
-            #Add Bevel Thingy
-            coords_list = ([[0.01,0.02,0], [0.06,0.06,0],[0.02,0.01,0],[0.02,-0.01,0],
-                            [0.06,-0.06,0], [0.01,-0.02,0],[-0.01,-0.02,0],[-0.06,-0.06,0],
-                            [-0.02,-0.01,0], [-0.02,0.01,0],[-0.06,0.06,0],[-0.01,0.02,0],[0.01,0.02,0]])
-            extr = bpy.data.curves.new('crv', 'CURVE')
-            extr.dimensions = '3D'
-            spline = extr.splines.new(type='POLY')
-            spline.points.add(len(coords_list)-1) # theres already one point by default
-            for p, new_co in zip(spline.points, coords_list):
-                p.co = (new_co + [1.0]) # (add nurbs weight)
-            Extr = bpy.data.objects.new(self.name+'_extr', extr)
-            ww_Actcollection.objects.link(Extr)
-            # Add Path
-            coords_list = ([[0,0,0], [0,0,0]])
-            path = bpy.data.curves.new(self.name+'_path', 'CURVE')
-            path.dimensions = "3D"
-            spline = path.splines.new(type='POLY')
-            spline.points.add(len(coords_list)-1)
-            for p, new_co in zip(spline.points, coords_list):
-                p.co = (new_co + [1.0]) # (add nurbs weight)
-            Path = bpy.data.objects.new(self.name+'_Path', path)
-            ww_Actcollection.objects.link(Path)
-            # Bevel Bevel Thingy
-            Path.data.bevel_object = Extr
-            # Add Empties as hooks
-            # In hook 
-            In = bpy.data.objects.new( self.name+"_In", None )
-            In.empty_display_size = 2
-            In.empty_display_type = 'ARROWS'
-            ww_Actcollection.objects.link( In )
-            # Out hook
-            Out = bpy.data.objects.new( self.name+"_Out", None )
-            Out.empty_display_size = 2
-            Out.empty_display_type = 'ARROWS'
-            ww_Actcollection.objects.link( Out )
-            # hook modifier left
-            hook_left = Path.modifiers.new(name= 'hook_left', type = 'HOOK')
-            Path.modifiers['hook_left'].object = bpy.data.objects[self.name+'_In']
-            Path.modifiers['hook_left'].vertex_indices_set([0])
-            # hook modifier right 
-            hook_right = Path.modifiers.new(name= 'hook_right', type = 'HOOK')
-            Path.modifiers['hook_right'].object = bpy.data.objects[self.name+'_Out']
-            Path.modifiers['hook_right'].vertex_indices_set([1])
+        #if 'ww SFX_Nodes' in bpy.context.scene.collection.children.keys():            
+        ww_Actcollection = bpy.data.collections.new(self.name)
+    #    bpy.data.collections.get("ww SFX_Nodes").children.link(ww_Actcollection)
+        bpy.data.collections.get("Collection").children.link(ww_Actcollection)
+        #Add Bevel Thingy
+        coords_list = ([[0.01,0.02,0], [0.06,0.06,0],[0.02,0.01,0],[0.02,-0.01,0],
+                        [0.06,-0.06,0], [0.01,-0.02,0],[-0.01,-0.02,0],[-0.06,-0.06,0],
+                        [-0.02,-0.01,0], [-0.02,0.01,0],[-0.06,0.06,0],[-0.01,0.02,0],[0.01,0.02,0]])
+        extr = bpy.data.curves.new('crv', 'CURVE')
+        extr.dimensions = '3D'
+        spline = extr.splines.new(type='POLY')
+        spline.points.add(len(coords_list)-1) # theres already one point by default
+        for p, new_co in zip(spline.points, coords_list):
+            p.co = (new_co + [1.0]) # (add nurbs weight)
+        Extr = bpy.data.objects.new(self.name+'_extr', extr)
+        ww_Actcollection.objects.link(Extr)
+        # Add Path
+        coords_list = ([[0,0,0], [0,0,0]])
+        path = bpy.data.curves.new(self.name+'_path', 'CURVE')
+        path.dimensions = "3D"
+        spline = path.splines.new(type='POLY')
+        spline.points.add(len(coords_list)-1)
+        for p, new_co in zip(spline.points, coords_list):
+            p.co = (new_co + [1.0]) # (add nurbs weight)
+        Path = bpy.data.objects.new(self.name+'_Path', path)
+        ww_Actcollection.objects.link(Path)
+        # Bevel Bevel Thingy
+        Path.data.bevel_object = Extr
+        # Add Empties as hooks
+        # In hook 
+        In = bpy.data.objects.new( self.name+"_In", None )
+        In.empty_display_size = 0.5
+        In.empty_display_type = 'ARROWS'
+        ww_Actcollection.objects.link( In )
+        # Out hook
+        Out = bpy.data.objects.new( self.name+"_Out", None )
+        Out.empty_display_size = 0.5
+        Out.empty_display_type = 'ARROWS'
+        ww_Actcollection.objects.link( Out )
+        # hook modifier left
+        hook_left = Path.modifiers.new(name= 'hook_left', type = 'HOOK')
+        Path.modifiers['hook_left'].object = bpy.data.objects[self.name+'_In']
+        Path.modifiers['hook_left'].vertex_indices_set([0])
+        # hook modifier right 
+        hook_right = Path.modifiers.new(name= 'hook_right', type = 'HOOK')
+        Path.modifiers['hook_right'].object = bpy.data.objects[self.name+'_Out']
+        Path.modifiers['hook_right'].vertex_indices_set([1])
+        # Object Connect 
+        Connector = bpy.data.objects.new( self.name+"_Connector", None )
+        Connector.empty_display_size = 0.25
+        Connector.empty_display_type = 'SPHERE'
+        Connector.constraints.new(type = 'CLAMP_TO')
+        Connector.constraints['Clamp To'].target = Path
+        ww_Actcollection.objects.link( Connector )
 
-            Out.location = (0,0,5)
-        else:
-           bpy.ops.ww.sfxexists('INVOKE_DEFAULT')
+        Out.location = (0,0,5)
+        #else:
+        #   bpy.ops.ww.sfxexists('INVOKE_DEFAULT')
         
     #OPTIONAL
     #we can use this function to dynamically define the label of

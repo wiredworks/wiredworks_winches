@@ -10,19 +10,6 @@ class ww_Actuator_basic_props(bpy.types.PropertyGroup):
 
     ww_DigTwin_basic_props : bpy.props.PointerProperty(type = ww_DigTwin_basic_props)
 
-
-    # soll_Pos : bpy.props.FloatProperty(name = "Soll Pos",
-    #                                 description = "Soll Position",
-    #                                 precision = 3,
-    #                                 default = 0.001)
-    # ist_Pos : bpy.props.FloatProperty(name = "Ist Pos",
-    #                                 description = "Ist Position",
-    #                                 precision = 3,
-    #                                 default = 0.001)
-    # diff_Pos : bpy.props.FloatProperty(name = "Ist Pos",
-    #                                 description = "Ist Position",
-    #                                 precision = 3,
-    #                                 default = 0.001)
     diff_Vel : bpy.props.FloatProperty(name = "Ist Pos",
                                     description = "Ist Position",
                                     precision = 3,
@@ -77,27 +64,6 @@ class ww_Actuator_basic_props(bpy.types.PropertyGroup):
         col7 = row7.column()
         col7.label(text='')
         col7.prop( self.ww_Actuator_props,'ww_actuator_Amp_prop', text = '')            
-        
-
-        # split = box.split()
-        # col = split.column()
-        # col.label(text='Soll Pos')        
-        # col.prop(self, 'soll_Pos' , text = '')
-        # col = split.column()
-        # col.label(text='Ist Pos')
-        # col.prop(self, 'ist_Pos' , text = '')
-        # col = split.column()
-        # col.label(text='Diff Pos')
-        # col.prop(self, 'diff_Pos' , text = '')
-        # col = split.column()        
-        # col.label(text='Diff Vel')
-        # col.prop(self, 'diff_Vel' , text = '')
-        # col = split.column()
-        # col.label(text='Ist Vel')
-        # col.prop(self, 'ist_Vel' , text = '')
-        # col = split.column()
-        # col.label(text='Soll Vel')
-        # col.prop(self, 'soll_Vel' , text = '')
 
         row2 = box.row(align=True)
         row2.prop(self.ww_Actuator_props,"ww_actuator_Selected_prop",text="Selected")

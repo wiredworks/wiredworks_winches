@@ -16,12 +16,31 @@ class ConnectActuatorOperator(bpy.types.Operator):
             except KeyError:
                 self.old_time = time.time_ns()
                 return {'PASS_THROUGH'}
+            # update DigTwin Props when object is moved in View_3D
+
+            ww_DTwin_startLoc = bpy.context.collection.children[context.active_node.name].\
+                objects['Rail Actuator_In'].location
+            ww_DTwin_endLoc = bpy.context.collection.children[context.active_node.name].\
+                objects['Rail Actuator_Out'].location
+
+            self.Node_Context_Active_Node.ww_Actuator_basic_props.\
+                ww_DigTwin_basic_props.length = (ww_DTwin_endLoc-ww_DTwin_startLoc).length
+
+            self.Node_Context_Active_Node.ww_Actuator_basic_props.\
+                ww_DigTwin_basic_props.start_Loc = ww_DTwin_startLoc
+
+            self.Node_Context_Active_Node.ww_Actuator_basic_props.\
+                ww_DigTwin_basic_props.end_Loc = ww_DTwin_endLoc
+
+            
+            #Destroy and unload OPerator
             if self.Node_Context_ww_data[self.ID]["Destroy"]:
                 self.Node_Context_ww_data.pop(self.ID)
                 ret =self.destroy(context)
                 self.old_time = time.time_ns()
                 return ret
             else:
+                #connect
                 if (self.Node_Context_Active_Node.actuator_connected_bit1 and        # connect
                     not(self.Node_Context_Active_Node.actuator_connected_bit2)):
                     # Bit1 (try connect) True Bit2 (connected) False ->
@@ -29,6 +48,7 @@ class ConnectActuatorOperator(bpy.types.Operator):
                     ret = self.connecting(context)
                     self.old_time = time.time_ns()
                     return ret
+                #exchange
                 elif (self.Node_Context_Active_Node.actuator_connected_bit1 and      # exchange
                     (self.Node_Context_Active_Node.actuator_connected_bit2)):
                     # Bit1 (try connect) True Bit2 (connected) True ->
@@ -36,6 +56,7 @@ class ConnectActuatorOperator(bpy.types.Operator):
                     ret = self.exchange_data(context)
                     self.old_time = time.time_ns()
                     return ret
+                #close USockets 
                 elif (not(self.Node_Context_Active_Node.actuator_connected_bit1) and # dis-connect
                     (self.Node_Context_Active_Node.actuator_connected_bit2)):
                     # Bit1 (try connect) False Bit2 (connected) True ->
@@ -43,6 +64,7 @@ class ConnectActuatorOperator(bpy.types.Operator):
                     ret = self.dis_connect(context)
                     self.old_time = time.time_ns()
                     return ret
+                #do nothing
                 elif (not(self.Node_Context_Active_Node.actuator_connected_bit1) and # do nothing
                     not(self.Node_Context_Active_Node.actuator_connected_bit2)):
                     # Bit1 (try connect) False Bit2 (connected) False ->
@@ -54,13 +76,13 @@ class ConnectActuatorOperator(bpy.types.Operator):
         return {'PASS_THROUGH'}
 
     def execute(self, context):
-        print('execute')
+        #print('execute')
         context.window_manager.modal_handler_add(self)
         self.old_time = time.time_ns()
         return {'RUNNING_MODAL'}
 
     def invoke(self, context, event):
-        print('invoke')
+        #print('invoke')
         self.Node_Context_Active_Node = context.active_node
         self.Node_Context_ww_data =context.active_node.Shared.ww_data
         self.NAME = context.active_node.actuator_name
@@ -87,7 +109,7 @@ class ConnectActuatorOperator(bpy.types.Operator):
         return self.execute(context)
 
     def dis_connect(self, context):
-        print('dis-connect')
+        #print('dis-connect')
         try:
             self.rsock.close()
             self.ssock.close()
@@ -105,7 +127,7 @@ class ConnectActuatorOperator(bpy.types.Operator):
         self.layout.label(text='You have to restart -- Adress already in use')
 
     def connecting(self,context):
-        print('connecting')
+        #print('connecting')
         socketerr = False
         if hasattr(self,'rsock'):
             self.Node_Context_Active_Node.actuator_connected_bit2 = True
@@ -180,7 +202,7 @@ class ConnectActuatorOperator(bpy.types.Operator):
         return {'PASS_THROUGH'}
 
     def destroy(self,context):
-        print('destroy')
+        #print('destroy')
         try:
             self.rsock.close()
             self.ssock.close()
