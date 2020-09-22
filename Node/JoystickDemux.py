@@ -64,7 +64,7 @@ class JoystickDemux(bpy.types.Node):
                     if i2.is_valid:
                         self.outputs["Stick"].default_value.Ptime          = i2.from_socket.node.outputs[i2.from_socket.name].default_value.Ptime          
                         self.outputs["Stick"].default_value.Btimese        = i2.from_socket.node.outputs[i2.from_socket.name].default_value.Btime          
-                        self.outputs["Stick"].default_value.X_Achse        = i2.from_socket.node.outputs[i2.from_socket.name].default_value.X_Achse        
+                        self.outputs["Stick"].default_value.X_Achse        = i2.from_socket.node.outputs[i2.from_socket.name].default_value.X_Achse
                         self.outputs["Stick"].default_value.Y_Achse        = i2.from_socket.node.outputs[i2.from_socket.name].default_value.Y_Achse        
                         self.outputs["Stick"].default_value.Z_Achse        = i2.from_socket.node.outputs[i2.from_socket.name].default_value.Z_Achse        
                         self.outputs["Stick"].default_value.X_Rot          = i2.from_socket.node.outputs[i2.from_socket.name].default_value.X_Rot          

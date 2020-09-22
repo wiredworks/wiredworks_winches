@@ -16,6 +16,7 @@ class ActuatorMenu(bpy.types.Menu):
         layout = self.layout
         insertNode(layout, "ww_StartCommOp", "Start", {},"CURVE_NCIRCLE")
         insertNode(layout, "ww_JoystickDemuxer", "Demux",{},"TRACKING_FORWARDS")
+        insertNode(layout, "simple_ActuatorLinRail","Simple Rail",{},'ARROW_LEFTRIGHT')
         insertNode(layout, "ww_ActuatorLinRail", "Rail",{},"ARROW_LEFTRIGHT")
         insertNode(layout, "ww_ActuatorLinOpenPath", "Open Path",{},"ARROW_LEFTRIGHT")
         insertNode(layout, "ww_ActuatorLinHighLine", "High Line",{},"ARROW_LEFTRIGHT")

@@ -98,6 +98,9 @@ class ConnectActuatorOperator(bpy.types.Operator):
             pass
         self.Node_Context_Active_Node.actuator_connected_bit1 = False
         self.Node_Context_Active_Node.actuator_connected_bit2 = False
+        self.Node_Context_Active_Node.Actuator_basic_props.online_Actuator = False
+        self.Node_Context_Active_Node.Actuator_basic_props.ww_Actuator_props.simple_actuator_confirmed = False
+        self.Node_Context_Active_Node.Actuator_basic_props.ww_Actuator_props.simple_actuator_confirm = False
         return {'PASS_THROUGH'}
 
     def draw(self,context):
@@ -138,7 +141,14 @@ class ConnectActuatorOperator(bpy.types.Operator):
             return {'PASS_THROUGH'}
 
     def exchange_data(self,context):
-        data = "NO DATA" 
+        data = "NO DATA"
+        self.Node_Context_Active_Node.Actuator_basic_props.online_Actuator = False
+        Message = self.Node_Context_Active_Node.Actuator_basic_props.packSendStringToAxis().encode('utf-8')
+        try:
+            self.ssock.sendto(Message, (self.UDP_IP, self.SUDP_PORT))
+        except AttributeError :
+            print('NO SSOCK')
+
         try:
             data, addr = self.rsock.recvfrom(1024) # buffer size is 1024 bytes
         except socket.error as e:
@@ -149,34 +159,20 @@ class ConnectActuatorOperator(bpy.types.Operator):
         except AttributeError :
             print('NO RSOCK')
         if data != "NO DATA":
-            message = json.loads(data.decode('utf-8'))
+            self.Node_Context_Active_Node.Actuator_basic_props.online_Actuator = True
+            self.Node_Context_Active_Node.Actuator_basic_props.unpackRecStringfromAxis(data.decode('utf-8'))
+            # self.Node_Context_ww_data[self.ID]["Ptime"] =message["Ptime"]
+            # self.Node_Context_ww_data[self.ID]["X-Soll"]=message["X-Soll"]
+            # self.Node_Context_ww_data[self.ID]["Y-Soll"]=message["Y-Soll"]
+            # self.Node_Context_ww_data[self.ID]["Z-Soll"]=message["Z-Soll"]             
 
-            self.Node_Context_ww_data[self.ID]["Ptime"] =message["Ptime"]
-            self.Node_Context_ww_data[self.ID]["X-Soll"]=message["X-Soll"]
-            self.Node_Context_ww_data[self.ID]["Y-Soll"]=message["Y-Soll"]
-            self.Node_Context_ww_data[self.ID]["Z-Soll"]=message["Z-Soll"]
-
-            self.Node_Context_Active_Node.soll_Pos = float(message["X-Soll"])                
-
-            self.Cube.location.x = self.Node_Context_ww_data[self.ID]["X-Soll"]/ 15000.0 
-            self.Cube.location.y = self.Node_Context_ww_data[self.ID]["Y-Soll"]/ 15000.0
-            self.Cube.location.z = self.Node_Context_ww_data[self.ID]["Z-Soll"]/ 15000.0
+            # self.Cube.location.x = self.Node_Context_ww_data[self.ID]["X-Soll"]/ 15000.0 
+            # self.Cube.location.y = self.Node_Context_ww_data[self.ID]["Y-Soll"]/ 15000.0
+            # self.Cube.location.z = self.Node_Context_ww_data[self.ID]["Z-Soll"]/ 15000.0
             
-            self.Node_Context_ww_data[self.ID]["X-Ist"] = self.Cube.location.x 
-            self.Node_Context_ww_data[self.ID]["Y-Ist"] = self.Cube.location.y
-            self.Node_Context_ww_data[self.ID]["Z-Ist"] = self.Cube.location.z
-            
-            ##print(self.SUDP_PORT,
-            ##      context.active_node.Shared.ww_data["X-Soll"],
-            ##      context.active_node.Shared.ww_data["Y-Soll"],
-            ##      context.active_node.Shared.ww_data["Z-Soll"], end ="\r")
-
-        self.Node_Context_ww_data[self.ID]["Btime"] = time.time_ns()
-        MESSAGE = json.dumps(self.Node_Context_ww_data[self.ID]).encode('utf-8')
-        try:
-            self.ssock.sendto(MESSAGE, (self.UDP_IP, self.SUDP_PORT))
-        except AttributeError :
-            print('NO SSOCK')
+            # self.Node_Context_ww_data[self.ID]["X-Ist"] = self.Cube.location.x 
+            # self.Node_Context_ww_data[self.ID]["Y-Ist"] = self.Cube.location.y
+            # self.Node_Context_ww_data[self.ID]["Z-Ist"] = self.Cube.location.z
         return {'PASS_THROUGH'}
 
     def destroy(self,context):
@@ -191,4 +187,7 @@ class ConnectActuatorOperator(bpy.types.Operator):
             pass
         self.Node_Context_Active_Node.actuator_connected_bit1 = False
         self.Node_Context_Active_Node.actuator_connected_bit2 = False
+        self.Node_Context_Active_Node.Actuator_basic_props.online_Actuator = False
+        self.Node_Context_Active_Node.Actuator_basic_props.ww_Actuator_props.simple_actuator_confirmed = False
+        self.Node_Context_Active_Node.Actuator_basic_props.ww_Actuator_props.simple_actuator_confirm = False
         return {'PASS_THROUGH'}

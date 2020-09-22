@@ -145,11 +145,11 @@ class ConnectActuatorOperator(bpy.types.Operator):
             self.Node_Context_ww_Joy[self.ID]["Ptime"]                  =message['Ptime']
             self.Node_Context_ww_Joy[self.ID]["Btime"]                  =message['Btime']
             self.Node_Context_ww_Joy[self.ID]["X-Achse"]                =message['X-Achse']
-            self.Node_Context_ww_Joy[self.ID]["X-Achse"]                =message['Y-Achse']
-            self.Node_Context_ww_Joy[self.ID]["X-Achse"]                =message['Z-Achse']
+            self.Node_Context_ww_Joy[self.ID]["Y-Achse"]                =message['Y-Achse']
+            self.Node_Context_ww_Joy[self.ID]["Z-Achse"]                =message['Z-Achse']
             self.Node_Context_ww_Joy[self.ID]["X-Rot"]                  =message['X-Rot']
-            self.Node_Context_ww_Joy[self.ID]["X-Rot"]                  =message['Y-Rot']
-            self.Node_Context_ww_Joy[self.ID]["X-Rot"]                  =message['Z-Rot']
+            self.Node_Context_ww_Joy[self.ID]["Y-Rot"]                  =message['Y-Rot']
+            self.Node_Context_ww_Joy[self.ID]["Z-Rot"]                  =message['Z-Rot']
             self.Node_Context_ww_Joy[self.ID]["Slider"]                 =message['Slider']
             self.Node_Context_ww_Joy[self.ID]["Buttons"]                =message['Buttons']
             self.Node_Context_ww_Joy[self.ID]["HAT-Switch"]             =message['HAT-Switch']
@@ -181,13 +181,13 @@ class ConnectActuatorOperator(bpy.types.Operator):
             # excange Data with output
             self.Node_Context_Active_Node.outputs["Joy Values"].default_value.Ptime          =message["Ptime"]
             self.Node_Context_Active_Node.outputs["Joy Values"].default_value.Btime          =message["Btime"]
-            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.X_Achse        =message["X-Achse"]
-            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.Y_Achse        =message["Y-Achse"]
-            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.Z_Achse        =message["Z-Achse"]
-            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.X_Rot          =message["X-Rot"]
-            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.Y_Rot          =message["Y-Rot"]
-            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.Z_Rot          =message["Z-Rot"]
-            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.Slider         =message["Slider"]
+            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.X_Achse        =(float(message["X-Achse"])/32768.0)*100
+            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.Y_Achse        =(float(message["Y-Achse"])/32768.0)*100
+            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.Z_Achse        =(float(message["Z-Achse"])/32768.0)*100
+            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.X_Rot          =(float(message["X-Rot"])/32768.0)*100
+            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.Y_Rot          =(float(message["Y-Rot"])/32768.0)*100
+            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.Z_Rot          =(float(message["Z-Rot"])/32768.0)*100
+            self.Node_Context_Active_Node.outputs["Joy Values"].default_value.Slider         =(float(message["Slider"])/32768.0)*100
             self.Node_Context_Active_Node.outputs["Joy Values"].default_value.HAT_Switch     =message["HAT-Switch"]
             self.Node_Context_Active_Node.outputs["Joy Values"].default_value.EndCommOPerator=message["EndCommOPerator"]
             self.Node_Context_Active_Node.outputs["Joy Values"].default_value.Destroy        =message["Destroy"]

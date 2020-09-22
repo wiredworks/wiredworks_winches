@@ -24,7 +24,7 @@ class ww_Joystick_int_Socket(bpy.types.NodeSocket):
                                         items = ww_Joy_items,
                                         default = 'X_Achse')
 
-    ww_out_value : bpy.props.IntProperty(name='Out',
+    ww_out_value : bpy.props.FloatProperty(name='Out',
                                             description = 'Output',
                                             default = 0)
 
