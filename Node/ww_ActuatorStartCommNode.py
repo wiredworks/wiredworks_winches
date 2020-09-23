@@ -66,9 +66,6 @@ class ww_ActuatorStartCommNode(bpy.types.Node):
               str(self.socket_ip)+'_'+
               str(self.rsocket_port)+'_'+
               str(self.ssocket_port))
-        print("NODE")
-        print(ID)
-        print(self.Shared.ww_data)
         self.Shared.ww_data[ID]["Destroy"] = True
         print("Node removed", ID, self)
 

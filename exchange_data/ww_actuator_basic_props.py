@@ -10,19 +10,6 @@ class ww_Actuator_basic_props(bpy.types.PropertyGroup):
 
     ww_DigTwin_basic_props : bpy.props.PointerProperty(type = ww_DigTwin_basic_props)
 
-
-    # soll_Pos : bpy.props.FloatProperty(name = "Soll Pos",
-    #                                 description = "Soll Position",
-    #                                 precision = 3,
-    #                                 default = 0.001)
-    # ist_Pos : bpy.props.FloatProperty(name = "Ist Pos",
-    #                                 description = "Ist Position",
-    #                                 precision = 3,
-    #                                 default = 0.001)
-    # diff_Pos : bpy.props.FloatProperty(name = "Ist Pos",
-    #                                 description = "Ist Position",
-    #                                 precision = 3,
-    #                                 default = 0.001)
     diff_Vel : bpy.props.FloatProperty(name = "Ist Pos",
                                     description = "Ist Position",
                                     precision = 3,
@@ -77,21 +64,6 @@ class ww_Actuator_basic_props(bpy.types.PropertyGroup):
         col7 = row7.column()
         col7.label(text='')
         col7.prop( self.ww_Actuator_props,'ww_actuator_Amp_prop', text = '')            
-
-
-        row2 = box.row(align=True)
-        row2.prop(self.ww_Actuator_props,"ww_actuator_Selected_prop",text="Selected")
-        row2.prop(self.ww_Actuator_props,"ww_actuator_FBT_prop",text="FBT")
-        row2.prop(self.ww_Actuator_props,"ww_actuator_Ready_prop",text="Ready")
-        row2.prop(self.ww_Actuator_props,"ww_actuator_Online_prop",text="Online")
-        row2.prop(self.ww_Actuator_props,"ww_actuator_Brake1_prop",text="Brake 1")
-        row2.prop(self.ww_Actuator_props,"ww_actuator_Brake2_prop",text="Brake 2")
-        row2.prop(self.ww_Actuator_props,"ww_actuator_Selected_prop",text="Selected")
-
-        row3 = box.row(align=True)
-        row3.prop(self, 'expand_DigTwin_basic')
-        row3.prop(self, 'expand_Actuator_setup')
-
 
         if self.expand_DigTwin_basic:
             self.ww_DigTwin_basic_props.draw_ww_DigTwin_basic_props(context, layout) 
