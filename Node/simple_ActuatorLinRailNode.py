@@ -36,15 +36,6 @@ class simple_ActuatorLinRailNode(bpy.types.Node):
     selected_Act : bpy.props.BoolProperty(name='selected',
                                     description = 'Select Actuator',
                                     default = False)
-    ist_Vel : bpy.props.FloatProperty(name = "Ist Vel",
-                                     description = "Ist Vel",
-                                    default = 0.0)
-    ist_Pos : bpy.props.FloatProperty(name = "Ist Pos",
-                                    description = "Ist Pos",
-                                    default = 0.0)
-    ist_Force : bpy.props.FloatProperty(name = "Ist Force",
-                                    description = "Ist Force",
-                                    default = 0.0)
 
     Shared : bpy.props.PointerProperty(type = Shared,
                                         update = update_value)
@@ -115,6 +106,10 @@ class simple_ActuatorLinRailNode(bpy.types.Node):
         except KeyError:
             #print('not yet registered')
             pass
+        bpy.data.objects.remove(bpy.data.objects[self.name+'_extr'], do_unlink=True)
+        bpy.data.objects.remove(bpy.data.objects[self.name+'_in'],   do_unlink=True)
+        bpy.data.objects.remove(bpy.data.objects[self.name+'_out'],  do_unlink=True)
+        bpy.data.objects.remove(bpy.data.objects[self.name+'_Path'], do_unlink=True)
         bpy.data.collections.remove(bpy.data.collections.get(self.name))
         print("Node removed", ID, self)
 
@@ -189,17 +184,18 @@ class simple_ActuatorLinRailNode(bpy.types.Node):
             if out1.is_linked:
                 for o in out1.links:
                     if i1.is_valid:
-                        o.to_socket.node.inputs[o.to_socket.name].default_value = self.ist_Vel
+                        print(self.Actuator_basic_props.ist_Vel)
+                        o.to_socket.node.inputs[o.to_socket.name].default_value_set = self.Actuator_basic_props.ist_Vel
                         pass
             if out2.is_linked:
                 for i1 in out2.links:
                     if i1.is_valid:
-                        o.to_socket.node.inputs[o.to_socket.name].default_value = self.ist_Pos
+                        o.to_socket.node.inputs[o.to_socket.name].default_value_set = self.Actuator_basic_props.ist_Pos
                         pass
             if out3.is_linked:
                 for i1 in out3.links:
                     if i1.is_valid:
-                        o.to_socket.node.inputs[o.to_socket.name].default_value = self.ist_Force
+                        o.to_socket.node.inputs[o.to_socket.name].default_value_set = self.Actuator_basic_props.ist_Force
                         pass
 
     def draw_model(self,context):

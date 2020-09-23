@@ -8,11 +8,11 @@ class ww_DigTwin_basic_props(bpy.types.PropertyGroup):
     ww_DigTwin_props : bpy.props.PointerProperty(type = ww_DigTwin_props)
 
     def update_start_loc(self,context):
-        bpy.context.collection.children[context.active_node.name].objects['Rail Actuator_In'].location=self.start_Loc
+        bpy.context.collection.children[context.active_node.name].objects['Simple Rail Actuator_In'].location=self.start_Loc
         pass
 
     def update_end_loc(self,context):
-        bpy.context.collection.children[context.active_node.name].objects['Rail Actuator_Out'].location=self.end_Loc
+        bpy.context.collection.children[context.active_node.name].objects['Simple Rail Actuator_Out'].location=self.end_Loc
         pass
 
 

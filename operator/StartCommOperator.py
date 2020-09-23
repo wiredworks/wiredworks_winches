@@ -203,8 +203,6 @@ class ConnectActuatorOperator(bpy.types.Operator):
             self.Node_Context_Active_Node.outputs["Joy Values"].default_value.Button10       =message['Buttons'][9]
             self.Node_Context_Active_Node.outputs["Joy Values"].default_value.Button11       =message['Buttons'][10]
             self.Node_Context_Active_Node.outputs["Joy Values"].default_value.Button12       =message['Buttons'][11]
-            # Set Joy Float to X-Achse
-            self.Node_Context_Active_Node.outputs["Joy Float"].default_value = message['X-Achse']
             # Trigger update and show Tick Time
             self.Node_Context_Active_Node.TickTime_prop = (time.time_ns()-message["Ptime"])/1000000.0
 

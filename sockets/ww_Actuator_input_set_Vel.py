@@ -10,7 +10,8 @@ class ww_Actuator_input_Set_Vel_socket(bpy.types.NodeSocket):
                                         default = 0.0)
 
     def draw(self, context, layout, node, text):
-            layout.prop(self, "set_vel")
+        row = layout.split(factor=0.2)
+        row.prop(self, "set_vel")
 
     # Socket color
     def draw_color(self, context, node):

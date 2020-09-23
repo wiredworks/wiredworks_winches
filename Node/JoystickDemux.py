@@ -37,9 +37,6 @@ class JoystickDemux(bpy.types.Node):
         self.outputs.new('ww_Joystick_bool_Socket', "Button 2")
         self.outputs["Button 2"].default_value_set = ww_Joystick_props
 
-        self.inputs.new('NodeSocketFloat',name= 'Joy Float')
-        self.inputs["Joy Float"].default_value = self.TickTime_prop
-
         self.inputs.new('ww_Joystick_Socket',name= 'Joy Values')
         self.inputs["Joy Values"].default_value_set = ww_Joystick_props
 
@@ -48,17 +45,11 @@ class JoystickDemux(bpy.types.Node):
             out1 = self.outputs["Stick"]
             out2 = self.outputs["Button 1"]
             out3 = self.outputs["Button 2"]
-            inp1 = self.inputs['Joy Float']
             inp2 = self.inputs['Joy Values']
             can_continue = True
         except:
             can_continue = False
         if can_continue:
-            if inp1.is_linked:
-                for i1 in inp1.links:
-                    if i1.is_valid:
-                        self.Joy_Float=i1.from_socket.node.outputs[i1.from_socket.name].default_value
-
             if inp2.is_linked:
                 for i2 in inp2.links:
                     if i2.is_valid:
@@ -125,8 +116,6 @@ class JoystickDemux(bpy.types.Node):
             if out2.is_linked:
                  for o in out2.links:
                     if o.is_valid:
-                        #print(self.outputs['Button 1'].ww_enum_prop)
-                        #print(self.outputs["Button 1"].default_value.Button1)
                         if   (self.outputs['Button 1'].ww_enum_prop == 'Button1'):
                             o.to_socket.node.inputs[o.to_socket.name].default_value = self.outputs["Button 1"].default_value.Button1
                             self.outputs['Button 1'].ww_out = self.outputs["Stick"].default_value.Button1

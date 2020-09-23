@@ -19,12 +19,12 @@ class simple_Actuator_basic_props(bpy.types.PropertyGroup):
                                     description = "Soll Velocity",
                                     precision = 3,
                                     default = 0.001)
-    soll_Pos : bpy.props.FloatProperty(name = "Soll Vel",
-                                    description = "Soll Velocity",
+    ist_Pos : bpy.props.FloatProperty(name = "Ist Pos",
+                                    description = "Ist Pos",
                                     precision = 3,
                                     default = 0.001)
-    soll_Force : bpy.props.FloatProperty(name = "Soll Vel",
-                                    description = "Soll Velocity",
+    ist_Force : bpy.props.FloatProperty(name = "Soll Force",
+                                    description = "Soll Force",
                                     precision = 3,
                                     default = 0.001)
     ist_Vel : bpy.props.FloatProperty(name = "Ist Vel",
@@ -69,8 +69,8 @@ class simple_Actuator_basic_props(bpy.types.PropertyGroup):
         col2.prop(self,'ist_Vel', text = '')
         row3 = row2.split(factor=0.2)
         col3 = row3.column()
-        col3.label(text='Diff Vel')
-        col3.prop(self,'diff_Vel', text = '')        
+        col3.label(text='Ist Pos')
+        col3.prop(self,'ist_Pos', text = '')        
         row4 = row3.split(factor=0.25)
         col4 = row4.column()
         col4.label(text='')
@@ -102,18 +102,17 @@ class simple_Actuator_basic_props(bpy.types.PropertyGroup):
     def unpackRecStringfromAxis(self,Data):
         Data = Data.split(';')
         self.TickTime_A                                         = Data[0]
-        if (self.ww_Actuator_props.simple_actuator_HardMax_prop != float( Data[1]) or
-            self.ww_Actuator_props.simple_actuator_HardMin_prop != float( Data[2]) or
-            self.ww_Actuator_props.simple_actuator_VelMax_prop  != float( Data[3]) or
-            self.ww_Actuator_props.simple_actuator_AccMax_prop  != float( Data[4])):
+        if ((self.ww_Actuator_props.simple_actuator_HardMax_prop - float( Data[1]))>0.0001 or
+            (self.ww_Actuator_props.simple_actuator_HardMin_prop - float( Data[2]))>0.0001 or
+            (self.ww_Actuator_props.simple_actuator_VelMax_prop  - float( Data[3]))>0.0001 or
+            (self.ww_Actuator_props.simple_actuator_AccMax_prop  - float( Data[4]))>0.0001):
             self.ww_Actuator_props.simple_actuator_confirm = False
 
-        #IstPos                                                  =float( Data[5])
-        #IstVel                                                  =float( Data[6])
+        self.ist_Vel                                             =float( Data[5])
+        self.ist_Pos                                             =float( Data[6])
         #IstForce                                                =float( Data[7])
         #confirm                                                 =Data[8]
         if self.online_Actuator == True:
-            print('Online')
             if Data[9]=='False':
                 self.ww_Actuator_props.simple_actuator_confirmed = False
             else:
@@ -134,8 +133,8 @@ class simple_Actuator_basic_props(bpy.types.PropertyGroup):
                     +str(self.ww_Actuator_props.simple_actuator_VelMax_prop)+';'     # 3
                     +str(self.ww_Actuator_props.simple_actuator_AccMax_prop)+';'     # 4            
                     +str(self.soll_Vel)+';'                                          # 5
-                    +str(self.soll_Pos)+';'                                          # 6
-                    +str(self.soll_Force)+';'                                        # 7
+                    +str('Soll Pos')+';   '                                          # 6
+                    +str('Soll Force')+';'                                           # 7
                     +str(self.ww_Actuator_props.simple_actuator_confirm)+';'         # 8
                     +str(self.ww_Actuator_props.simple_actuator_confirmed)+';'       # 9
                     +str(self.enable_Actuator)+';'                                   # 10

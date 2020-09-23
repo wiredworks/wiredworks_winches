@@ -17,8 +17,6 @@ class ww_ActuatorStartCommNode(bpy.types.Node):
         return ntree.bl_idname == 'ww_NodeTree'
 
     def update_func(self,context):
-        #self.output = self.TickTime_prop
-        #print('k')
         pass
 
     Shared : bpy.props.PointerProperty(type = Shared)
@@ -56,9 +54,6 @@ class ww_ActuatorStartCommNode(bpy.types.Node):
 
     def init(self, context):
         self.draw_model(context)
-
-        self.outputs.new('NodeSocketFloat',name= 'Joy Float')
-        self.outputs["Joy Float"].default_value = self.TickTime_prop
 
         self.outputs.new('ww_Joystick_Socket',name= 'Joy Values')
         self.outputs["Joy Values"].default_value_set = 14#ww_Joystick_props
