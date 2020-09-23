@@ -19,17 +19,17 @@ class ConnectActuatorOperator(bpy.types.Operator):
             # update DigTwin Props when object is moved in View_3D
 
             ww_DTwin_startLoc = bpy.context.collection.children[context.active_node.name].\
-                objects['Rail Actuator_In'].location
+                objects[context.active_node.name+'_In'].location
             ww_DTwin_endLoc = bpy.context.collection.children[context.active_node.name].\
-                objects['Rail Actuator_Out'].location
+                objects[context.active_node.name+'_Out'].location
 
-            self.Node_Context_Active_Node.ww_Actuator_basic_props.\
+            self.Node_Context_Active_Node.Actuator_basic_props.\
                 ww_DigTwin_basic_props.length = (ww_DTwin_endLoc-ww_DTwin_startLoc).length
 
-            self.Node_Context_Active_Node.ww_Actuator_basic_props.\
+            self.Node_Context_Active_Node.Actuator_basic_props.\
                 ww_DigTwin_basic_props.start_Loc = ww_DTwin_startLoc
 
-            self.Node_Context_Active_Node.ww_Actuator_basic_props.\
+            self.Node_Context_Active_Node.Actuator_basic_props.\
                 ww_DigTwin_basic_props.end_Loc = ww_DTwin_endLoc
 
             

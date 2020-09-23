@@ -9,22 +9,17 @@ class ww_DigTwin_basic_props(bpy.types.PropertyGroup):
 
     def update_start_loc(self,context):
         bpy.context.collection.children[context.active_node.name].objects[context.active_node.name+'_In'].location=self.start_Loc
-        self.update_length(self,context)
+        self.update_length(context)
         pass
 
     def update_end_loc(self,context):
         bpy.context.collection.children[context.active_node.name].objects[context.active_node.name+'_Out'].location=self.end_Loc
-        self.update_length(self,context)
+        self.update_length(context)
         pass
 
-    def update_length(self,context):
-        in_loc = bpy.context.collection.children[context.active_node.name].objects[context.active_node.name+'_In'].location
-        out_loc = bpy.context.collection.children[context.active_node.name].objects[context.active_node.name+'_Out'].location
-        normalized = (out_loc-in_loc).normalized()
-        bpy.context.collection.children[context.active_node.name].objects[context.active_node.name+'_Out'].location =\
-            in_loc+self.length*normalized
+    def update_L(self,context):
+        self.update_length(context)
         pass
-# Some Comment learnin git
 
     start_Loc : bpy.props.FloatVectorProperty(name = "Start Loc",
                                     description = "Start Location",
@@ -45,7 +40,7 @@ class ww_DigTwin_basic_props(bpy.types.PropertyGroup):
                                     description = "Length",
                                     precision = 3,
                                     default = 0.001,
-                                    update = update_length)
+                                    update = update_L)
     mass_column1 : bpy.props.FloatVectorProperty(name = "Moment of Inertia",
                                     description = "Moment of Inertia First Column",
                                         precision = 3,
@@ -107,4 +102,12 @@ class ww_DigTwin_basic_props(bpy.types.PropertyGroup):
 
 
         if self.expand_DigTwin_setup:
-            self.ww_DigTwin_props.draw_ww_DigTwin_props(context, layout) 
+            self.ww_DigTwin_props.draw_ww_DigTwin_props(context, layout)
+
+    def update_length(self,context):
+        in_loc = bpy.context.collection.children[context.active_node.name].objects[context.active_node.name+'_In'].location
+        out_loc = bpy.context.collection.children[context.active_node.name].objects[context.active_node.name+'_Out'].location
+        normalized = (out_loc-in_loc).normalized()
+        bpy.context.collection.children[context.active_node.name].objects[context.active_node.name+'_Out'].location =\
+            in_loc+self.length*normalized
+        pass
