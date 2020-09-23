@@ -4,7 +4,7 @@ import time
 import json
 
 class ConnectActuatorOperator(bpy.types.Operator):
-    """ This operator registeres the Actuator with The Comm Node"""
+    """ This operator is the interface between the pysical world, the 3D_View and the Node"""
     bl_idname = "ww.actuator_register"
     bl_label = "Actuator Register"
 
@@ -16,36 +16,11 @@ class ConnectActuatorOperator(bpy.types.Operator):
             except KeyError:
                 self.old_time = time.time_ns()
                 return {'PASS_THROUGH'}
-            # update DigTwin Props when object is moved in View_3D
 
 
-
-            DTwin_startLoc = bpy.data.collections.get("ww SFX_Nodes").children[self.Node_Context_Active_Node.name].\
-                objects[self.Node_Context_Active_Node.name+'_In'].location
-            DTwin_endLoc = bpy.data.collections.get("ww SFX_Nodes").children[self.Node_Context_Active_Node.name].\
-                objects[self.Node_Context_Active_Node.name+'_Out'].location
-
-            # bpy.data.collections.get("ww SFX_Nodes").children[self.Node_Context_Active_Node.name].\
-            #     objects[self.Node_Context_Active_Node.name+'_Connector'].location= \
-            #         (self.Node_Context_Active_Node.Actuator_basic_props.ist_Pos,0,0)
-            # 
-            bpy.data.collections.get("ww SFX_Nodes").children[self.Node_Context_Active_Node.name].\
-                objects[self.Node_Context_Active_Node.name+'_Connector'].constraints['Follow Path'].offset = \
-                         self.Node_Context_Active_Node.Actuator_basic_props.ist_Pos *-20 
-
-            self.Node_Context_Active_Node.Actuator_basic_props.\
-                DigTwin_basic_props.length = (DTwin_endLoc-DTwin_startLoc).length
-
-            self.Node_Context_Active_Node.Actuator_basic_props.\
-                DigTwin_basic_props.start_Loc = DTwin_startLoc
-
-            self.Node_Context_Active_Node.Actuator_basic_props.\
-                DigTwin_basic_props.end_Loc = DTwin_endLoc
-
+            self.interact_with_3D_view()
             
-
-            
-            #Destroy and unload OPerator
+            Destroy and unload OPerator
             if self.Node_Context_ww_data[self.ID]["Destroy"]:
                 self.Node_Context_ww_data.pop(self.ID)
                 ret =self.destroy(context)
@@ -205,3 +180,23 @@ class ConnectActuatorOperator(bpy.types.Operator):
         self.Node_Context_Active_Node.Actuator_basic_props.Actuator_props.simple_actuator_confirmed = False
         self.Node_Context_Active_Node.Actuator_basic_props.Actuator_props.simple_actuator_confirm = False
         return {'PASS_THROUGH'}
+    
+    def interact_with_3D_view(self):
+        # update DigTwin Props when object is moved in View_3D
+        DTwin_startLoc = bpy.data.collections.get("ww SFX_Nodes").children[self.Node_Context_Active_Node.name].\
+            objects[self.Node_Context_Active_Node.name+'_In'].location
+        DTwin_endLoc = bpy.data.collections.get("ww SFX_Nodes").children[self.Node_Context_Active_Node.name].\
+            objects[self.Node_Context_Active_Node.name+'_Out'].location
+
+        bpy.data.collections.get("ww SFX_Nodes").children[self.Node_Context_Active_Node.name].\
+            objects[self.Node_Context_Active_Node.name+'_Connector'].constraints['Follow Path'].offset = \
+                     self.Node_Context_Active_Node.Actuator_basic_props.ist_Pos *-20 
+
+        self.Node_Context_Active_Node.Actuator_basic_props.\
+            DigTwin_basic_props.length = (DTwin_endLoc-DTwin_startLoc).length
+
+        self.Node_Context_Active_Node.Actuator_basic_props.\
+            DigTwin_basic_props.start_Loc = DTwin_startLoc
+
+        self.Node_Context_Active_Node.Actuator_basic_props.\
+            DigTwin_basic_props.end_Loc = DTwin_endLoc    
