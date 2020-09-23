@@ -14,7 +14,7 @@ from .. operator import SFX_Exists
 class simple_ActuatorLinRailNode(bpy.types.Node):
     '''simple Linear Rail Actuator'''
     bl_idname = 'simple_ActuatorLinRail'
-    bl_label = 'Simpel Rail Actuator'
+    bl_label = 'Simple Rail Actuator'
     bl_icon = 'ARROW_LEFTRIGHT'
     bl_width_min = 580 # 920 to draw ww_Actuator_Props properly
     bl_width_max = 5000
@@ -107,8 +107,8 @@ class simple_ActuatorLinRailNode(bpy.types.Node):
             #print('not yet registered')
             pass
         bpy.data.objects.remove(bpy.data.objects[self.name+'_extr'], do_unlink=True)
-        bpy.data.objects.remove(bpy.data.objects[self.name+'_in'],   do_unlink=True)
-        bpy.data.objects.remove(bpy.data.objects[self.name+'_out'],  do_unlink=True)
+        bpy.data.objects.remove(bpy.data.objects[self.name+'_In'],   do_unlink=True)
+        bpy.data.objects.remove(bpy.data.objects[self.name+'_Out'],  do_unlink=True)
         bpy.data.objects.remove(bpy.data.objects[self.name+'_Path'], do_unlink=True)
         bpy.data.collections.remove(bpy.data.collections.get(self.name))
         print("Node removed", ID, self)

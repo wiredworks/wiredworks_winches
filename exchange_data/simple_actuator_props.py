@@ -1,7 +1,7 @@
 import bpy
 
 class simple_Actuator_props(bpy.types.PropertyGroup):
-    bl_idname = "simpel_Actuator_props"
+    bl_idname = "simple_Actuator_props"
     def update_conf(self,context):
         self.update_confirm()
 
