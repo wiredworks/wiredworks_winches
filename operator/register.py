@@ -18,19 +18,31 @@ class ConnectActuatorOperator(bpy.types.Operator):
                 return {'PASS_THROUGH'}
             # update DigTwin Props when object is moved in View_3D
 
-            ww_DTwin_startLoc = bpy.context.collection.children[context.active_node.name].\
-                objects[context.active_node.name+'_In'].location
-            ww_DTwin_endLoc = bpy.context.collection.children[context.active_node.name].\
-                objects[context.active_node.name+'_Out'].location
+
+
+            DTwin_startLoc = bpy.data.collections.get("ww SFX_Nodes").children[self.Node_Context_Active_Node.name].\
+                objects[self.Node_Context_Active_Node.name+'_In'].location
+            DTwin_endLoc = bpy.data.collections.get("ww SFX_Nodes").children[self.Node_Context_Active_Node.name].\
+                objects[self.Node_Context_Active_Node.name+'_Out'].location
+
+            # bpy.data.collections.get("ww SFX_Nodes").children[self.Node_Context_Active_Node.name].\
+            #     objects[self.Node_Context_Active_Node.name+'_Connector'].location= \
+            #         (self.Node_Context_Active_Node.Actuator_basic_props.ist_Pos,0,0)
+            # 
+            bpy.data.collections.get("ww SFX_Nodes").children[self.Node_Context_Active_Node.name].\
+                objects[self.Node_Context_Active_Node.name+'_Connector'].constraints['Follow Path'].offset = \
+                         self.Node_Context_Active_Node.Actuator_basic_props.ist_Pos *-20 
 
             self.Node_Context_Active_Node.Actuator_basic_props.\
-                ww_DigTwin_basic_props.length = (ww_DTwin_endLoc-ww_DTwin_startLoc).length
+                DigTwin_basic_props.length = (DTwin_endLoc-DTwin_startLoc).length
 
             self.Node_Context_Active_Node.Actuator_basic_props.\
-                ww_DigTwin_basic_props.start_Loc = ww_DTwin_startLoc
+                DigTwin_basic_props.start_Loc = DTwin_startLoc
 
             self.Node_Context_Active_Node.Actuator_basic_props.\
-                ww_DigTwin_basic_props.end_Loc = ww_DTwin_endLoc
+                DigTwin_basic_props.end_Loc = DTwin_endLoc
+
+            
 
             
             #Destroy and unload OPerator
@@ -121,8 +133,8 @@ class ConnectActuatorOperator(bpy.types.Operator):
         self.Node_Context_Active_Node.actuator_connected_bit1 = False
         self.Node_Context_Active_Node.actuator_connected_bit2 = False
         self.Node_Context_Active_Node.Actuator_basic_props.online_Actuator = False
-        self.Node_Context_Active_Node.Actuator_basic_props.ww_Actuator_props.simple_actuator_confirmed = False
-        self.Node_Context_Active_Node.Actuator_basic_props.ww_Actuator_props.simple_actuator_confirm = False
+        self.Node_Context_Active_Node.Actuator_basic_props.Actuator_props.simple_actuator_confirmed = False
+        self.Node_Context_Active_Node.Actuator_basic_props.Actuator_props.simple_actuator_confirm = False
         return {'PASS_THROUGH'}
 
     def draw(self,context):
@@ -141,14 +153,6 @@ class ConnectActuatorOperator(bpy.types.Operator):
 
         self.ssock = socket.socket(socket.AF_INET, # Internet
                             socket.SOCK_DGRAM) # UDP
-
-        if self.RUDP_PORT == 15021:
-            self.Cube = bpy.data.objects["Cube"]
-        elif self.RUDP_PORT == 15023:
-            self.Cube = bpy.data.objects["Cube.001"]
-        else:
-            self.Cube = bpy.data.objects["Cube.002"]
-
         try:
             self.rsock.bind((self.UDP_IP, self.RUDP_PORT))
             self.rsock.setblocking(0)    
@@ -183,18 +187,6 @@ class ConnectActuatorOperator(bpy.types.Operator):
         if data != "NO DATA":
             self.Node_Context_Active_Node.Actuator_basic_props.online_Actuator = True
             self.Node_Context_Active_Node.Actuator_basic_props.unpackRecStringfromAxis(data.decode('utf-8'))
-            # self.Node_Context_ww_data[self.ID]["Ptime"] =message["Ptime"]
-            # self.Node_Context_ww_data[self.ID]["X-Soll"]=message["X-Soll"]
-            # self.Node_Context_ww_data[self.ID]["Y-Soll"]=message["Y-Soll"]
-            # self.Node_Context_ww_data[self.ID]["Z-Soll"]=message["Z-Soll"]             
-
-            # self.Cube.location.x = self.Node_Context_ww_data[self.ID]["X-Soll"]/ 15000.0 
-            # self.Cube.location.y = self.Node_Context_ww_data[self.ID]["Y-Soll"]/ 15000.0
-            # self.Cube.location.z = self.Node_Context_ww_data[self.ID]["Z-Soll"]/ 15000.0
-            
-            # self.Node_Context_ww_data[self.ID]["X-Ist"] = self.Cube.location.x 
-            # self.Node_Context_ww_data[self.ID]["Y-Ist"] = self.Cube.location.y
-            # self.Node_Context_ww_data[self.ID]["Z-Ist"] = self.Cube.location.z
         return {'PASS_THROUGH'}
 
     def destroy(self,context):
@@ -210,6 +202,6 @@ class ConnectActuatorOperator(bpy.types.Operator):
         self.Node_Context_Active_Node.actuator_connected_bit1 = False
         self.Node_Context_Active_Node.actuator_connected_bit2 = False
         self.Node_Context_Active_Node.Actuator_basic_props.online_Actuator = False
-        self.Node_Context_Active_Node.Actuator_basic_props.ww_Actuator_props.simple_actuator_confirmed = False
-        self.Node_Context_Active_Node.Actuator_basic_props.ww_Actuator_props.simple_actuator_confirm = False
+        self.Node_Context_Active_Node.Actuator_basic_props.Actuator_props.simple_actuator_confirmed = False
+        self.Node_Context_Active_Node.Actuator_basic_props.Actuator_props.simple_actuator_confirm = False
         return {'PASS_THROUGH'}

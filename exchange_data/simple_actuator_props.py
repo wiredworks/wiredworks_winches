@@ -5,19 +5,9 @@ class simple_Actuator_props(bpy.types.PropertyGroup):
     def update_conf(self,context):
         self.update_confirm()
 
-    simple_actuator_Amp_prop: bpy.props.FloatProperty(name = "Ampere",
-                                                                description ="Amplifier Output",
-                                                                default=999,
-                                                                precision=0,
-                                                                update = update_conf ) 
     simple_actuator_HardMax_prop: bpy.props.FloatProperty(name = "Hard Max",
                                                                 description ="Maximum Position set in the PLC",
                                                                 default=5.0,
-                                                                precision=3,
-                                                                update = update_conf)
-    simple_actuator_ActPos_prop: bpy.props.FloatProperty(name = "Act Pos",
-                                                                description ="Actual Position",
-                                                                default=0.0,
                                                                 precision=3,
                                                                 update = update_conf)
     simple_actuator_HardMin_prop: bpy.props.FloatProperty(name = "Hard Min",
@@ -44,8 +34,9 @@ class simple_Actuator_props(bpy.types.PropertyGroup):
                                     default = False)
 
     def update_confirm(self):
-       self.simple_actuator_confirm = False
+       #self.simple_actuator_confirm = False 
        self.simple_actuator_confirmed = False
+       pass
 
     def drawActuatorSetup(self, context, layout):
 
@@ -55,10 +46,10 @@ class simple_Actuator_props(bpy.types.PropertyGroup):
         
         box1 = boxA.split()
         row = box1.row()
-        row.label(text = 'Max Pos')
-        row.prop(self,'simple_actuator_HardMax_prop', text='')
         row.label(text = 'Min Pos')
         row.prop(self,'simple_actuator_HardMin_prop', text='')
+        row.label(text = 'Max Pos')
+        row.prop(self,'simple_actuator_HardMax_prop', text='')
         row.label(text = 'Max Vel')
         row.prop(self,'simple_actuator_VelMax_prop', text='')
         row.label(text = 'Max Acc')

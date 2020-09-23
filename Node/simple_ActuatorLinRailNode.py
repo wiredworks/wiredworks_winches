@@ -110,6 +110,7 @@ class simple_ActuatorLinRailNode(bpy.types.Node):
         bpy.data.objects.remove(bpy.data.objects[self.name+'_In'],   do_unlink=True)
         bpy.data.objects.remove(bpy.data.objects[self.name+'_Out'],  do_unlink=True)
         bpy.data.objects.remove(bpy.data.objects[self.name+'_Path'], do_unlink=True)
+        bpy.data.objects.remove(bpy.data.objects[self.name+'_Connector'], do_unlink=True)
         bpy.data.collections.remove(bpy.data.collections.get(self.name))
         print("Node removed", ID, self)
 
@@ -167,7 +168,7 @@ class simple_ActuatorLinRailNode(bpy.types.Node):
                     if i1.is_valid:
                         self.inputs["Set Vel"].set_vel=i1.from_socket.node.outputs[i1.from_socket.name].ww_out_value
                         self.Actuator_basic_props.soll_Vel = \
-                           (self.inputs["Set Vel"].set_vel * self.Actuator_basic_props.ww_Actuator_props.simple_actuator_VelMax_prop)/100.0
+                           (self.inputs["Set Vel"].set_vel * self.Actuator_basic_props.Actuator_props.simple_actuator_VelMax_prop)/100.0
                         pass
             if inp2.is_linked:
                 for i1 in inp2.links:
@@ -203,7 +204,6 @@ class simple_ActuatorLinRailNode(bpy.types.Node):
         if 'ww SFX_Nodes' in bpy.context.scene.collection.children.keys():            
             ww_Actcollection = bpy.data.collections.new(self.name)
             bpy.data.collections.get("ww SFX_Nodes").children.link(ww_Actcollection)
-            bpy.data.collections.get("Collection").children.link(ww_Actcollection)
             #Add Bevel Thingy
             coords_list = ([[0.01,0.02,0], [0.06,0.06,0],[0.02,0.01,0],[0.02,-0.01,0],
                             [0.06,-0.06,0], [0.01,-0.02,0],[-0.01,-0.02,0],[-0.06,-0.06,0],
@@ -247,7 +247,15 @@ class simple_ActuatorLinRailNode(bpy.types.Node):
             hook_right = Path.modifiers.new(name= 'hook_right', type = 'HOOK')
             Path.modifiers['hook_right'].object = bpy.data.objects[self.name+'_Out']
             Path.modifiers['hook_right'].vertex_indices_set([1])
-
+            # Object Connect 
+            Connector = bpy.data.objects.new( self.name+"_Connector", None )
+            Connector.empty_display_size = 0.25
+            Connector.empty_display_type = 'SPHERE'
+            Connector.constraints.new(type = 'FOLLOW_PATH')
+            Connector.constraints['Follow Path'].target = Path
+            Connector.constraints['Follow Path'].use_curve_follow = True
+            Connector.constraints['Follow Path'].use_curve_radius = True
+            ww_Actcollection.objects.link( Connector )
             Out.location = (0,0,5)
         else:
            bpy.ops.ww.sfxexists('INVOKE_DEFAULT')

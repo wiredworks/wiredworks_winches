@@ -8,12 +8,12 @@ class ww_DigTwin_basic_props(bpy.types.PropertyGroup):
     ww_DigTwin_props : bpy.props.PointerProperty(type = ww_DigTwin_props)
 
     def update_start_loc(self,context):
-        bpy.context.collection.children[context.active_node.name].objects[context.active_node.name+'_In'].location=self.start_Loc
+        bpy.data.collections.get("ww SFX_Nodes").children[context.active_node.name].objects[context.active_node.name+'_In'].location=self.start_Loc
         self.update_length(context)
         pass
 
     def update_end_loc(self,context):
-        bpy.context.collection.children[context.active_node.name].objects[context.active_node.name+'_Out'].location=self.end_Loc
+        bpy.data.collections.get("ww SFX_Nodes").children[context.active_node.name].objects[context.active_node.name+'_Out'].location=self.end_Loc
         self.update_length(context)
         pass
 
@@ -105,9 +105,10 @@ class ww_DigTwin_basic_props(bpy.types.PropertyGroup):
             self.ww_DigTwin_props.draw_ww_DigTwin_props(context, layout)
 
     def update_length(self,context):
-        in_loc = bpy.context.collection.children[context.active_node.name].objects[context.active_node.name+'_In'].location
-        out_loc = bpy.context.collection.children[context.active_node.name].objects[context.active_node.name+'_Out'].location
+        in_loc = bpy.data.collections.get("ww SFX_Nodes").children[context.active_node.name].objects[context.active_node.name+'_In'].location
+        out_loc = bpy.data.collections.get("ww SFX_Nodes").children[context.active_node.name].objects[context.active_node.name+'_Out'].location
         normalized = (out_loc-in_loc).normalized()
-        bpy.context.collection.children[context.active_node.name].objects[context.active_node.name+'_Out'].location =\
+        bpy.data.collections.get("ww SFX_Nodes").children[context.active_node.name].objects[context.active_node.name+'_Out'].location =\
             in_loc+self.length*normalized
+        context.active_node.Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop= self.length
         pass

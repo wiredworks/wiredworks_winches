@@ -7,9 +7,9 @@ from .. exchange_data.ww_digtwin_basic_props import ww_DigTwin_basic_props
 class simple_Actuator_basic_props(bpy.types.PropertyGroup):
     bl_idname = "simple_Actuator_basic_props"
 
-    ww_Actuator_props : bpy.props.PointerProperty(type = simple_Actuator_props)
+    Actuator_props : bpy.props.PointerProperty(type = simple_Actuator_props)
 
-    ww_DigTwin_basic_props : bpy.props.PointerProperty(type = ww_DigTwin_basic_props)
+    DigTwin_basic_props : bpy.props.PointerProperty(type = ww_DigTwin_basic_props)
 
     diff_Vel : bpy.props.FloatProperty(name = "Ist Pos",
                                     description = "Ist Position",
@@ -94,19 +94,19 @@ class simple_Actuator_basic_props(bpy.types.PropertyGroup):
         row3.prop(self, 'expand_Actuator_setup')
 
         if self.expand_DigTwin_basic:
-            self.ww_DigTwin_basic_props.draw_ww_DigTwin_basic_props(context, layout) 
+            self.DigTwin_basic_props.draw_ww_DigTwin_basic_props(context, layout) 
 
         if self.expand_Actuator_setup:
-            self.ww_Actuator_props.drawActuatorSetup(context, layout)
+            self.Actuator_props.drawActuatorSetup(context, layout)
 
     def unpackRecStringfromAxis(self,Data):
         Data = Data.split(';')
         self.TickTime_A                                         = Data[0]
-        if ((self.ww_Actuator_props.simple_actuator_HardMax_prop - float( Data[1]))>0.0001 or
-            (self.ww_Actuator_props.simple_actuator_HardMin_prop - float( Data[2]))>0.0001 or
-            (self.ww_Actuator_props.simple_actuator_VelMax_prop  - float( Data[3]))>0.0001 or
-            (self.ww_Actuator_props.simple_actuator_AccMax_prop  - float( Data[4]))>0.0001):
-            self.ww_Actuator_props.simple_actuator_confirm = False
+        if ((self.Actuator_props.simple_actuator_HardMax_prop - float( Data[1]))>0.0001 or
+            (self.Actuator_props.simple_actuator_HardMin_prop - float( Data[2]))>0.0001 or
+            (self.Actuator_props.simple_actuator_VelMax_prop  - float( Data[3]))>0.0001 or
+            (self.Actuator_props.simple_actuator_AccMax_prop  - float( Data[4]))>0.0001):
+            self.Actuator_props.simple_actuator_confirm = False
 
         self.ist_Vel                                             =float( Data[5])
         self.ist_Pos                                             =float( Data[6])
@@ -114,29 +114,34 @@ class simple_Actuator_basic_props(bpy.types.PropertyGroup):
         #confirm                                                 =Data[8]
         if self.online_Actuator == True:
             if Data[9]=='False':
-                self.ww_Actuator_props.simple_actuator_confirmed = False
+                self.Actuator_props.simple_actuator_confirmed = False
+                pass
             else:
-                self.ww_Actuator_props.simple_actuator_confirmed = True
+                self.Actuator_props.simple_actuator_confirmed = True
+                pass
         else:
-            self.ww_Actuator_props.simple_actuator_confirmed = False
+            self.Actuator_props.simple_actuator_confirmed = False
+            pass
 
         #online                                                 =Data[10]
         #enabeled                                               =Data[11]
         self.Status                                             =Data[12]
         #Reset                                                  =Data[13]
 
+
+
     def packSendStringToAxis(self):
         SendData = self.TickTime_A
         SendData = (SendData+';'                                                     # 0
-                    +str(self.ww_Actuator_props.simple_actuator_HardMax_prop)+';'    # 1
-                    +str(self.ww_Actuator_props.simple_actuator_HardMin_prop)+';'    # 2
-                    +str(self.ww_Actuator_props.simple_actuator_VelMax_prop)+';'     # 3
-                    +str(self.ww_Actuator_props.simple_actuator_AccMax_prop)+';'     # 4            
+                    +str(self.Actuator_props.simple_actuator_HardMax_prop)+';'    # 1
+                    +str(self.Actuator_props.simple_actuator_HardMin_prop)+';'    # 2
+                    +str(self.Actuator_props.simple_actuator_VelMax_prop)+';'     # 3
+                    +str(self.Actuator_props.simple_actuator_AccMax_prop)+';'     # 4            
                     +str(self.soll_Vel)+';'                                          # 5
                     +str('Soll Pos')+';   '                                          # 6
                     +str('Soll Force')+';'                                           # 7
-                    +str(self.ww_Actuator_props.simple_actuator_confirm)+';'         # 8
-                    +str(self.ww_Actuator_props.simple_actuator_confirmed)+';'       # 9
+                    +str(self.Actuator_props.simple_actuator_confirm)+';'         # 8
+                    +str(self.Actuator_props.simple_actuator_confirmed)+';'       # 9
                     +str(self.enable_Actuator)+';'                                   # 10
                     +str(self.select_Actuator)+';'                                   # 11
                     +str(self.online_Actuator)+';'                                   # 12
