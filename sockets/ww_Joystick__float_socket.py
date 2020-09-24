@@ -2,10 +2,10 @@ import bpy
 
 from .. exchange_data.ww_Joystick_props import ww_Joystick_props 
 
-class ww_Joystick_int_Socket(bpy.types.NodeSocket):
+class ww_Joystick_Float_Socket(bpy.types.NodeSocket):
     '''ww Joystick Socket'''
-    bl_idname = 'ww_Joystick_int_Socket'
-    bl_label = "ww Joystick Int Socket"
+    bl_idname = 'ww_Joystick_float_Socket'
+    bl_label = "ww Joystick Float Socket"
 
     default_value : bpy.props.PointerProperty(type = ww_Joystick_props)
 

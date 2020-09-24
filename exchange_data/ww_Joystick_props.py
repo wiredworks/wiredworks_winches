@@ -6,15 +6,13 @@ class ww_Joystick_props(bpy.types.PropertyGroup):
     def update_func(self,context):
         pass
 
-    Ptime : bpy.props.FloatProperty(name = "Python Time",
-                                    description = "Python Time",
-                                    precision = 3,
-                                    default = 0.001,
-                                    update = update_func)
-    Btime : bpy.props.FloatProperty(name = "Blender Time",
-                                    description = "Blender Time",
-                                    precision = 3,
-                                    default = 0.001)
+    # Ptime : bpy.props.IntProperty(name = "Python Time",
+    #                                 description = "Python Time",                                    
+    #                                 default = 1,
+    #                                 update = update_func)
+    # Btime : bpy.props.IntProperty(name = "Blender Time",
+    #                                 description = "Blender Time",                                    
+    #                                 default = 1)
     X_Achse : bpy.props.FloatProperty(name = "X-Achse",
                                     description = "X-Achse",
                                     precision = 3,
@@ -82,12 +80,12 @@ class ww_Joystick_props(bpy.types.PropertyGroup):
     HAT_Switch : bpy.props.IntProperty(name = "HAT-Switch",
                                     description = "Hat-Switch",
                                     default = 0)
-    EndCommOPerator : bpy.props.BoolProperty(name = "EndCommOPerator",
-                                    description = "EndCommOPerator",
-                                    default = False)
-    Destroy : bpy.props.BoolProperty(name = "Destroy",
-                                    description = "Destroy",
-                                    default = False)
+    # EndCommOPerator : bpy.props.BoolProperty(name = "EndCommOPerator",
+    #                                 description = "EndCommOPerator",
+    #                                 default = False)
+    # Destroy : bpy.props.BoolProperty(name = "Destroy",
+    #                                 description = "Destroy",
+    #                                 default = False)
 
 
     def draw_Joystick_props(self, context, layout):
