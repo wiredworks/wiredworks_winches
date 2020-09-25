@@ -6,7 +6,7 @@ from bpy.props import BoolProperty,PointerProperty
 addonName = os.path.basename(os.path.dirname(__file__))
 
 class DeveloperProperties(bpy.types.PropertyGroup):
-    bl_idname = "ACT_DeveloperProperties"
+    bl_idname = "SFX_DeveloperProperties"
 
     #profiling: PointerProperty(type = ProfilingProperties)
 
