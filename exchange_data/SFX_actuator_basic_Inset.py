@@ -88,7 +88,6 @@ class SFX_actuator_basic_Inset(bpy.types.PropertyGroup):
         col7 = row7.column()
         col7.label(text='Status')        
         col7.prop(self,"Status",text="")
-
     
         row3 = box.row(align=True)
         row3.prop(self, 'expand_DigTwin_basic')
@@ -99,6 +98,8 @@ class SFX_actuator_basic_Inset(bpy.types.PropertyGroup):
 
         if self.expand_Actuator_setup:
             self.Actuator_props.drawActuatorSetup(context, layout)
+
+
 
     def unpackRecStringfromAxis(self,Data):
         Data = Data.split(';')

@@ -115,8 +115,4 @@ class SFX_DigTwin_basic_Inset(bpy.types.PropertyGroup):
         normalized = (out_loc-in_loc).normalized()
         bpy.data.collections.get("ww SFX_Nodes").children[self.Mother_name].objects[self.Mother_name+'_Out'].location =\
             in_loc+self.length*normalized
-        #context.active_node.Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop= self.length
-        #super().super().Actuator_props.simple_actuator_HardMax_prop= self.length
-        # super().__init__()
-        # print(dir(super()))
         pass

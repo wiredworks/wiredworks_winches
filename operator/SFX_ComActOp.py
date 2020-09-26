@@ -135,6 +135,9 @@ class SFX_OT_CommActOp(bpy.types.Operator):
         if data != "NO DATA":
             self.MotherNode.Actuator_basic_props.online_Actuator = True
             self.MotherNode.Actuator_basic_props.unpackRecStringfromAxis(data.decode('utf-8'))
+        
+        self.MotherNode.Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop = \
+        self.MotherNode.Actuator_basic_props.DigTwin_basic_props.length 
         return {'PASS_THROUGH'}
 
     def destroy(self,context):
