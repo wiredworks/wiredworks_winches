@@ -108,7 +108,8 @@ class SFX_actuator_basic_Inset(bpy.types.PropertyGroup):
             (self.Actuator_props.simple_actuator_HardMin_prop - float( Data[2]))>0.0001 or
             (self.Actuator_props.simple_actuator_VelMax_prop  - float( Data[3]))>0.0001 or
             (self.Actuator_props.simple_actuator_AccMax_prop  - float( Data[4]))>0.0001):
-            self.Actuator_props.simple_actuator_confirm = False
+            self.Actuator_props.simple_actuator_confirm   = False
+            self.Actuator_props.simple_actuator_confirmed = False
 
         self.ist_Vel                                             =float( Data[5])
         self.ist_Pos                                             =float( Data[6])

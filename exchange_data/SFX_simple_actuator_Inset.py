@@ -3,8 +3,9 @@ import bpy
 class SFX_simple_Actuator_Inset(bpy.types.PropertyGroup):
     '''Defines Physical Props of an Actuator'''
     bl_idname = "SFX_simple_Actuator_Inset"
+    
     def update_conf(self,context):
-        self.update_confirm()
+        pass
 
     simple_actuator_HardMax_prop: bpy.props.FloatProperty(name = "Hard Max",
                                                                 description ="Maximum Position set in the PLC",
@@ -33,11 +34,6 @@ class SFX_simple_Actuator_Inset(bpy.types.PropertyGroup):
     simple_actuator_confirmed: bpy.props.BoolProperty(name = "Confirmed Data",
                                     description = " Set if Data is confirmed",
                                     default = False)
-
-    def update_confirm(self):
-       #self.simple_actuator_confirm = False 
-       self.simple_actuator_confirmed = False
-       pass
 
     def drawActuatorSetup(self, context, layout):
 

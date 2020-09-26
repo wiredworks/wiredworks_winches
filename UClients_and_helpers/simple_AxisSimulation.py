@@ -77,10 +77,10 @@ class SyncSend(Thread):
         self.avgT = 0.0
         
         self.TickTime  = 0.0
-        self.MaxPos    = 0.0
+        self.MaxPos    = 10.0
         self.MinPos    = 0.0
-        self.MaxVel    = 0.0
-        self.MaxAcc    = 0.0
+        self.MaxVel    = 10.0
+        self.MaxAcc    = 1.0
         self.IstVel    = 0.0
         self.IstPos    = 0.0
         self.IstForce  = 0.0
@@ -141,6 +141,7 @@ class SyncSend(Thread):
         rsock.close()
         
     def unpackRecStringfromBlender(self,Data):
+        #print('IN         *'+Data)
         Data = Data.split(';')
         fo ="%3.4f"
         self.TickTime   = Data[0]                #
@@ -149,8 +150,8 @@ class SyncSend(Thread):
         self.SetMaxVel  = fo%(float(Data[3]))    #
         self.SetMaxAcc  = fo%(float(Data[4]))    #
         self.SollVel    = fo%(float(Data[5]))    #
-        self.SollPos    = fo%(float(Data[6]))
-        self.SollForce  = fo%(float(Data[7]))
+        self.SollPos    = Data[6]
+        self.SollForce  = Data[7]
         self.confirm    = Data[8]    
         self.confirmed  = Data[9]                #
         self.Enabled    = Data[10]               #
@@ -170,10 +171,10 @@ class SyncSend(Thread):
         fo ="%3.4f"
         self.SendData = str(time.time_ns())
         self.SendData = (self.SendData+';'            # 0
-                    +fo%(float(self.MaxPos))+';'      # 1  
-                    +fo%(float(self.MinPos))+';'      # 2
-                    +fo%(float(self.MaxVel))+';'      # 3
-                    +fo%(float(self.MaxAcc))+';'      # 4
+                    +str(self.MaxPos)+';'      # 1  
+                    +str(self.MinPos)+';'      # 2
+                    +str(self.MaxVel)+';'      # 3
+                    +str(self.MaxAcc)+';'      # 4
                     +fo%(float(self.SpeedIstUI))+';'  # 5
                     +fo%(float(self.IstPos))+';'      # 6
                     +fo%(float(self.IstForce))+';'    # 7
@@ -183,6 +184,7 @@ class SyncSend(Thread):
                     +str(self.Selected)+';'           # 11
                     +str(self.Status)+';'             # 12
                     +str(self.Reset))                 # 13
+        #print('Out   '+self.SendData)
         return self.SendData
     
     def run(self):
@@ -275,8 +277,6 @@ class SyncSend(Thread):
         #self.PosIst
             self.IstPos = str(float(self.IstPos)+SpeedIstIntern*self.IntervallR)
             self.SpeedIstUI = SpeedIstIntern
-            print(self.IstPos)
-            #self.IstPos = self.PosSoll
         else:
             self.IstVel = 0.0
             
@@ -299,7 +299,7 @@ class SyncSend(Thread):
         for i in range(100):
             self.sumT = self.sumT + self.lsT[i]
         self.avgT = self.sumT/100.0
-        #print("Round Trip Time %7.4f ms Diff Time: %2.2f ms" %(self.avgB,self.avgT))
+        print("Round Trip Time %7.4f ms Diff Time: %2.2f ms" %(self.avgB,self.avgT))
 
 class UI(wx.Panel):
     def __init__(self, parent, id, title):
