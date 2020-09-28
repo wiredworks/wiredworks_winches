@@ -34,8 +34,7 @@ class SFX_DigTwin_basic_Inset(bpy.types.PropertyGroup):
     con_Loc : bpy.props.FloatVectorProperty(name = "Connector Loc",
                                     description = "Pos In Global",
                                     precision = 3,
-                                    default = (0.0,0.0,0.0),
-                                    update = update_end_loc)
+                                    default = (0.0,0.0,0.0))
     end_Loc : bpy.props.FloatVectorProperty(name = "End Loc",
                                     description = "End Location",
                                     precision = 3,
@@ -107,7 +106,7 @@ class SFX_DigTwin_basic_Inset(bpy.types.PropertyGroup):
 
 
         if self.expand_DigTwin_setup:
-            self.DigTwin_props.draw_DigTwin_props(context, layout)
+            self.DigTwin_props.draw_ww_DigTwin_props(context, layout)
 
     def update_length(self,context):
         in_loc = bpy.data.collections.get("ww SFX_Nodes").children[self.Mother_name].objects[self.Mother_name+'_In'].location
@@ -115,4 +114,6 @@ class SFX_DigTwin_basic_Inset(bpy.types.PropertyGroup):
         normalized = (out_loc-in_loc).normalized()
         bpy.data.collections.get("ww SFX_Nodes").children[self.Mother_name].objects[self.Mother_name+'_Out'].location =\
             in_loc+self.length*normalized
+        self.con_Loc =bpy.data.collections.get("ww SFX_Nodes").\
+            children[self.Mother_name].objects[self.Mother_name+'_Connector'].matrix_world.to_translation()
         pass

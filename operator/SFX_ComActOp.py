@@ -166,7 +166,13 @@ class SFX_OT_CommActOp(bpy.types.Operator):
 
         bpy.data.collections.get("ww SFX_Nodes").children[self.MotherNode.name].\
             objects[self.MotherNode.name+'_Connector'].constraints['Follow Path'].offset = \
-                     self.MotherNode.Actuator_basic_props.ist_Pos *-20 
+                     self.MotherNode.Actuator_basic_props.ist_Pos *\
+                         (-100.0/(DTwin_endLoc-DTwin_startLoc).length)
+
+        # https://docs.blender.org/api/current/bpy.types.Spline.html
+
+        DTwin_conLoc = bpy.data.collections.get("ww SFX_Nodes").children[self.MotherNode.name].\
+            objects[self.MotherNode.name+'_Connector'].matrix_world.to_translation()
 
         self.MotherNode.Actuator_basic_props.\
             DigTwin_basic_props.length = (DTwin_endLoc-DTwin_startLoc).length
@@ -175,4 +181,7 @@ class SFX_OT_CommActOp(bpy.types.Operator):
             DigTwin_basic_props.start_Loc = DTwin_startLoc
 
         self.MotherNode.Actuator_basic_props.\
-            DigTwin_basic_props.end_Loc = DTwin_endLoc    
+            DigTwin_basic_props.end_Loc = DTwin_endLoc
+
+        self.MotherNode.Actuator_basic_props.\
+            DigTwin_basic_props.con_Loc = DTwin_conLoc
