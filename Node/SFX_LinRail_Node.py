@@ -6,7 +6,7 @@ from mathutils import Vector
 
 from .. exchange_data.SFX_actuator_basic_Inset import SFX_actuator_basic_Inset
 from .. exchange_data.SFX_Joystick_Inset import SFX_Joystick_Inset
-from .. models.SFX_Rail import SFX_Rail
+from .. models.SFX_drawLinRail import SFX_drawLinRail
 
 class SFX_LinRailNode(bpy.types.Node):
     '''simple Linear Rail Actuator'''
@@ -89,7 +89,7 @@ class SFX_LinRailNode(bpy.types.Node):
 
         self.Actuator_basic_props.DigTwin_basic_props.Mother_name = self.name
 
-        self.SFX_Rail = SFX_Rail(self.name)
+        self.SFX_drawLinRail = SFX_drawLinRail(self.name)
         #self.draw_model(context)
         self.draw_model(self.name)
 
@@ -190,7 +190,7 @@ class SFX_LinRailNode(bpy.types.Node):
                         pass
 
     def draw_model(self,name):
-        self.SFX_Rail.draw_model(name)
+        self.SFX_drawLinRail.draw_model(name)
 
     #OPTIONAL
     #we can use this function to dynamically define the label of

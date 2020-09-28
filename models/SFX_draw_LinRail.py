@@ -1,8 +1,8 @@
 import bpy
 
-class SFX_Rail():
+class SFX_drawLinRail():
     '''Draws Rail in 3D_View'''
-    bl_idname = 'SFX_draw_LinRailNode'
+    bl_idname = 'SFX_draw_LinRail'
 
     def __init__(self,name):
         pass        
@@ -23,6 +23,7 @@ class SFX_Rail():
             for p, new_co in zip(spline.points, coords_list):
                 p.co = (new_co + [1.0]) # (add nurbs weight)
             Extr = bpy.data.objects.new(name+'_extr', extr)
+            Extr.location = (0,0,0)
             ww_Actcollection.objects.link(Extr)
             # Add Path
             coords_list = ([[0,0,0], [0,0,0]])
@@ -33,6 +34,7 @@ class SFX_Rail():
             for p, new_co in zip(spline.points, coords_list):
                 p.co = (new_co + [1.0]) # (add nurbs weight)
             Path = bpy.data.objects.new(name+'_Path', path)
+            Path.location =(0,0,0)
             ww_Actcollection.objects.link(Path)
             # Bevel Bevel Thingy
             Path.data.bevel_object = Extr
@@ -47,6 +49,7 @@ class SFX_Rail():
             Out = bpy.data.objects.new(name+"_Out", None )
             Out.empty_display_size = 2
             Out.empty_display_type = 'ARROWS'
+            Out.location = (0,0,0)
             ww_Actcollection.objects.link( Out )
             # hook modifier left
             hook_left = Path.modifiers.new(name= 'hook_left', type = 'HOOK')
@@ -67,5 +70,10 @@ class SFX_Rail():
             Connector.constraints['Follow Path'].use_curve_radius = True
             ww_Actcollection.objects.link( Connector )
             Out.location = (0,0,5)
+            if name[-4] == '.':
+                Extr.location = (float(name[-3:]) ,float(name[-3:]),0)
+                Path.location =(float(name[-3:]),float(name[-3:]),0)
+                In.location = (float(name[-3:]),float(name[-3:]),0)
+                Out.location = (float(name[-3:]),float(name[-3:]),5)                
         else:
             bpy.ops.sfx.collnotexisttdiag('INVOKE_DEFAULT')
