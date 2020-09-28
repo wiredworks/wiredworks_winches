@@ -6,7 +6,7 @@ from mathutils import Vector
 
 from .. exchange_data.SFX_actuator_basic_Inset import SFX_actuator_basic_Inset
 from .. exchange_data.SFX_Joystick_Inset import SFX_Joystick_Inset
-from .. models.SFX_drawLinRail import SFX_drawLinRail
+from ..models.SFX_draw_LinRail import SFX_drawLinRail
 
 class SFX_LinRailNode(bpy.types.Node):
     '''simple Linear Rail Actuator'''

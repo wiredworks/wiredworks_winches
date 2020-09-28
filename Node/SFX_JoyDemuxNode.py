@@ -1,7 +1,7 @@
 import bpy
 from .. exchange_data.SFX_Joystick_Inset import SFX_Joystick_Inset
 
-class SFX_JoystickDemux(bpy.types.Node):
+class SFX_JoystickDemuxNode(bpy.types.Node):
     ''' Takes Joystick Data and outputs selected Data'''
     bl_idname = 'SFX_JoyDemuxNode'
     bl_label = 'Demuxer'
@@ -35,9 +35,16 @@ class SFX_JoystickDemux(bpy.types.Node):
 
         self.outputs.new('SFX_Joy_bool', "Button 2")
         self.outputs["Button 2"].default_value_set = SFX_Joystick_Inset
+        self.outputs["Button 2"].ww_enum_prop = 'Button6'
 
-        self.inputs.new('SFX_Joy_Float',name= 'Joy Values')
+        self.inputs.new('SFX_Joy_In',name= 'Joy Values')
         self.inputs["Joy Values"].default_value_set = SFX_Joystick_Inset
+
+    def copy(self, node):
+        print("copied node", node)
+        
+    def free(self):
+        self.MotherNode.demux_operator_started_bit1 = False
 
     def update(self):
         try:
@@ -184,14 +191,13 @@ class SFX_JoystickDemux(bpy.types.Node):
                         else:
                             o.to_socket.node.inputs[o.to_socket.name].default_value = False
 
-    # Additional buttons displayed on the node.
     def draw_buttons(self, context, layout):
         box = layout.box()
         col = box.column()
         row4 = col.split(factor=0.75)         # Tick Time
         row5 = row4.split(factor=0.9)       # running modal
         row6 = row5.split(factor=0.9)       # started
-        row7 = row6.split(factor=0.5)        # register
+        row7 = row6.split(factor=1)        # register
         row4.prop( self, 'TickTime_prop', text = '')
         row5.prop(self, 'demux_operator_running_modal', text = '')
         row6.prop(self, 'demux_operator_started_bit1', text = '')

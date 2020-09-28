@@ -3,9 +3,9 @@ import bpy
 from .. exchange_data.SFX_Joystick_Inset import SFX_Joystick_Inset 
 
 class SFX_Joy_Float(bpy.types.NodeSocket):
-    '''ww Joystick Socket'''
+    '''Joystick Socket'''
     bl_idname = 'SFX_Joy_Float'
-    bl_label = "ww Joystick Float Socket"
+    bl_label = "Joystick Float Socket"
 
     default_value : bpy.props.PointerProperty(type = SFX_Joystick_Inset)
 
