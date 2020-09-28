@@ -6,8 +6,8 @@ from .. exchange_data.SFX_Joystick_Inset import SFX_Joystick_Inset
 class SFX_JoystickNode(bpy.types.Node):
     '''SFX_JoyStick'''
     bl_idname = 'SFX_JoyStickNode'
-    bl_label = 'Comm Operator'
-    bl_icon = 'CURVE_NCIRCLE'
+    bl_label = 'Joystick'
+    bl_icon = 'AXIS_TOP'
     bl_width_min = 600
     bl_width_max = 5000
 
@@ -92,9 +92,6 @@ class SFX_JoystickNode(bpy.types.Node):
         if self.expand_Joystick_data:
             self.ww_Joystick_props.draw_Joystick_props(context, layout)
 
-        # split = layout.split()
-        # col = split.column()
-      
     def draw_buttons_ext(self, context, layout):
         pass
 

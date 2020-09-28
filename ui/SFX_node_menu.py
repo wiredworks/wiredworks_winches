@@ -6,7 +6,43 @@ def drawMenu(self, context):
     layout = self.layout
     layout.operator_context = "INVOKE_DEFAULT"
 
-    layout.menu("SFX_MT_actuator_menu", text= "Actuator", icon = "CON_TRANSFORM")
+    insertNode(layout, "SFX_ClockNode", "Clock", {}, "CURVE_NCIRCLE")
+    layout.menu("SFX_MT_sensors_menu", text= "Sensors", icon = "IMPORT")
+    layout.menu("SFX_MT_cues_menu", text= "Cues", icon = "STROKE")
+    layout.menu("SFX_MT_kinematics_menu", text= "Kinematics", icon = "SPHERECURVE")
+    layout.menu("SFX_MT_helpers_menu", text= "Helpers", icon = "GHOST_DISABLED")
+    layout.menu("SFX_MT_actuator_menu", text= "Actuators", icon = "EXPORT")
+
+
+class SFX_SensorsMenu(bpy.types.Menu):
+    bl_idname = "SFX_MT_sensors_menu"
+    bl_label = "Sensors Menu"
+
+    def draw(self,context):
+        layout = self.layout
+        insertNode(layout, "SFX_JoystickNode", "Joystick", {}, "ARROW_LEFTRIGHT")
+
+class SFX_CuesMenu(bpy.types.Menu):
+    bl_idname = "SFX_MT_cues_menu"
+    bl_label = "Cues Menu"
+    def draw(self,context):
+        layout = self.layout
+        pass
+
+class SFX_KinematicsMenu(bpy.types.Menu):
+    bl_idname = "SFX_MT_kinematics_menu"
+    bl_label = "Kinematics Menu"
+    def draw(self,context):
+        layout = self.layout
+        pass
+
+class SFX_HelpersMenu(bpy.types.Menu):
+    bl_idname = "SFX_MT_helpers_menu"
+    bl_label = "Helper Menu"
+    def draw(self,context):
+        layout = self.layout
+        insertNode(layout, "SFX_JoyDemuxNode", "Demux", {}, "TRACKING_FORWARDS")
+        pass
 
 class SFX_ActMenu(bpy.types.Menu):
     bl_idname = "SFX_MT_actuator_menu"
@@ -14,9 +50,6 @@ class SFX_ActMenu(bpy.types.Menu):
 
     def draw(self,context):
         layout = self.layout
-        insertNode(layout, "SFX_ClockNode", "Clock", {}, "CURVE_NCIRCLE")
-        insertNode(layout, "SFX_JoyStickNode", "Joystick", {}, "ARROW_LEFTRIGHT")
-        insertNode(layout, "SFX_JoyDemuxNode", "Demux", {}, "TRACKING_FORWARDS")
         insertNode(layout, "SFX_LinRailNode",  "Rail",  {}, "ARROW_LEFTRIGHT")
 
 def insertNode(layout, type, text, settings = {}, icon = "NONE"):

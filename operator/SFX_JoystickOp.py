@@ -6,9 +6,9 @@ import json
 from ..exchange_data.SFX_Joystick_Inset import SFX_Joystick_Inset
 
 class SFX_OT_JoystickOp(bpy.types.Operator):
-    """ This operator Starts the Communication"""
+    """ This operator takes the Input of a Joystick"""
     bl_idname = "sfx.joystick"
-    bl_label = "Communication Start"
+    bl_label = "Joystick Input"
 
     def modal(self, context, event):
         if event.type == 'TIMER':
