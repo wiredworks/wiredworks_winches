@@ -1,5 +1,7 @@
 # wiredworks_winches
 
+Branch v.0.0.3 is ready to be experimented with!
+
 At this stage you can create multiple nodes which, by pushing the start button,
 call an operator which set a USocket connection at a specific IP:Port combination up.
 
