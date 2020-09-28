@@ -106,7 +106,7 @@ class SFX_DigTwin_basic_Inset(bpy.types.PropertyGroup):
 
 
         if self.expand_DigTwin_setup:
-            self.DigTwin_props.draw_ww_DigTwin_props(context, layout)
+            self.DigTwin_props.draw_ww_DigTwin_props(context, box)
 
     def update_length(self,context):
         in_loc = bpy.data.collections.get("ww SFX_Nodes").children[self.Mother_name].objects[self.Mother_name+'_In'].location

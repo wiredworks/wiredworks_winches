@@ -94,10 +94,10 @@ class SFX_actuator_basic_Inset(bpy.types.PropertyGroup):
         row3.prop(self, 'expand_Actuator_setup')
 
         if self.expand_DigTwin_basic:
-            self.DigTwin_basic_props.draw_ww_DigTwin_basic_props(context, layout) 
+            self.DigTwin_basic_props.draw_ww_DigTwin_basic_props(context, box) 
 
         if self.expand_Actuator_setup:
-            self.Actuator_props.drawActuatorSetup(context, layout)
+            self.Actuator_props.drawActuatorSetup(context, box)
 
 
 
