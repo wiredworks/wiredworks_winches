@@ -15,7 +15,7 @@ class SFX_ActMenu(bpy.types.Menu):
     def draw(self,context):
         layout = self.layout
         insertNode(layout, "SFX_ClockNode", "Clock", {}, "CURVE_NCIRCLE")
-        insertNode(layout, "SFX_JoyStartNode", "Start", {}, "ARROW_LEFTRIGHT")
+        insertNode(layout, "SFX_JoyStickNode", "Joystick", {}, "ARROW_LEFTRIGHT")
         insertNode(layout, "SFX_JoyDemuxNode", "Demux", {}, "TRACKING_FORWARDS")
         insertNode(layout, "SFX_LinRailNode",  "Rail",  {}, "ARROW_LEFTRIGHT")
 

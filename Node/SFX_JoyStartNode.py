@@ -3,9 +3,9 @@ import bpy
 from .. exchange_data.SFX_Joystick_Inset import SFX_Joystick_Inset
 
 
-class SFX_JoyStartNode(bpy.types.Node):
-    '''SFX_JoyStartNode'''
-    bl_idname = 'SFX_JoyStartNode'
+class SFX_JoystickNode(bpy.types.Node):
+    '''SFX_JoyStick'''
+    bl_idname = 'SFX_JoyStickNode'
     bl_label = 'Comm Operator'
     bl_icon = 'CURVE_NCIRCLE'
     bl_width_min = 600
@@ -52,10 +52,9 @@ class SFX_JoyStartNode(bpy.types.Node):
                                     default = False)
 
     def init(self, context):
-        self.draw_model(context)
 
         self.outputs.new('SFX_Joy',name= 'Joy Values')
-        self.outputs["Joy Values"].default_value_set = 14 #ww_Joystick_props
+        self.outputs["Joy Values"].default_value_set = self.ww_Joystick_props
 
     def copy(self, node):
         print("copied node", node)
@@ -79,9 +78,9 @@ class SFX_JoyStartNode(bpy.types.Node):
         row5.prop(self, 'actuator_connected_bit2', text = '')
         row6.prop(self, 'actuator_connected_bit1', text = '')
         if not(self.operator_started_bit1):
-            row7.operator('sfx.joystartop',text ='Start')
+            row7.operator('sfx.joystick',text ='Register')
         else:
-           row7.operator('sfx.commstarteddiag',text ='Started')
+           row7.operator('sfx.commstarteddiag',text ='Registered')
         row8.prop(self, 'ssocket_port', text = '')
         row9.prop(self, 'rsocket_port', text = '')
         row10.prop(self, 'socket_ip', text = '')
@@ -98,10 +97,6 @@ class SFX_JoyStartNode(bpy.types.Node):
       
     def draw_buttons_ext(self, context, layout):
         pass
-
-    def draw_model(self,context):
-        collection = bpy.data.collections.new('ww SFX_Nodes')
-        bpy.context.scene.collection.children.link(collection)
 
     def update(self):
         try:

@@ -33,7 +33,8 @@ class SFX_OT_ClockStartOp(bpy.types.Operator):
         return self.execute(context)
 
     def End_Comm(self,context):        
-        print('Clock Start -- end timerk')
+        print('Clock Start -- end timer')
+        self.MotherNode.operator_started_bit1 = False
         context.window_manager.event_timer_remove(self._timer)
         return {'CANCELLED'} 
 

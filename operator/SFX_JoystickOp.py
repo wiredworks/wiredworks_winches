@@ -5,9 +5,9 @@ import json
 
 from ..exchange_data.SFX_Joystick_Inset import SFX_Joystick_Inset
 
-class SFX_OT_JoyStartOp(bpy.types.Operator):
+class SFX_OT_JoystickOp(bpy.types.Operator):
     """ This operator Starts the Communication"""
-    bl_idname = "sfx.joystartop"
+    bl_idname = "sfx.joystick"
     bl_label = "Communication Start"
 
     def modal(self, context, event):
@@ -50,7 +50,7 @@ class SFX_OT_JoyStartOp(bpy.types.Operator):
 
     def execute(self, context):
         print('Communication Start -- execute')
-        self._timer = context.window_manager.event_timer_add(0.001, window=context.window)
+        #self._timer = context.window_manager.event_timer_add(0.001, window=context.window)
         context.window_manager.modal_handler_add(self)
         self.old_time = time.time_ns()
         return {'RUNNING_MODAL'}
@@ -187,5 +187,5 @@ class SFX_OT_JoyStartOp(bpy.types.Operator):
             #print('You tried to disconnect without beeing connected')
             pass
         print('Communication Start -- end timer')
-        context.window_manager.event_timer_remove(self._timer)
+        #context.window_manager.event_timer_remove(self._timer)
         return {'CANCELLED'}

@@ -38,6 +38,7 @@ class SFX_ClockNode(bpy.types.Node):
 
     def free(self):
         self.operator_started_bit1 = False
+        bpy.data.collections.remove(bpy.data.collections.get('ww SFX_Nodes'))
         print('Node destroyed',self)
 
     def draw_buttons(self, context, layout):
