@@ -27,7 +27,7 @@ class SFX_simpleCueOp(bpy.types.Operator):
                 self.f =max(0,min(self.f,120))
                 value = self.cue.evaluate(self.f)
                 print(self.f,value)
-                self.MotherNode.outputs["Set Vel"].default_value = value
+                self.MotherNode.outputs["Set Vel"].ww_out_value = value
                 self.old_time = time.time_ns()
                 return {'PASS_THROUGH'}
             self.MotherNode.operator_running_modal = False

@@ -28,6 +28,7 @@ class SFX_simpleCueNode(bpy.types.Node):
 
     def init(self, context):
         self.outputs.new('SFX_Joy_Float', "Set Vel")
+        self.outputs["Set Vel"].default_value_set = SFX_Joystick_Inset
         self.outputs["Set Vel"].ww_out_value = 0.0
 
         self.inputs.new('SFX_Cue_bool',name= 'Forward')
@@ -86,7 +87,7 @@ class SFX_simpleCueNode(bpy.types.Node):
             if out1.is_linked:
                  for o in out1.links:
                     if o.is_valid:
-                        o.to_socket.node.inputs[o.to_socket.name].set_vel = self.outputs["Set Vel"].default_value
+                        o.to_socket.node.inputs[o.to_socket.name].set_vel = self.outputs["Set Vel"].ww_out_value
                         pass
 
     def spawnDataobject(self):
