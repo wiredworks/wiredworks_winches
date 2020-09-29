@@ -1,9 +1,9 @@
 import bpy
 
 class SFX_Act_out_ist_Pos(bpy.types.NodeSocket):
-    '''ww Actuator Output ist Pos'''
+    '''SFX Actuator Output ist Pos'''
     bl_idname = 'SFX_act_out_ist_Pos'
-    bl_label = "ww Actuator Output Ist Pos"
+    bl_label = "SFX Actuator Output Ist Pos"
 
     ist_pos: bpy.props.FloatProperty(name = "Ist Pos   ",
                                         description = "Ist Pos of Actuator",

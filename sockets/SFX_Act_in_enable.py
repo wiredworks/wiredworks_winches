@@ -1,7 +1,7 @@
 import bpy
 
 class SFX_Act_in_enable(bpy.types.NodeSocket):
-    '''ww Actuator Enable'''
+    '''SFX Actuator Enable'''
     bl_idname = 'SFX_Act_in_enable'
     bl_label = "SFX Actuator Input Select"
 

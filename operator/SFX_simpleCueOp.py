@@ -4,18 +4,33 @@ import time
 class SFX_simpleCueOp(bpy.types.Operator):
     """ simple Cue op"""
     bl_idname = "sfx.simplecueop"
-    bl_label = "Simple Cue"
+    bl_label = "Simple Cue Operator"
 
     def modal(self, context, event):
         if event.type == 'TIMER':
-            if self.MotherNode.demux_operator_started_bit1:
-                self.MotherNode.demux_operator_running_modal = True
+            if self.MotherNode.operator_started_bit1:
+                self.MotherNode.operator_running_modal = True
                 # Trigger Node Update
-                self.MotherNode.TickTime_prop = (time.time_ns() - self.old_time)/1000000.0
-                self.old_time = time.time_ns()
+                self.MotherNode.TickTime_prop = (time.time_ns() - self.old_time)/1000000.0                
                 pass
+                if (self.MotherNode.inputs['Forward'].default_value == True and
+                    self.MotherNode.inputs['Reverse'].default_value == False):
+                    self.f = self.f+(time.time_ns() - self.old_time)/1000000000.0
+                    print('Up')
+                elif (self.MotherNode.inputs['Forward'].default_value == False and
+                    self.MotherNode.inputs['Reverse'].default_value == True):
+                    self.f = self.f-(time.time_ns() - self.old_time)/1000000000.0
+                    print('Down')
+                else:
+                    print('e')
+                    pass
+                self.f =max(0,min(self.f,120))
+                value = self.cue.evaluate(self.f)
+                print(self.f,value)
+                self.MotherNode.outputs["Set Vel"].default_value = value
+                self.old_time = time.time_ns()
                 return {'PASS_THROUGH'}
-            self.MotherNode.demux_operator_running_modal = False
+            self.MotherNode.operator_running_modal = False
             return{'CANCELLED'}
         return {'PASS_THROUGH'}
     def execute(self, context):
@@ -23,12 +38,26 @@ class SFX_simpleCueOp(bpy.types.Operator):
         return {'RUNNING_MODAL'}
 
     def invoke(self, context, event):        
-        if not(context.active_node.demux_operator_started_bit1):
+        if not(context.active_node.operator_started_bit1):
             self.old_time = time.time_ns()
             self.MotherNode = context.active_node
-            self.MotherNode.demux_operator_started_bit1 = True
+            self.MotherNode.operator_started_bit1 = True
+            self.initCue()
+            self.f = 0.0
             return self.execute(context)
 
     def draw(self,context):
         pass
 
+    def initCue(self):
+        self.Dataobject =  bpy.data.objects[self.MotherNode.name+'_Data']
+        if not self.Dataobject.animation_data:
+            self.Dataobject.animation_data_create()
+        if not self.Dataobject.animation_data.action:
+            self.Dataobject.animation_data.action = bpy.data.actions.new(self.MotherNode.name+"_Cue")
+        action = self.Dataobject.animation_data.action
+        self.cue = action.fcurves.new('Cue')
+        self.cue.select = True
+        self.InK =self.cue.keyframe_points.insert( 0, 0 )
+        self.Mid =self.cue.keyframe_points.insert( 60, 100 )
+        self.Out =self.cue.keyframe_points.insert( 120, 0 )

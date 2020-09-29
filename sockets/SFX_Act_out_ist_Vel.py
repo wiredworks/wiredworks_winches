@@ -1,9 +1,9 @@
 import bpy
 
 class SFX_Act_out_ist_Vel(bpy.types.NodeSocket):
-    '''ww Actuator Output ist Vel'''
+    '''SFX Actuator Output ist Vel'''
     bl_idname = 'SFX_act_out_ist_Vel'
-    bl_label = "ww Actuator Output Ist Vel"
+    bl_label = "SFX Actuator Output Ist Vel"
 
     def update_value(self,context):
         print('Update')

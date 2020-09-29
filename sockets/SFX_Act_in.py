@@ -1,9 +1,9 @@
 import bpy
 
 class SFX_Act_in(bpy.types.NodeSocket):
-    '''ww Actuator Input Socket'''
+    '''SFX Actuator Input Socket'''
     bl_idname = 'SFX_Act_in'
-    bl_label = "ww Actuator Input Socket"
+    bl_label = "SFX Actuator Input Socket"
 
     set_Pos : bpy.props.FloatProperty(name = "Set Pos",
                                     description = "Set Position",

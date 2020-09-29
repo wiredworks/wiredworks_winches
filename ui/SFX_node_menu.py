@@ -27,7 +27,7 @@ class SFX_CuesMenu(bpy.types.Menu):
     bl_label = "Cues Menu"
     def draw(self,context):
         layout = self.layout
-        pass
+        insertNode(layout, "SFX_simpleCueNode", "simple Cue", {}, "ARROW_LEFTRIGHT")
 
 class SFX_KinematicsMenu(bpy.types.Menu):
     bl_idname = "SFX_MT_kinematics_menu"

@@ -1,9 +1,9 @@
 import bpy
 
 class SFX_Act_in_set_Vel(bpy.types.NodeSocket):
-    '''ww Actuator Input set Vel'''
+    '''SFX Actuator Input set Vel'''
     bl_idname = 'SFX_act_in_set_Vel'
-    bl_label = "ww Actuator Input Set Vel"
+    bl_label = "SFX Actuator Input Set Vel"
 
     set_vel: bpy.props.FloatProperty(name = "Set Vel",
                                         description = "Set Vel for Actuator",
