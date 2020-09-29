@@ -5,7 +5,7 @@ from .. exchange_data.SFX_Joystick_Inset import SFX_Joystick_Inset
 
 class SFX_JoystickNode(bpy.types.Node):
     '''SFX_JoyStick'''
-    bl_idname = 'SFX_JoyStickNode'
+    bl_idname = 'SFX_JoystickNode'
     bl_label = 'Joystick'
     bl_icon = 'AXIS_TOP'
     bl_width_min = 600
