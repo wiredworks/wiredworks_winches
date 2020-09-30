@@ -1,5 +1,6 @@
 import bpy
 from .. exchange_data.SFX_Joystick_Inset import SFX_Joystick_Inset
+from .. exchange_data.SFX_simple_actuator_Inset import SFX_simple_Actuator_Inset
 
 class SFX_simpleCueNode(bpy.types.Node):
     ''' Takes Joystick Data and outputs selected Data'''
@@ -25,6 +26,11 @@ class SFX_simpleCueNode(bpy.types.Node):
     operator_running_modal: bpy.props.BoolProperty(name = "Operator Running Modal",
                                     description = "Operator Running Modal",
                                     default = False)
+    expand_Actuator_props : bpy.props.BoolProperty(name = "Expand Basic Data",
+                                    description = "Expand Basic Data",
+                                    default = False)
+
+    Actuator_props : bpy.props.PointerProperty(type = SFX_simple_Actuator_Inset)
 
     def init(self, context):
         self.outputs.new('SFX_Joy_Float', "Set Vel")
@@ -62,6 +68,12 @@ class SFX_simpleCueNode(bpy.types.Node):
         else:
             row7.operator('sfx.commstarteddiag',text ='Started')
 
+        row = layout.row(align=True)
+        row.prop(self, 'expand_Actuator_props')
+
+        if self.expand_Actuator_props:
+            self.Actuator_props.drawActuatorSetup(context, layout)
+
     def update(self):
         try:
             out1 = self.outputs["Set Vel"]
@@ -88,6 +100,12 @@ class SFX_simpleCueNode(bpy.types.Node):
                  for o in out1.links:
                     if o.is_valid:
                         o.to_socket.node.inputs[o.to_socket.name].set_vel = self.outputs["Set Vel"].ww_out_value
+                        self.Actuator_props.simple_actuator_HardMax_prop = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop
+                        self.Actuator_props.simple_actuator_HardMin_prop = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_HardMin_prop
+                        self.Actuator_props.simple_actuator_VelMax_prop = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_VelMax_prop
+                        self.Actuator_props.simple_actuator_AccMax_prop = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_AccMax_prop
+                        self.Actuator_props.simple_actuator_confirm = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_confirm
+                        self.Actuator_props.simple_actuator_confirmed = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_confirmed
                         pass
 
     def spawnDataobject(self):
