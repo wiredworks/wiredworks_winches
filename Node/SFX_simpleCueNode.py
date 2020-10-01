@@ -7,7 +7,7 @@ class SFX_simpleCueNode(bpy.types.Node):
     bl_idname = 'SFX_simpleCueNode'
     bl_label = 'SimpleCue Node'
     bl_icon = 'ANCHOR_LEFT'
-    bl_width_min = 220
+    bl_width_min = 500
     bl_width_max = 500
 
     @classmethod
@@ -29,11 +29,14 @@ class SFX_simpleCueNode(bpy.types.Node):
     expand_Actuator_props : bpy.props.BoolProperty(name = "Expand Basic Data",
                                     description = "Expand Basic Data",
                                     default = False)
+    length : bpy.props.FloatProperty(name = 'Length',
+                                     description = 'Length of Actuator',
+                                     default = 0)
 
     Actuator_props : bpy.props.PointerProperty(type = SFX_simple_Actuator_Inset)
 
     def init(self, context):
-        self.outputs.new('SFX_Joy_Float', "Set Vel")
+        self.outputs.new('SFX_Cue_Float', "Set Vel")
         self.outputs["Set Vel"].default_value_set = SFX_Joystick_Inset
         self.outputs["Set Vel"].ww_out_value = 0.0
 
@@ -54,12 +57,15 @@ class SFX_simpleCueNode(bpy.types.Node):
         self.operator_started_bit1 = False
 
     def draw_buttons(self, context, layout):
-        box = layout.box()
+        split = layout.split(factor=0.65)
+        col = split.column()
+        col1 = split.column()
+        box = col1.box()
         col = box.column()
         row4 = col.split(factor=0.75)         # Tick Time
         row5 = row4.split(factor=0.9)       # running modal
         row6 = row5.split(factor=0.9)       # started
-        row7 = row6.split(factor=1)        # register
+        row7 = row6.split(factor=1)        # start
         row4.prop( self, 'TickTime_prop', text = '')
         row5.prop(self, 'operator_running_modal', text = '')
         row6.prop(self, 'operator_started_bit1', text = '')
@@ -72,7 +78,16 @@ class SFX_simpleCueNode(bpy.types.Node):
         row.prop(self, 'expand_Actuator_props')
 
         if self.expand_Actuator_props:
-            self.Actuator_props.drawActuatorSetup(context, layout)
+            row = layout.row(align=True)
+            box = row.box()
+            row = box.row()
+            split = row.split(factor = 0.3)
+            col1 = split.column()
+            row = col1.row()
+            row.label(text = 'Length')
+            row.prop(self,'length', text ='')
+            row = box.row()
+            self.Actuator_props.drawActuatorSetup(context, row)
 
     def update(self):
         try:
@@ -106,6 +121,7 @@ class SFX_simpleCueNode(bpy.types.Node):
                         self.Actuator_props.simple_actuator_AccMax_prop = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_AccMax_prop
                         self.Actuator_props.simple_actuator_confirm = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_confirm
                         self.Actuator_props.simple_actuator_confirmed = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_confirmed
+                        self.length = o.to_socket.node.Actuator_basic_props.DigTwin_basic_props.length
                         pass
 
     def spawnDataobject(self):
