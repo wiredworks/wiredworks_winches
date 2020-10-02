@@ -23,6 +23,10 @@ class SFX_simpleCueNode(bpy.types.Node):
     TickTime1_prop : bpy.props.FloatProperty(default=0.0,
                                             update = update_value)
 
+    toTime : bpy.props.BoolProperty(name = "To Vel/Time",
+                                    description = "To Vel over Time",
+                                    default = False)                                            
+
     operator_started_bit1 : bpy.props.BoolProperty(name = "Operator Started",
                                     description = "Operator Started",
                                     default = False)
@@ -93,10 +97,11 @@ class SFX_simpleCueNode(bpy.types.Node):
             box = row.box()
             row = box.row()
             split = row.split(factor = 0.3)
-            row.operator('sfx.editsimplecueop', text = 'Edit')
-            row.prop(self,'operator_edit',text='')
-            row.prop(self,'operator_editing',text = '')
-            row.prop(self,'TickTime1_prop',text='')
+            row.prop(self,'toTime')
+            # row.operator('sfx.editsimplecueop', text = 'Edit')
+            # row.prop(self,'operator_edit',text='')
+            # row.prop(self,'operator_editing',text = '')
+            # row.prop(self,'TickTime1_prop',text='')
             col1 = split.column()
             row = col1.row()
             row.label(text = 'Length')

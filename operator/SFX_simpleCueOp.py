@@ -16,11 +16,10 @@ class SFX_simpleCueOp(bpy.types.Operator):
                 self.MotherNode.TickTime_prop = (time.time_ns() - self.old_time)/1000000.0                
                 pass
                 self.CalculateGrenzVel()
-                self.CalculateVelInPos()
-                max_Pos = self.MotherNode.Actuator_props.simple_actuator_HardMax_prop
-                min_Pos = self.MotherNode.Actuator_props.simple_actuator_HardMin_prop
-                Time = quad(lambda x: self.VelInPos.evaluate(x),min_Pos*100,max_Pos*100)
-                print(Time)
+                self.FixEndsOfVelInPos()
+                if self.MotherNode.toTime:
+                    self.VelFromPosToTime()
+
 
 
 
@@ -53,6 +52,7 @@ class SFX_simpleCueOp(bpy.types.Operator):
             self.old_time = time.time_ns()
             self.MotherNode = context.active_node
             self.MotherNode.operator_started_bit1 = True
+            self.length = self.MotherNode.length
             self.initGraph()
             self.f = 0.0
             return self.execute(context)
@@ -65,21 +65,17 @@ class SFX_simpleCueOp(bpy.types.Operator):
         if not self.Dataobject.animation_data:
             self.Dataobject.animation_data_create()
         if not self.Dataobject.animation_data.action:
-            self.Dataobject.animation_data.action = bpy.data.actions.new(self.MotherNode.name+"_Cue")
-        action = self.Dataobject.animation_data.action
-        self.VelInPos = action.fcurves.new('Vel In Pos Domain')
+            self.Dataobject.animation_data.action = \
+                bpy.data.actions.new(self.MotherNode.name+"_Cue")# or bpy.data.actions.get(self.MotherNode.name+"_Cue")
+        self.action = self.Dataobject.animation_data.action
+        self.VelInPos = self.action.fcurves.new('Vel In Pos Domain')
         self.VelInPos.keyframe_points.insert( 0, 1 )
         self.VelInPos.keyframe_points.insert( 1, 1 )
         self.VelInPos.keyframe_points.insert( 2, 1 )
         self.VelInPos.keyframe_points.insert( 3, 1 )
         self.VelInPos.select = True
-        self.VelInTime = action.fcurves.new('Vel In Time Domain')
-        self.VelInTime.keyframe_points.insert( 0, 2 )
-        self.VelInTime.keyframe_points.insert( 1, 2 )
-        self.VelInTime.keyframe_points.insert( 2, 2 )
-        self.VelInTime.keyframe_points.insert( 3, 2 )
-        self.VelInTime.select = True
-        self.GrenzVel = action.fcurves.new('Vel Limit')
+
+        self.GrenzVel = self.action.fcurves.new('Vel Limit')
         self.GrenzVel.keyframe_points.insert( 0, 0 )
         self.GrenzVel.keyframe_points.insert( 1, 0 )
         self.GrenzVel.keyframe_points.insert( 2, 0 )
@@ -90,6 +86,7 @@ class SFX_simpleCueOp(bpy.types.Operator):
 
         self.CalculateGrenzVel()
         self.InitializeVelInPos()
+        #self.InitializeVelInTime()
 
     def CalculateGrenzVel(self):
         self.GrenzVel.lock = True
@@ -169,7 +166,10 @@ class SFX_simpleCueOp(bpy.types.Operator):
         self.VelInPos.keyframe_points[3].handle_left = (Point3[0]-50,Point3[1])
         self.VelInPos.keyframe_points[3].handle_right = (Point3[0]+50,Point3[1])
 
-    def CalculateVelInPos(self):
+        #self.VelInPos.update()
+
+
+    def FixEndsOfVelInPos(self):
         max_Pos = self.MotherNode.Actuator_props.simple_actuator_HardMax_prop
         min_Pos = self.MotherNode.Actuator_props.simple_actuator_HardMin_prop
         #max_Vel = self.MotherNode.Actuator_props.simple_actuator_VelMax_prop
@@ -182,4 +182,74 @@ class SFX_simpleCueOp(bpy.types.Operator):
         self.VelInPos.keyframe_points[-1].co = Point3
         self.VelInPos.keyframe_points[-1].handle_left = (Point3[0]-50,0)
         self.VelInPos.keyframe_points[-1].handle_right = (Point3[0]+50,0)
- 
+        #self.VelInPos.update()
+
+    def VelFromPosToTime(self):
+        self.MotherNode.toTime = False
+        #self.VelInPos.update()
+        print('To Time')
+        max_Pos = self.MotherNode.Actuator_props.simple_actuator_HardMax_prop
+        min_Pos = self.MotherNode.Actuator_props.simple_actuator_HardMin_prop
+        self.VelInTime = self.action.fcurves.new('Vel In Time Domain')
+        self.VelInTime.keyframe_points.insert( 0, 0 )
+        Point0=(min_Pos,0)
+        self.VelInTime.keyframe_points[0].co = (Point0[0],0)
+        self.VelInTime.keyframe_points[0].handle_left_type = 'VECTOR'
+        self.VelInTime.keyframe_points[0].handle_right_type = 'VECTOR'
+        self.VelInTime.keyframe_points[0].handle_left = (Point0[0]-50,0)
+        self.VelInTime.keyframe_points[0].handle_right = (Point0[0]+50,0)
+        self.VelInTime.keyframe_points[0].interpolation ='BEZIER'
+
+        print('VelInTime 0',len(self.VelInTime.keyframe_points))
+        print(self.VelInTime.keyframe_points[0].co)
+
+        for i in range(1,len(self.VelInPos.keyframe_points)-1):
+            self.VelInTime.keyframe_points.insert( i, i )
+
+        print('VelInTime 1',len(self.VelInTime.keyframe_points))
+        print('VelInPos',len(self.VelInPos.keyframe_points))
+
+        for i in range(1,len(self.VelInPos.keyframe_points)-1):
+            print(i)            
+            self.VelInTime.keyframe_points[i].co =self.VelInPos.keyframe_points[i].co
+            print(self.VelInTime.keyframe_points[i].co)
+            self.VelInTime.keyframe_points[i].handle_left_type = 'AUTO_CLAMPED'
+            self.VelInTime.keyframe_points[i].handle_right_type = 'AUTO_CLAMPED'
+            self.VelInTime.keyframe_points[i].handle_left = self.VelInPos.keyframe_points[i].handle_left
+            self.VelInTime.keyframe_points[i].handle_right = self.VelInPos.keyframe_points[i].handle_right
+            self.VelInTime.keyframe_points[i].interpolation ='BEZIER'
+
+        print('VelInTime 2',len(self.VelInTime.keyframe_points))
+        self.VelInTime.keyframe_points.insert(self.VelInPos.keyframe_points[-1].co[0],self.VelInPos.keyframe_points[-1].co[1])       
+        self.VelInTime.keyframe_points[-1].handle_left_type = 'VECTOR'
+        self.VelInTime.keyframe_points[-1].handle_right_type = 'VECTOR'
+        self.VelInTime.keyframe_points[-1].handle_left = self.VelInPos.keyframe_points[-1].handle_left
+        self.VelInTime.keyframe_points[-1].handle_right = self.VelInPos.keyframe_points[-1].handle_right
+        
+        #self.VelInTime.update()
+        print('VelInTime 3',len(self.VelInTime.keyframe_points))
+
+        for i in range(0,len(self.VelInPos.keyframe_points)):
+            print('VelInTime Coords          ',self.VelInTime.keyframe_points[i].co)
+            print('VelInTime LeftHandle Type ',self.VelInTime.keyframe_points[i].handle_left_type)
+            print('VelInTime RightHandle Type',self.VelInTime.keyframe_points[i].handle_right_type)
+            print('VelInTime LeftHandle      ',self.VelInTime.keyframe_points[i].handle_left)
+            print('VelInTime RightHandle     ',self.VelInTime.keyframe_points[i].handle_right)
+
+        for i in range(0,len(self.VelInPos.keyframe_points)):
+            print('VelInPos Values          ',self.VelInPos.keyframe_points[i].co)
+            print('VelInPos LeftHandle Type ',self.VelInPos.keyframe_points[i].handle_left_type)
+            print('VelInPos RightHandle Type',self.VelInPos.keyframe_points[i].handle_right_type)
+            print('VelInPos LeftHandle      ',self.VelInPos.keyframe_points[i].handle_left)
+            print('VelInPos RightHandle     ',self.VelInPos.keyframe_points[i].handle_right)
+
+
+
+        # TraveledDistance = (quad(lambda x: self.VelInTime.evaluate(x),min_Pos*100,max_Pos*100))
+        # print(TraveledDistance)
+        # print('#')
+        # while TraveledDistance[0]/100000 -self.length < 0:
+        #     for i in range(1,len(self.VelInTime.keyframe_points)):
+        #        self.VelInTime.keyframe_points[i].co[0]*1.01
+        #     TraveledDistance = quad(lambda x: self.VelInTime.evaluate(x),min_Pos*100,max_Pos*100)[0]/10000
+        #     print(TraveledDistance)

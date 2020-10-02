@@ -30,13 +30,8 @@ class SFX_simpleCueOp(bpy.types.Operator):
         self.old_time = time.time_ns()
         self.MotherNode = context.active_node
         self.MotherNode.operator_edit = True
-        #self.initGraph()
-        #self.f = 0.0
-        gApp = wxBlenderApp(redirect=False,
-                        filename=None,
-                        useBestVisual=False,
-                        clearSigInt=True)
-        gApp.MainLoop()
+        self.initGraph()
+
         return{'FINISHED'}
 
             #return self.execute(context)
@@ -45,72 +40,14 @@ class SFX_simpleCueOp(bpy.types.Operator):
         pass
 
     def initGraph(self):
-        pass
-
-class wxBlenderApp(wx.App):
-    def OnInit(self):
-        self.SetClassName('wxBlenderApp')
-        self.SetAppName('wxBlenderApp')
-        gMainWin = wxBlenderFrame(None)
-        gMainWin.SetTitle('wxBlenderApp')
-        self.SetTopWindow(gMainWin)
-        gMainWin.Show()
-        return True
-
-class wxBlenderFrame(wx.Frame):
-
-    def __init__(self, parent, id=wx.ID_ANY, title=wx.EmptyString,
-                 pos=wx.DefaultPosition, size=wx.DefaultSize,
-                 # Use these styleBits for a standard frame...
-                 style=wx.DEFAULT_FRAME_STYLE |
-                        wx.STAY_ON_TOP
-                 # ...Or use these styleBits for a borderless/taskbarless frame.(WinXP)
-                 #style=wx.STAY_ON_TOP |
-                  #     wx.FRAME_NO_TASKBAR |
-                   #    wx.RESIZE_BORDER
-                       , name='frame'):
-
-        wx.Frame.__init__(self, parent, id, title, pos, size, style, name)
-
-        panel = wx.Panel(self,-1)
-        panel.Bind(wx.EVT_MOTION, self.OnMove)
-        self.PosCtrl = wx.TextCtrl(panel,-1,'',pos =(40,10))
-
-        self.Centre()
-        self.SetFocus()
-
-    def OnMove(self,evt):
-        pos = evt.GetPosition()
-        self.PosCtrl.SetValue("%s %s"%(pos.x,pos.y))
-
-
-        # Lose focus destroy workaround.
-        wx.CallAfter(self.Bind, wx.EVT_ACTIVATE, self.OnActivate)
-
-    def OnActivate(self, event):
-        """
-        Destroy when frame loses focus to workaround Blender GUI lockup
-        issue when wxapp is active.
-        Ex: User has clicked back to the Blender GUI or another application.
-        """
-        try:
-            self.Close()
-        except RuntimeError:
-            ###############
-            ## Traceback (most recent call last):
-            ##   File "....Blender\2.69\scripts\addons\wx_blender\wxblender.py", line ###, in OnActivate
-            ##     self.Close()
-            ## RuntimeError: wrapped C/C++ object of type wxBlenderAddMeshesFrame has been deleted
-            ###############
+        self.Dataobject =  bpy.data.objects[self.MotherNode.name+'_Data']
+        if not self.Dataobject.animation_data:
+            self.Dataobject.animation_data_create()
+        if not self.Dataobject.animation_data.action:
+            self.Dataobject.animation_data.action = bpy.data.actions.new(self.MotherNode.name+"_Cue")
+        action = self.Dataobject.animation_data.action
+        self.VelInPos = action.fcurves.new('Vel In Pos Domain')
+        for i in range(10000):
+            self.VelInPos.keyframe_points.insert( i, i )    
             pass
-        except Exception as exc:
-            wx.Bell()
-            import traceback
-            tb = traceback.format_exc()
-            f = open(gFileDir + os.sep + 'traceback.log', 'w')
-            f.write('%s' %tb)
-            f.close()
-
-    def OnDestroy(self, event):
-        self.Destroy()
 
