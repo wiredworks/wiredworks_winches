@@ -1,4 +1,5 @@
 import bpy
+
 from .. exchange_data.SFX_Joystick_Inset import SFX_Joystick_Inset
 from .. exchange_data.SFX_simple_actuator_Inset import SFX_simple_Actuator_Inset
 
@@ -19,6 +20,8 @@ class SFX_simpleCueNode(bpy.types.Node):
         
     TickTime_prop : bpy.props.FloatProperty(default=0.0,
                                             update = update_value)
+    TickTime1_prop : bpy.props.FloatProperty(default=0.0,
+                                            update = update_value)
 
     operator_started_bit1 : bpy.props.BoolProperty(name = "Operator Started",
                                     description = "Operator Started",
@@ -26,6 +29,14 @@ class SFX_simpleCueNode(bpy.types.Node):
     operator_running_modal: bpy.props.BoolProperty(name = "Operator Running Modal",
                                     description = "Operator Running Modal",
                                     default = False)
+
+    operator_edit : bpy.props.BoolProperty(name = "Operator Edit",
+                                    description = "Operator Edit",
+                                    default = False)
+    operator_editing : bpy.props.BoolProperty(name = "Operator Edit",
+                                    description = "Operator Edit",
+                                    default = False)
+
     expand_Actuator_props : bpy.props.BoolProperty(name = "Expand Basic Data",
                                     description = "Expand Basic Data",
                                     default = False)
@@ -82,6 +93,10 @@ class SFX_simpleCueNode(bpy.types.Node):
             box = row.box()
             row = box.row()
             split = row.split(factor = 0.3)
+            row.operator('sfx.editsimplecueop', text = 'Edit')
+            row.prop(self,'operator_edit',text='')
+            row.prop(self,'operator_editing',text = '')
+            row.prop(self,'TickTime1_prop',text='')
             col1 = split.column()
             row = col1.row()
             row.label(text = 'Length')

@@ -1,6 +1,7 @@
 import bpy
 import time
 import math
+from scipy.integrate import quad
 
 class SFX_simpleCueOp(bpy.types.Operator):
     """ simple Cue op"""
@@ -16,6 +17,10 @@ class SFX_simpleCueOp(bpy.types.Operator):
                 pass
                 self.CalculateGrenzVel()
                 self.CalculateVelInPos()
+                max_Pos = self.MotherNode.Actuator_props.simple_actuator_HardMax_prop
+                min_Pos = self.MotherNode.Actuator_props.simple_actuator_HardMin_prop
+                Time = quad(lambda x: self.VelInPos.evaluate(x),min_Pos*100,max_Pos*100)
+                print(Time)
 
 
 
