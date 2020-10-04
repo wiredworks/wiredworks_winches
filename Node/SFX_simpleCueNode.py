@@ -8,8 +8,8 @@ class SFX_simpleCueNode(bpy.types.Node):
     bl_idname = 'SFX_simpleCueNode'
     bl_label = 'SimpleCue Node'
     bl_icon = 'ANCHOR_LEFT'
-    bl_width_min = 500
-    bl_width_max = 500
+    bl_width_min = 580
+    bl_width_max = 580
 
     @classmethod
     def poll(cls, ntree):
@@ -17,11 +17,41 @@ class SFX_simpleCueNode(bpy.types.Node):
 
     def update_value(self, context):
         self.update ()
+
+    play_state_items = (('Play','Play','Play','PLAY',1),
+                        ('Pause','Pause','Pause','PAUSE',2),
+                        ('SpeedUp','Speed Up','Speeding Up to Play Speed','FF',3),
+                        ('Slowing','Slowing','Slowing Down from Play Speed','REW',4),
+                        ('Reverse','Reverse','Playing Reverse','PLAY_REVERSE',5),
+                        ('GoTo1','Go To 1','Going To Start Position','FRAME_PREV',6))
         
     TickTime_prop : bpy.props.FloatProperty(default=0.0,
                                             update = update_value)
-    TickTime1_prop : bpy.props.FloatProperty(default=0.0,
-                                            update = update_value)
+    max_Vel : bpy.props.FloatProperty(name='Max Vel',
+                                      description='Max Vel of Cue',
+                                      default = 0.0)
+    max_Acc : bpy.props.FloatProperty(name='Max Acc',
+                                      description='Max Acc of Cue',
+                                      default = 0.0)
+    duration : bpy.props.FloatProperty(name='Duration',
+                                      description='Duration of Cue',
+                                      default = 0.0)
+    play_head_percent : bpy.props.FloatProperty(name='Play Head',
+                                      description='Play Head',
+                                      default = 60.0)
+    play_head : bpy.props.FloatProperty(name='Play Head',
+                                      description='Play Head',
+                                      default = 0.0)
+    play_state : bpy.props.EnumProperty(name='Play State',
+                                       description = 'Play State of Cue',
+                                       items = play_state_items,
+                                       default = 'Pause')
+    confirm : bpy.props.BoolProperty(name = "Confirm Cue",
+                                    description = "Confirm Cue",
+                                    default = False)
+    confirmed: bpy.props.BoolProperty(name = "Confiremd Cue",
+                                    description = "The Confirmed Cue can be executed",
+                                    default = False)
 
     toTime : bpy.props.BoolProperty(name = "To Vel/Time",
                                     description = "To Vel over Time",
@@ -61,6 +91,9 @@ class SFX_simpleCueNode(bpy.types.Node):
         self.inputs.new('SFX_Cue_bool',name= 'Reverse')
         self.inputs["Reverse"].default_value = False
 
+        self.inputs.new('SFX_Cue_bool',name= 'Go To 1')
+        self.inputs["Reverse"].default_value = False
+
         self.spawnDataobject()
 
     def copy(self, node):
@@ -74,6 +107,15 @@ class SFX_simpleCueNode(bpy.types.Node):
     def draw_buttons(self, context, layout):
         split = layout.split(factor=0.65)
         col = split.column()
+        box = col.box()
+        col = box.column()
+        row = col.row()
+        row.prop(self,'play_state',text='')
+        row.prop(self,'play_head',text='')
+        row.prop(self,'play_head_percent',text='',slider = True)
+        row.prop(self,'confirm',text='')
+        row.prop(self,'confirmed',text='')
+
         col1 = split.column()
         box = col1.box()
         col = box.column()
@@ -96,16 +138,37 @@ class SFX_simpleCueNode(bpy.types.Node):
             row = layout.row(align=True)
             box = row.box()
             row = box.row()
-            split = row.split(factor = 0.3)
-            row.prop(self,'toTime')
-            # row.operator('sfx.editsimplecueop', text = 'Edit')
-            # row.prop(self,'operator_edit',text='')
-            # row.prop(self,'operator_editing',text = '')
-            # row.prop(self,'TickTime1_prop',text='')
-            col1 = split.column()
-            row = col1.row()
-            row.label(text = 'Length')
-            row.prop(self,'length', text ='')
+            split2 = row.split(factor = 1)
+            col2 = split2.column()
+            split5 = row.split(factor = 1)
+            col5 = split5.column()
+            split6 = row.split(factor = 1)
+            col6 = split6.column()
+            split7 = row.split(factor = 1)
+            col7 = split7.column()
+            split8 = row.split(factor = 1)
+            col8 = split8.column()
+            split9 = row.split(factor = 1)
+            col9 = split9.column()
+            split10 = row.split(factor = 1)
+            col10 = split10.column()
+            split11 = row.split(factor = 1)
+            col11 = split11.column()
+            split12 = row.split(factor = 1)
+            col12 = split12.column()
+
+            col2.prop(self,'toTime',text='')
+            col5.label(text='Cue Vel')
+            col6.prop(self,'max_Vel',text='')
+            col7.label(text='Cue Acc')
+            col8.prop(self,'max_Acc',text='')
+            col9.label(text='Duration')
+            col10.prop(self,'duration',text='')
+            col11.prop(self,'confirm',text='')
+            col12.prop(self,'confirmed',text='')
+
+
+
             row = box.row()
             self.Actuator_props.drawActuatorSetup(context, row)
 
@@ -114,11 +177,11 @@ class SFX_simpleCueNode(bpy.types.Node):
             out1 = self.outputs["Set Vel"]
             inp1 = self.inputs["Forward"]
             inp2 = self.inputs["Reverse"]
+            inp3 = self.inputs['Go To 1']
             can_continue = True
         except:
             can_continue = False
         if can_continue:
-            #print(self.outputs["Set Vel"].default_value)
             if inp1.is_linked:
                 for i1 in inp1.links:
                     if i1.is_valid:
@@ -130,6 +193,11 @@ class SFX_simpleCueNode(bpy.types.Node):
                 for i2 in inp2.links:
                     if i2.is_valid:
                         self.inputs["Reverse"].default_value=i2.from_socket.node.outputs[i2.from_socket.name].ww_out
+                        pass
+            if inp3.is_linked:
+                for i3 in inp3.links:
+                    if i3.is_valid:
+                        self.inputs["Reverse"].default_value=i3.from_socket.node.outputs[i3.from_socket.name].ww_out
                         pass
             if out1.is_linked:
                  for o in out1.links:
