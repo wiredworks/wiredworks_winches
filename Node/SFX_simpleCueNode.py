@@ -52,7 +52,12 @@ class SFX_simpleCueNode(bpy.types.Node):
     confirmed: bpy.props.BoolProperty(name = "Confiremd Cue",
                                     description = "The Confirmed Cue can be executed",
                                     default = False)
-
+    ActConfirm: bpy.props.BoolProperty(name = "Actuator Confiremd",
+                                    description = "The connected Actuator has confirmed properties",
+                                    default = False)
+    ActConfirmed: bpy.props.BoolProperty(name = "Actuator Confiremd",
+                                    description = "The connected Actuator has confirmed properties",
+                                    default = False)
     toTime : bpy.props.BoolProperty(name = "To Vel/Time",
                                     description = "To Vel over Time",
                                     default = False)                                            
@@ -209,6 +214,8 @@ class SFX_simpleCueNode(bpy.types.Node):
                         self.Actuator_props.simple_actuator_AccMax_prop = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_AccMax_prop
                         self.Actuator_props.simple_actuator_confirm = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_confirm
                         self.Actuator_props.simple_actuator_confirmed = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_confirmed
+                        self.ActConfirm = self.Actuator_props.simple_actuator_confirm
+                        self.ActConfirmed = self.Actuator_props.simple_actuator_confirmed
                         self.length = o.to_socket.node.Actuator_basic_props.DigTwin_basic_props.length
                         pass
 
