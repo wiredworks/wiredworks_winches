@@ -8,8 +8,8 @@ class SFX_JoystickNode(bpy.types.Node):
     bl_idname = 'SFX_JoystickNode'
     bl_label = 'Joystick'
     bl_icon = 'AXIS_TOP'
-    bl_width_min = 600
-    bl_width_max = 5000
+    bl_width_min = 580
+    bl_width_max = 580
 
     @classmethod
     def poll(cls, ntree):

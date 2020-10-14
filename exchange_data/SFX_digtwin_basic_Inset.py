@@ -13,17 +13,20 @@ class SFX_DigTwin_basic_Inset(bpy.types.PropertyGroup):
                                         default = "")
 
     def update_start_loc(self,context):
-        bpy.data.collections.get("ww SFX_Nodes").children[self.Mother_name].objects[self.Mother_name+'_In'].location=self.start_Loc
-        self.update_length(context)
+        if self.Mother_name != "": 
+            bpy.data.collections.get("ww SFX_Nodes").children[self.Mother_name].objects[self.Mother_name+'_In'].location=self.start_Loc
+            self.update_length(context)
         pass
 
     def update_end_loc(self,context):
-        bpy.data.collections.get("ww SFX_Nodes").children[self.Mother_name].objects[self.Mother_name+'_Out'].location=self.end_Loc
-        self.update_length(context)
+        if self.Mother_name != "":
+            bpy.data.collections.get("ww SFX_Nodes").children[self.Mother_name].objects[self.Mother_name+'_Out'].location=self.end_Loc
+            self.update_length(context)
         pass
 
     def update_L(self,context):
-        self.update_length(context)
+        if self.Mother_name != "":
+            self.update_length(context)
         pass
 
     start_Loc : bpy.props.FloatVectorProperty(name = "Start Loc",

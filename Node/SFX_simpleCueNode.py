@@ -38,7 +38,9 @@ class SFX_simpleCueNode(bpy.types.Node):
                                       default = 0.0)
     play_head_percent : bpy.props.FloatProperty(name='Play Head',
                                       description='Play Head',
-                                      default = 60.0)
+                                      default = 60.0,
+                                      soft_max = 100.0,
+                                      soft_min = -100.0)
     play_head : bpy.props.FloatProperty(name='Play Head',
                                       description='Play Head',
                                       default = 0.0)
@@ -46,6 +48,21 @@ class SFX_simpleCueNode(bpy.types.Node):
                                        description = 'Play State of Cue',
                                        items = play_state_items,
                                        default = 'Pause')
+    cue_min_pos: bpy.props.FloatProperty(name='Cue Min Pos',
+                                      description='Cue Min Pos',
+                                      default = 0.0) 
+    cue_max_pos: bpy.props.FloatProperty(name='Cue Max Pos',
+                                      description='Cue Max Pos',
+                                      default = 0.0)
+    cue_set_pos: bpy.props.FloatProperty(name='Cue Set Pos',
+                                      description='Cue Set Pos',
+                                      default = 0.0)
+    cue_act_pos: bpy.props.FloatProperty(name='Cue Actual Pos',
+                                      description='Cue Actual Pos',
+                                      default = 0.0)
+    cue_diff_pos: bpy.props.FloatProperty(name='Cue Dif Pos',
+                                      description='Difference Set Act Pos',
+                                      default = 0.0) 
     confirm : bpy.props.BoolProperty(name = "Confirm Cue",
                                     description = "Confirm Cue",
                                     default = False)
@@ -120,6 +137,22 @@ class SFX_simpleCueNode(bpy.types.Node):
         row.prop(self,'play_head_percent',text='',slider = True)
         row.prop(self,'confirm',text='')
         row.prop(self,'confirmed',text='')
+        row = box.row()
+        col = row.column()
+        col.label(text='Min Pos')
+        col.prop(self,'cue_min_pos',text = '')
+        col = row.column()
+        col.label(text='Set Pos')
+        col.prop(self,'cue_set_pos',text='')
+        col = row.column()
+        col.label(text='Act Pos')
+        col.prop(self,'cue_act_pos',text='')
+        col = row.column()
+        col.label(text='Delta')
+        col.prop(self,'cue_diff_pos',text='')
+        col = row.column()
+        col.label(text='Max Pos')
+        col.prop(self,'cue_max_pos',text='')
 
         col1 = split.column()
         box = col1.box()
@@ -208,16 +241,28 @@ class SFX_simpleCueNode(bpy.types.Node):
                  for o in out1.links:
                     if o.is_valid:
                         o.to_socket.node.inputs[o.to_socket.name].set_vel = self.outputs["Set Vel"].ww_out_value
-                        self.Actuator_props.simple_actuator_HardMax_prop = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop
-                        self.Actuator_props.simple_actuator_HardMin_prop = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_HardMin_prop
-                        self.Actuator_props.simple_actuator_VelMax_prop = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_VelMax_prop
-                        self.Actuator_props.simple_actuator_AccMax_prop = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_AccMax_prop
-                        self.Actuator_props.simple_actuator_confirm = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_confirm
-                        self.Actuator_props.simple_actuator_confirmed = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_confirmed
-                        self.ActConfirm = self.Actuator_props.simple_actuator_confirm
+                        self.Actuator_props.simple_actuator_HardMax_prop  = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop
+                        self.Actuator_props.simple_actuator_HardMin_prop  = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_HardMin_prop
+                        self.Actuator_props.simple_actuator_VelMax_prop   = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_VelMax_prop
+                        self.Actuator_props.simple_actuator_AccMax_prop   = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_AccMax_prop
+                        self.Actuator_props.simple_actuator_confirm       = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_confirm
+                        self.Actuator_props.simple_actuator_confirmed     = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_confirmed
+                        self.ActConfirm   = self.Actuator_props.simple_actuator_confirm
                         self.ActConfirmed = self.Actuator_props.simple_actuator_confirmed
-                        self.length = o.to_socket.node.Actuator_basic_props.DigTwin_basic_props.length
+                        self.cue_min_pos  = self.Actuator_props.simple_actuator_HardMin_prop
+                        self.cue_act_pos  = o.to_socket.node.Actuator_basic_props.ist_Pos
+                        self.cue_diff_pos = self.cue_act_pos - self.cue_set_pos
+                        self.cue_max_pos  = self.Actuator_props.simple_actuator_HardMax_prop
+                        self.length       = o.to_socket.node.Actuator_basic_props.DigTwin_basic_props.length
                         pass
+                    else:
+                        self.ActConfirm   = False
+                        self.ActConfirmed = False
+                        self.cue_min_pos  = 0.0
+                        self.cue_act_pos  = 0.0
+                        self.cue_diff_pos = 0.0
+                        self.cue_max_pos  = 0.0
+                        self.length       = 0.0
 
     def spawnDataobject(self):
         if 'ww SFX_Nodes' in bpy.context.scene.collection.children.keys():

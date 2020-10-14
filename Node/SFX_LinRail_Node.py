@@ -14,7 +14,7 @@ class SFX_LinRailNode(bpy.types.Node):
     bl_label = 'Simple Rail Actuator'
     bl_icon = 'ARROW_LEFTRIGHT'
     bl_width_min = 580 # 920 to draw ww_Actuator_Props properly
-    bl_width_max = 5000
+    bl_width_max = 580
 
     @classmethod
     def poll(cls, ntree):

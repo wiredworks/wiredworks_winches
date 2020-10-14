@@ -15,7 +15,8 @@ class SFX_simpleCueOp(bpy.types.Operator):
             if self.MotherNode.operator_started_bit1:
                 self.MotherNode.operator_running_modal = True
                 # Trigger Node Update
-                self.MotherNode.TickTime_prop = (time.time_ns() - self.old_time)/1000000.0                
+                self.MotherNode.TickTime_prop = (time.time_ns() - self.old_time)/1000000.0
+
                 if (self.MotherNode.ActConfirmed or self.MotherNode.ActConfirm):
                     if not(self.FcurvesInitialized):
                         self.initFcurves()
@@ -52,16 +53,9 @@ class SFX_simpleCueOp(bpy.types.Operator):
                             self.MotherNode.play_state = 'GoTo1'
                 else:
                     if self.FcurvesInitialized:
-                        print('#############################')
                         self.action.fcurves.remove(self.VelInPos)
                         self.action.fcurves.remove(self.GrenzVel)
                         self.action.fcurves.remove(self.VelInTime) 
-                        # A = bpy.data.actions[self.MotherNode.name+'_Cue'].fcurves[0]
-                        # B = bpy.data.actions[self.MotherNode.name+'_Cue'].fcurves[1]
-                        # C = bpy.data.actions[self.MotherNode.name+'_Cue'].fcurves[2]
-                        # bpy.data.actions[self.MotherNode.name+'_Cue'].fcurves.remove(A)
-                        # bpy.data.actions[self.MotherNode.name+'_Cue'].fcurves.remove(B)
-                        # bpy.data.actions[self.MotherNode.name+'_Cue'].fcurves.remove(C)
                         self.FcurvesInitialized = False
                         self.VelInPosInitialized = False
 
