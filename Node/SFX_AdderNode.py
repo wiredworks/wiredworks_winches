@@ -2,11 +2,11 @@ import bpy
 from .. exchange_data.SFX_actuator_basic_Inset import SFX_actuator_basic_Inset
 from .. exchange_data.SFX_Joystick_Inset import SFX_Joystick_Inset
 
-class SFX_MixerNode(bpy.types.Node):
-    ''' Takes two Inputs and mixes them'''
-    bl_idname = 'SFX_MixerNode'
-    bl_label = 'Mixer'
-    bl_icon = 'SNAP_MIDPOINT'
+class SFX_AdderNode(bpy.types.Node):
+    ''' Takes two Inputs and adds them'''
+    bl_idname = 'SFX_AdderNode'
+    bl_label = 'Adder'
+    bl_icon = 'FULLSCREEN_EXIT'
     bl_width_min = 580
     bl_width_max = 580
 
@@ -26,18 +26,12 @@ class SFX_MixerNode(bpy.types.Node):
                                     description = "Expand Basic Data",
                                     default = False)
 
-    mixer_operator_started_bit1 : bpy.props.BoolProperty(name = "Mixer Operator Started",
+    adder_operator_started_bit1 : bpy.props.BoolProperty(name = "Mixer Operator Started",
                                     description = "Mixer Operator Started",
                                     default = False)
-    mixer_operator_running_modal: bpy.props.BoolProperty(name = "Mixer Operator Running Modal",
+    adder_operator_running_modal: bpy.props.BoolProperty(name = "Mixer Operator Running Modal",
                                     description = "Mixer Operator Running Modal",
                                     default = False)
-
-    factor : bpy.props.FloatProperty(name='Factor',
-                                      description='Factor',
-                                      default = 50.0,
-                                      soft_max = 100.0,
-                                      soft_min = 0.0)
 
     def init(self, context):
         self.outputs.new('SFX_Cue_Float', "Set Vel")
@@ -49,6 +43,9 @@ class SFX_MixerNode(bpy.types.Node):
 
         self.inputs.new('SFX_act_in_set_Vel',name= 'Channel 2')
         self.inputs["Channel 2"].set_vel = 0.0
+
+        #bpy.ops.sfx.adderop('INVOKE_DEFAULT')
+
         pass
     def copy(self, node):
         print("copied node", node)
@@ -79,7 +76,7 @@ class SFX_MixerNode(bpy.types.Node):
             if out1.is_linked:
                  for o in out1.links:
                     if o.is_valid:
-                        self.outputs["Set Vel"].ww_out_value = (self.inputs["Channel 1"].set_vel*(self.factor/100.0)+self.inputs["Channel 2"].set_vel*(1.0-self.factor/100.0))
+                        self.outputs["Set Vel"].ww_out_value = min(100.0,max(-100.0,(self.inputs["Channel 1"].set_vel+self.inputs["Channel 2"].set_vel)))
                         o.to_socket.node.inputs[o.to_socket.name].set_vel = self.outputs["Set Vel"].ww_out_value
                         self.Actuator_basic_props.diff_Vel                                     = o.to_socket.node.Actuator_basic_props.diff_Vel
                         self.Actuator_basic_props.soll_Vel                                     = o.to_socket.node.Actuator_basic_props.soll_Vel
@@ -117,21 +114,18 @@ class SFX_MixerNode(bpy.types.Node):
         row6 = row5.split(factor=0.9)       # started
         row7 = row6.split(factor=1)        # register
         row4.prop( self, 'TickTime_prop', text = '')
-        row5.prop(self, 'mixer_operator_running_modal', text = '')
-        row6.prop(self, 'mixer_operator_started_bit1', text = '')
-        if not(self.mixer_operator_started_bit1):
-            row7.operator('sfx.mixerop',text ='Start')
+        row5.prop(self, 'adder_operator_running_modal', text = '')
+        row6.prop(self, 'adder_operator_started_bit1', text = '')
+        if not(self.adder_operator_started_bit1):
+            row7.operator('sfx.adderop',text ='Start')
         else:
             row7.operator('sfx.commstarteddiag',text ='Started')
 
         box = layout.box()
         col = box.column()
-        row = col.split(factor=0.9)
-        row1 = row.split(factor=0.1)
-        row2 = row1.split(factor=1)
-        row.label(text='Input 1')
-        row1.prop(self,'factor',text='',slider = True)
-        row2.label(text='Input 2')   
+        row = col.split(factor=1)
+        row.label(text='min ( 100 , max ( -100 , ( Input 1 + Input 2 )))')
+ 
 
         row2 = layout.row(align=True)
         row2.prop(self, 'expand_Actuator_basic_data')

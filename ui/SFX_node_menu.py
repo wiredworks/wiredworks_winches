@@ -42,7 +42,8 @@ class SFX_HelpersMenu(bpy.types.Menu):
     def draw(self,context):
         layout = self.layout
         insertNode(layout, "SFX_JoyDemuxNode", "Demux", {}, "TRACKING_FORWARDS")
-        insertNode(layout, "SFX_MixerNode", "Mixer", {}, "TRACKING_FORWARDS")
+        insertNode(layout, "SFX_MixerNode", "Mixer", {}, "SNAP_MIDPOINT")
+        insertNode(layout, "SFX_AdderNode", "Adder", {}, "FULLSCREEN_EXIT")
 
 class SFX_ActMenu(bpy.types.Menu):
     bl_idname = "SFX_MT_actuator_menu"

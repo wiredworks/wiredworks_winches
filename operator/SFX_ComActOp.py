@@ -109,6 +109,7 @@ class SFX_OT_CommActOp(bpy.types.Operator):
                 self.destroy(context)
                 socketerr = True
         if socketerr:
+            self.MotherNode.actuator_connected_bit2 = False
             return {'PASS_THROUGH'}
         else:
             self.MotherNode.actuator_connected_bit2 = True
@@ -124,7 +125,7 @@ class SFX_OT_CommActOp(bpy.types.Operator):
             print('NO SSOCK')
 
         try:
-            data, addr = self.rsock.recvfrom(1024) # buffer size is 1024 bytes
+            data, addr = self.rsock.recvfrom(500) # buffer size is 1024 bytes
         except socket.error as e:
             if e.errno ==10035: #error: [Errno 10035]
                                     # A non-blocking socket operation could
