@@ -14,6 +14,8 @@ class SFX_simpleCueOp(bpy.types.Operator):
     def modal(self, context, event):
         if event.type == 'TIMER':
             if self.MotherNode.operator_started_bit1:
+                self.cue_act_pos = self.MotherNode.cue_act_pos
+                self.cue_act_speed = self.MotherNode.cue_act_speed
                 if self.MotherNode.confirm:
                     self.MotherNode.confirmed = True
                 self.KP = ''
@@ -50,26 +52,38 @@ class SFX_simpleCueOp(bpy.types.Operator):
                         self.MotherNode.confirm = False
                         self.MotherNode.confirmed = False
                     if self.MotherNode.confirmed:
-                        if not(self.MotherNode.inputs['Go To 1'].default_value):
-                            if (self.MotherNode.inputs['Forward'].default_value == True and
-                                self.MotherNode.inputs['Reverse'].default_value == False):
-                                self.MotherNode.play_state = 'Play'
-                                #self.f = self.f+(time.time_ns() - self.old_time)/1000000000.0
-                                #print('Up')
-                            elif (self.MotherNode.inputs['Forward'].default_value == False and
-                                self.MotherNode.inputs['Reverse'].default_value == True):
-                                self.MotherNode.play_state = 'Reverse'
-                                self.f = self.f-(time.time_ns() - self.old_time)/1000000000.0
-                                #print('Down')
-                            else:
-                                #print('e')
-                                pass
-                            # self.f =max(0,min(self.f,120))
-                            # value = self.Cue_Vel.evaluate(self.f)
-                            # print(self.f,value)
-                            # self.MotherNode.outputs["Set Vel"].ww_out_value = value
+                        self.target_speed= self.VelInPos.evaluate(self.cue_act_pos*100.0)/100.0
+                        max_Vel = float(self.MotherNode.Actuator_props.simple_actuator_VelMax_prop)
+                        try:
+                            self.target_speed_percent = (self.target_speed/max_Vel)*100.0
+                        except ZeroDivisionError:
+                            self.target_speed_percent =0.0
+                        self.MotherNode.cue_target_speed = self.target_speed                        
+                        if not(self.MotherNode.inputs['Go To 1'].bool):
+                            if (self.MotherNode.inputs['Forward'].bool == True and
+                                self.MotherNode.inputs['Reverse'].bool == False):
+                                self.MotherNode.cue_diff_speed = self.target_speed - self.cue_act_speed
+                                if (self.target_speed - self.cue_act_speed) > 0:
+                                    self.MotherNode.play_state = 'SpeedUp'
+                                    self.MotherNode.outputs["Set Vel"].ww_out_value = self.target_speed_percent
+                                else:
+                                    self.MotherNode.play_state = 'Play'
+                                    self.MotherNode.outputs["Set Vel"].ww_out_value = self.target_speed_percent                                
+                            elif (self.MotherNode.inputs['Forward'].bool == False and
+                                  self.MotherNode.inputs['Reverse'].bool == True):
+                                  self.MotherNode.cue_diff_speed = -self.target_speed - self.cue_act_speed
+                                if (self.target_speed - self.cue_act_speed) < 0.01:
+                                  self.MotherNode.play_state = 'Slowing'
+                                  self.MotherNode.outputs["Set Vel"].ww_out_value = -self.target_speed_percent
+                                else:  
+                                    self.MotherNode.play_state = 'Reverse'
+                                    self.MotherNode.outputs["Set Vel"].ww_out_value = -self.target_speed_percent
+                            else:                                
+                                self.MotherNode.play_state = 'Pause'
+                                self.MotherNode.outputs["Set Vel"].ww_out_value = 0.0
                         else:
                             self.MotherNode.play_state = 'GoTo1'
+                            self.MotherNode.outputs["Set Vel"].ww_out_value = 0.0
                 else:
                     if self.FcurvesInitialized:
                         self.action.fcurves.remove(self.VelInPos)
@@ -104,15 +118,20 @@ class SFX_simpleCueOp(bpy.types.Operator):
             self.MotherNode = context.active_node
             self.length = self.MotherNode.length
             self.MotherNode.operator_started_bit1 = True
-            self.max_Acc = 0.0
+            self.MD5Old = ''
+            self.MD5   = ''
+            self.target_speed = 0.0
+            self.target_speed_percent = 0.0
+            self.cue_act_speed = 0.0
+            self.cue_act_pos = 0.0
             self.max_Vel = 0.0
+            self.max_Acc = 0.0
             self.FcurvesInitialized = False
             self.VelInPosInitialized = False
             self.CalculateGrenzVelCalculated = False
             self.initGraph()
-            self.MD5Old = ''
-            self.MD5   = ''
-            self.f = 0.0
+
+
             return self.execute(context)
 
     def draw(self,context):
@@ -129,7 +148,6 @@ class SFX_simpleCueOp(bpy.types.Operator):
         self.initFcurves()
         self.CalculateGrenzVel()
         self.InitializeVelInPos() 
-        #self.InitializeVelInTime()
 
     def initFcurves(self):
         self.VelInPos = self.action.fcurves.new('Vel In Pos Domain')
@@ -241,8 +259,6 @@ class SFX_simpleCueOp(bpy.types.Operator):
     def FixEndsOfVelInPos(self):
         max_Pos = self.MotherNode.Actuator_props.simple_actuator_HardMax_prop
         min_Pos = self.MotherNode.Actuator_props.simple_actuator_HardMin_prop
-        #max_Vel = self.MotherNode.Actuator_props.simple_actuator_VelMax_prop
-        #max_Acc = self.MotherNode.Actuator_props.simple_actuator_AccMax_prop
         Point0 = (min_Pos*100,0)
         Point3 = (max_Pos*100,0)        
         self.VelInPos.keyframe_points[0].co = Point0
@@ -258,8 +274,6 @@ class SFX_simpleCueOp(bpy.types.Operator):
         self.MotherNode.confirmen = False
         self.length = self.MotherNode.length
         print('To Time')
-        max_Pos = self.MotherNode.Actuator_props.simple_actuator_HardMax_prop
-        min_Pos = self.MotherNode.Actuator_props.simple_actuator_HardMin_prop
 
         # Wenn der VelInPos Graph ein VelInTime graph wäre hätten wir eine Strecke von 
         self.X= np.linspace(0,self.VelInPos.keyframe_points[-1].co[0],num=10000,retstep=False,dtype=np.double)

@@ -60,8 +60,17 @@ class SFX_simpleCueNode(bpy.types.Node):
     cue_act_pos: bpy.props.FloatProperty(name='Cue Actual Pos',
                                       description='Cue Actual Pos',
                                       default = 0.0)
+    cue_act_speed: bpy.props.FloatProperty(name='Cue Actual Speed',
+                                      description='Cue Actual Speed',
+                                      default = 0.0)
+    cue_target_speed: bpy.props.FloatProperty(name='Cue Target Speed',
+                                      description='Cue Target Speed',
+                                      default = 0.0)                                                                           
     cue_diff_pos: bpy.props.FloatProperty(name='Cue Dif Pos',
                                       description='Difference Set Act Pos',
+                                      default = 0.0)
+    cue_diff_speed: bpy.props.FloatProperty(name='Cue Dif Speed',
+                                      description='Difference Target Act Speed',
                                       default = 0.0) 
     confirm : bpy.props.BoolProperty(name = "Confirm Cue",
                                     description = "Confirm Cue",
@@ -147,12 +156,18 @@ class SFX_simpleCueNode(bpy.types.Node):
         col = row.column()
         col.label(text='Set Pos')
         col.prop(self,'cue_set_pos',text='')
+        col.label(text='Act Speed')
+        col.prop(self,'cue_act_speed',text ='')
         col = row.column()
         col.label(text='Act Pos')
         col.prop(self,'cue_act_pos',text='')
+        col.label(text='Target Speed')
+        col.prop(self,'cue_target_speed',text='')
         col = row.column()
         col.label(text='Delta')
         col.prop(self,'cue_diff_pos',text='')
+        col.label(text='Delta')
+        col.prop(self,'cue_diff_speed',text='')
         col = row.column()
         col.label(text='Max Pos')
         col.prop(self,'cue_max_pos',text='')
@@ -202,11 +217,11 @@ class SFX_simpleCueNode(bpy.types.Node):
 
             col2.prop(self,'toTime',text='')
             col5.prop(self,'toTime_executed',text='')
-            col6.label(text='Cue Vel')
+            col6.label(text='C Max Vel')
             col7.prop(self,'max_Vel',text='')
-            col8.label(text='Cue Acc')
+            col8.label(text='C Max Acc')
             col9.prop(self,'max_Acc',text='')
-            col10.label(text='Duration')
+            col10.label(text='C Dur')
             col11.prop(self,'duration',text='')
             col12.prop(self,'confirm',text='')
             col13.prop(self,'confirmed',text='')
@@ -249,13 +264,14 @@ class SFX_simpleCueNode(bpy.types.Node):
                         self.Actuator_props.simple_actuator_AccMax_prop   = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_AccMax_prop
                         self.Actuator_props.simple_actuator_confirm       = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_confirm
                         self.Actuator_props.simple_actuator_confirmed     = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_confirmed
-                        self.ActConfirm   = self.Actuator_props.simple_actuator_confirm
-                        self.ActConfirmed = self.Actuator_props.simple_actuator_confirmed
-                        self.cue_min_pos  = self.Actuator_props.simple_actuator_HardMin_prop
-                        self.cue_act_pos  = o.to_socket.node.Actuator_basic_props.ist_Pos
-                        self.cue_diff_pos = self.cue_act_pos - self.cue_set_pos
-                        self.cue_max_pos  = self.Actuator_props.simple_actuator_HardMax_prop
-                        self.length       = o.to_socket.node.Actuator_basic_props.DigTwin_basic_props.length
+                        self.ActConfirm    = self.Actuator_props.simple_actuator_confirm
+                        self.ActConfirmed  = self.Actuator_props.simple_actuator_confirmed
+                        self.cue_min_pos   = self.Actuator_props.simple_actuator_HardMin_prop
+                        self.cue_act_pos   = o.to_socket.node.Actuator_basic_props.ist_Pos
+                        self.cue_act_speed = o.to_socket.node.Actuator_basic_props.ist_Vel
+                        self.cue_diff_pos  = self.cue_act_pos - self.cue_set_pos
+                        self.cue_max_pos   = self.Actuator_props.simple_actuator_HardMax_prop
+                        self.length        = o.to_socket.node.Actuator_basic_props.DigTwin_basic_props.length
                         pass
                     else:
                         self.ActConfirm   = False
