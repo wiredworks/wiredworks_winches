@@ -21,6 +21,8 @@ class SFX_OT_ClockStartOp(bpy.types.Operator):
     def execute(self, context):
         print('Clock Start -- execute')
         self._timer = context.window_manager.event_timer_add(0.001, window=context.window)
+        self._timer1 = context.window_manager.event_timer_add(0.001, window=context.window)
+        self._timer2 = context.window_manager.event_timer_add(0.001, window=context.window)
         context.window_manager.modal_handler_add(self)
         self.old_time = time.time_ns()
         return {'RUNNING_MODAL'}

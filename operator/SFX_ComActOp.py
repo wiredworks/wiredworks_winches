@@ -11,6 +11,18 @@ class SFX_OT_CommActOp(bpy.types.Operator):
     def modal(self, context, event):
         if event.type == 'TIMER':
             self.MotherNode.TickTime_prop = (time.time_ns() - self.old_time)/1000000.0
+
+            if (self.HardMaxOld !=self.MotherNode.Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop or
+                self.HardMinOld !=self.MotherNode.Actuator_basic_props.Actuator_props.simple_actuator_HardMin_prop or
+                self.VelMaxOld  !=self.MotherNode.Actuator_basic_props.Actuator_props.simple_actuator_VelMax_prop or
+                self.AccMaxOld  !=self.MotherNode.Actuator_basic_props.Actuator_props.simple_actuator_AccMax_prop):
+                self.MotherNode.Actuator_basic_props.Actuator_props.simple_actuator_confirm = False
+                self.MotherNode.Actuator_basic_props.Actuator_props.simple_actuator_confirmed = False
+            self.HardMaxOld =self.MotherNode.Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop
+            self.HardMinOld =self.MotherNode.Actuator_basic_props.Actuator_props.simple_actuator_HardMin_prop
+            self.VelMaxOld  =self.MotherNode.Actuator_basic_props.Actuator_props.simple_actuator_VelMax_prop
+            self.AccMaxOld  =self.MotherNode.Actuator_basic_props.Actuator_props.simple_actuator_AccMax_prop
+           
             if not(self.MotherNode.operator_started_bit1):                      # destroy
                 ret =self.destroy(context)
                 return ret
@@ -65,6 +77,10 @@ class SFX_OT_CommActOp(bpy.types.Operator):
                    str(self.RUDP_PORT)+'_'+
                    str(self.SUDP_PORT))
         self.MotherNode.operator_started_bit1 = True
+        self.HardMaxOld =0.0
+        self.HardMinOld =0.0
+        self.VelMaxOld  =0.0
+        self.AccMaxOld  =0.0
 
         return self.execute(context)
 

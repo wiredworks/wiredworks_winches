@@ -78,6 +78,9 @@ class SFX_simpleCueNode(bpy.types.Node):
     toTime : bpy.props.BoolProperty(name = "To Vel/Time",
                                     description = "To Vel over Time",
                                     default = False)                                            
+    toTime_executed : bpy.props.BoolProperty(name = "To Vel/Time",
+                                    description = "To Vel over Time",
+                                    default = False) 
 
     operator_started_bit1 : bpy.props.BoolProperty(name = "Operator Started",
                                     description = "Operator Started",
@@ -107,14 +110,14 @@ class SFX_simpleCueNode(bpy.types.Node):
         self.outputs["Set Vel"].default_value_set = SFX_Joystick_Inset
         self.outputs["Set Vel"].ww_out_value = 0.0
 
-        self.inputs.new('SFX_Cue_bool',name= 'Forward')
-        self.inputs["Forward"].default_value = False
+        self.inputs.new('SFX_Cue_bool','Forward')
+        self.inputs["Forward"].bool = False
 
         self.inputs.new('SFX_Cue_bool',name= 'Reverse')
-        self.inputs["Reverse"].default_value = False
+        self.inputs["Reverse"].bool = False
 
         self.inputs.new('SFX_Cue_bool',name= 'Go To 1')
-        self.inputs["Reverse"].default_value = False
+        self.inputs["Reverse"].bool = False
 
         self.spawnDataobject()
 
@@ -194,18 +197,19 @@ class SFX_simpleCueNode(bpy.types.Node):
             col11 = split11.column()
             split12 = row.split(factor = 1)
             col12 = split12.column()
+            split13 = row.split(factor = 1)
+            col13 = split13.column()
 
             col2.prop(self,'toTime',text='')
-            col5.label(text='Cue Vel')
-            col6.prop(self,'max_Vel',text='')
-            col7.label(text='Cue Acc')
-            col8.prop(self,'max_Acc',text='')
-            col9.label(text='Duration')
-            col10.prop(self,'duration',text='')
-            col11.prop(self,'confirm',text='')
-            col12.prop(self,'confirmed',text='')
-
-
+            col5.prop(self,'toTime_executed',text='')
+            col6.label(text='Cue Vel')
+            col7.prop(self,'max_Vel',text='')
+            col8.label(text='Cue Acc')
+            col9.prop(self,'max_Acc',text='')
+            col10.label(text='Duration')
+            col11.prop(self,'duration',text='')
+            col12.prop(self,'confirm',text='')
+            col13.prop(self,'confirmed',text='')
 
             row = box.row()
             self.Actuator_props.drawActuatorSetup(context, row)
@@ -223,19 +227,17 @@ class SFX_simpleCueNode(bpy.types.Node):
             if inp1.is_linked:
                 for i1 in inp1.links:
                     if i1.is_valid:
-                        #print(i1.from_socket.node.outputs[i1.from_socket.name].ww_out)
-                        self.inputs["Forward"].default_value=i1.from_socket.node.outputs[i1.from_socket.name].ww_out
-                        #print(self.inputs["Forward"].default_value)
+                        self.inputs["Forward"].bool=i1.from_socket.node.outputs[i1.from_socket.name].ww_out
                         pass
             if inp2.is_linked:
                 for i2 in inp2.links:
                     if i2.is_valid:
-                        self.inputs["Reverse"].default_value=i2.from_socket.node.outputs[i2.from_socket.name].ww_out
+                        self.inputs["Reverse"].bool=i2.from_socket.node.outputs[i2.from_socket.name].ww_out
                         pass
             if inp3.is_linked:
                 for i3 in inp3.links:
                     if i3.is_valid:
-                        self.inputs["Reverse"].default_value=i3.from_socket.node.outputs[i3.from_socket.name].ww_out
+                        self.inputs["Go To 1"].bool=i3.from_socket.node.outputs[i3.from_socket.name].ww_out
                         pass
             if out1.is_linked:
                  for o in out1.links:
