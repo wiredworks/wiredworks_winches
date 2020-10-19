@@ -13,7 +13,7 @@ class SFX_OT_MN_Start(bpy.types.Operator):
             Node_root = Node.name.split('.')[0]
             if not(Node_root == 'linrail' or
                    Node_root == 'joystick'):
-                Op = 'bpy.ops.sfx.'+str(key)+'_op(\'INVOKE_DEFAULT\')'
+                Op = 'bpy.ops.sfx.'+Node_root+'_op(\'INVOKE_DEFAULT\')'
                 exec(Op)
         return {'FINISHED'}
 
