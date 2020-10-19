@@ -8,9 +8,9 @@ from .. exchange_data.SFX_actuator_basic_Inset import SFX_actuator_basic_Inset
 from .. exchange_data.SFX_Joystick_Inset import SFX_Joystick_Inset
 from ..models.SFX_draw_LinRail import SFX_drawLinRail
 
-class SFX_LinRailNode(bpy.types.Node):
+class SFX_LinRail_Node(bpy.types.Node):
     '''simple Linear Rail Actuator'''
-    bl_idname = 'SFX_LinRailNode'
+    bl_idname = 'SFX_LinRail_Node'
     bl_label = 'Simple Rail Actuator'
     bl_icon = 'ARROW_LEFTRIGHT'
     bl_width_min = 580 # 920 to draw ww_Actuator_Props properly

@@ -2,10 +2,10 @@ import bpy
 from .. exchange_data.SFX_actuator_basic_Inset import SFX_actuator_basic_Inset
 from .. exchange_data.SFX_Joystick_Inset import SFX_Joystick_Inset
 
-class SFX_MixerNode(bpy.types.Node):
+class SFX_Mixer_Node(bpy.types.Node):
     ''' Takes two Inputs and mixes them'''
-    bl_idname = 'SFX_MixerNode'
-    bl_label = 'Mixer'
+    bl_idname = 'SFX_Mixer_Node'
+    bl_label = 'mixer'
     bl_icon = 'SNAP_MIDPOINT'
     bl_width_min = 580
     bl_width_max = 580
@@ -120,7 +120,7 @@ class SFX_MixerNode(bpy.types.Node):
         row5.prop(self, 'mixer_operator_running_modal', text = '')
         row6.prop(self, 'mixer_operator_started_bit1', text = '')
         if not(self.mixer_operator_started_bit1):
-            row7.operator('sfx.mixerop',text ='Start')
+            row7.operator('sfx.mixer_op',text ='Start')
         else:
             row7.operator('sfx.commstarteddiag',text ='Started')
 

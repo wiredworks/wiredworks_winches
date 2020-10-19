@@ -1,9 +1,9 @@
 import bpy
 
-class SFX_ClockNode(bpy.types.Node):
+class SFX_Clock_Node(bpy.types.Node):
     '''SFX_ClockNode'''
-    bl_idname = 'SFX_ClockNode'
-    bl_label = 'Clock'
+    bl_idname = 'SFX_Clock_Node'
+    bl_label = 'clock'
     bl_icon = 'CURVE_NCIRCLE'
     bl_width_min = 340
     bl_width_max = 340
@@ -46,7 +46,7 @@ class SFX_ClockNode(bpy.types.Node):
         col = box.column(align = True)
         row = col.split(factor = 0.3)
         if not(self.operator_started_bit1):
-            row.operator('sfx.clockstartop',text ='Start')
+            row.operator('sfx.clock_op',text ='Start')
         else:
            row.operator('sfx.commstarteddiag',text ='Started')
         row1 = row.split(factor = 0.75) 

@@ -1,10 +1,10 @@
 import bpy
 from .. exchange_data.SFX_Joystick_Inset import SFX_Joystick_Inset
 
-class SFX_JoystickDemuxNode(bpy.types.Node):
+class SFX_JoyDemux_Node(bpy.types.Node):
     ''' Takes Joystick Data and outputs selected Data'''
-    bl_idname = 'SFX_JoyDemuxNode'
-    bl_label = 'Demuxer'
+    bl_idname = 'SFX_JoyDemux_Node'
+    bl_label = 'joydemux'
     bl_icon = 'ANCHOR_LEFT'
     bl_width_min = 220
     bl_width_max = 500
@@ -202,6 +202,6 @@ class SFX_JoystickDemuxNode(bpy.types.Node):
         row5.prop(self, 'demux_operator_running_modal', text = '')
         row6.prop(self, 'demux_operator_started_bit1', text = '')
         if not(self.demux_operator_started_bit1):
-            row7.operator('sfx.joydemuxop',text ='Start')
+            row7.operator('sfx.joydemux_op',text ='Start')
         else:
             row7.operator('sfx.commstarteddiag',text ='Started')

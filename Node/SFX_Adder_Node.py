@@ -2,10 +2,10 @@ import bpy
 from .. exchange_data.SFX_actuator_basic_Inset import SFX_actuator_basic_Inset
 from .. exchange_data.SFX_Joystick_Inset import SFX_Joystick_Inset
 
-class SFX_AdderNode(bpy.types.Node):
+class SFX_Adder_Node(bpy.types.Node):
     ''' Takes two Inputs and adds them'''
-    bl_idname = 'SFX_AdderNode'
-    bl_label = 'Adder'
+    bl_idname = 'SFX_Adder_Node'
+    bl_label = 'adder'
     bl_icon = 'FULLSCREEN_EXIT'
     bl_width_min = 580
     bl_width_max = 580
@@ -117,7 +117,7 @@ class SFX_AdderNode(bpy.types.Node):
         row5.prop(self, 'adder_operator_running_modal', text = '')
         row6.prop(self, 'adder_operator_started_bit1', text = '')
         if not(self.adder_operator_started_bit1):
-            row7.operator('sfx.adderop',text ='Start')
+            row7.operator('sfx.adder_op',text ='Start')
         else:
             row7.operator('sfx.commstarteddiag',text ='Started')
 

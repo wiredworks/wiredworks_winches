@@ -5,9 +5,9 @@ import json
 
 from ..exchange_data.SFX_Joystick_Inset import SFX_Joystick_Inset
 
-class SFX_OT_JoystickOp(bpy.types.Operator):
+class SFX_OT_Joystick_Op(bpy.types.Operator):
     """ This operator takes the Input of a Joystick"""
-    bl_idname = "sfx.joystick"
+    bl_idname = "sfx.joystick_op"
     bl_label = "Joystick Input"
 
     def modal(self, context, event):

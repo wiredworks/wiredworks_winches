@@ -1,9 +1,9 @@
 import bpy
 import time
 
-class SFX_OT_ClockStartOp(bpy.types.Operator):
+class SFX_OT_Clock_Op(bpy.types.Operator):
     """ This operator Starts the Clock"""
-    bl_idname = "sfx.clockstartop"
+    bl_idname = "sfx.clock_op"
     bl_label = "Clock Start"
 
     def modal(self, context, event):

@@ -6,9 +6,9 @@ from scipy.integrate import quad
 from scipy.integrate import simps
 import numpy as np
 
-class SFX_simpleCueOp(bpy.types.Operator):
+class SFX_simpleCue_Op(bpy.types.Operator):
     """ simple Cue op"""
-    bl_idname = "sfx.simplecueop"
+    bl_idname = "sfx.simplecue_op"
     bl_label = "Simple Cue Operator"
 
     def modal(self, context, event):
@@ -71,10 +71,10 @@ class SFX_simpleCueOp(bpy.types.Operator):
                                     self.MotherNode.outputs["Set Vel"].ww_out_value = self.target_speed_percent                                
                             elif (self.MotherNode.inputs['Forward'].bool == False and
                                   self.MotherNode.inputs['Reverse'].bool == True):
-                                  self.MotherNode.cue_diff_speed = -self.target_speed - self.cue_act_speed
-                                if (self.target_speed - self.cue_act_speed) < 0.01:
-                                  self.MotherNode.play_state = 'Slowing'
-                                  self.MotherNode.outputs["Set Vel"].ww_out_value = -self.target_speed_percent
+                                self.MotherNode.cue_diff_speed = (-self.target_speed - self.cue_act_speed)
+                                if (self.target_speed - self.cue_act_speed) < 0:
+                                    self.MotherNode.play_state = 'Slowing'
+                                    self.MotherNode.outputs["Set Vel"].ww_out_value = -self.target_speed_percent
                                 else:  
                                     self.MotherNode.play_state = 'Reverse'
                                     self.MotherNode.outputs["Set Vel"].ww_out_value = -self.target_speed_percent
@@ -112,7 +112,7 @@ class SFX_simpleCueOp(bpy.types.Operator):
         context.window_manager.modal_handler_add(self)
         return {'RUNNING_MODAL'}
 
-    def invoke(self, context, event):        
+    def invoke(self, context, event):
         if not(context.active_node.operator_started_bit1):
             self.old_time = time.time_ns()
             self.MotherNode = context.active_node

@@ -6,7 +6,9 @@ def drawMenu(self, context):
     layout = self.layout
     layout.operator_context = "INVOKE_DEFAULT"
 
-    insertNode(layout, "SFX_ClockNode", "Clock", {}, "CURVE_NCIRCLE")
+    layout.operator('sfx.in_clock', text = 'Clock', icon = "CURVE_NCIRCLE" )
+
+    #insertNode(layout, "SFX_ClockNode", "Clock", {}, "CURVE_NCIRCLE")
     layout.menu("SFX_MT_sensors_menu", text= "Sensors", icon = "IMPORT")
     layout.menu("SFX_MT_cues_menu", text= "Cues", icon = "STROKE")
     layout.menu("SFX_MT_kinematics_menu", text= "Kinematics", icon = "SPHERECURVE")
@@ -20,14 +22,16 @@ class SFX_SensorsMenu(bpy.types.Menu):
 
     def draw(self,context):
         layout = self.layout
-        insertNode(layout, "SFX_JoystickNode", "Joystick", {}, "ARROW_LEFTRIGHT")
+        insertNode(layout, "SFX_Joystick_Node", "Joystick", {}, "ARROW_LEFTRIGHT")
 
 class SFX_CuesMenu(bpy.types.Menu):
     bl_idname = "SFX_MT_cues_menu"
     bl_label = "Cues Menu"
     def draw(self,context):
         layout = self.layout
-        insertNode(layout, "SFX_simpleCueNode", "simple Cue", {}, "ARROW_LEFTRIGHT")
+        layout.operator('sfx.in_simplecue',text = 'simple Cue', icon='ARROW_LEFTRIGHT')
+        #insertNode(layout, "SFX_simpleCue_Node", "simple Cue", {}, "ARROW_LEFTRIGHT")
+        
 
 class SFX_KinematicsMenu(bpy.types.Menu):
     bl_idname = "SFX_MT_kinematics_menu"
@@ -41,9 +45,12 @@ class SFX_HelpersMenu(bpy.types.Menu):
     bl_label = "Helper Menu"
     def draw(self,context):
         layout = self.layout
-        insertNode(layout, "SFX_JoyDemuxNode", "Demux", {}, "TRACKING_FORWARDS")
-        insertNode(layout, "SFX_MixerNode", "Mixer", {}, "SNAP_MIDPOINT")
-        insertNode(layout, "SFX_AdderNode", "Adder", {}, "FULLSCREEN_EXIT")
+        layout.operator('sfx.in_joydemux',text = 'Demux', icon='TRACKING_FORWARDS')
+        layout.operator('sfx.in_mixer',text = 'Mixer', icon='SNAP_MIDPOINT')
+        layout.operator('sfx.in_adder',text = 'Adder', icon='FULLSCREEN_EXIT')
+        #insertNode(layout, "SFX_JoyDemux_Node", "Demux", {}, "TRACKING_FORWARDS")
+        #insertNode(layout, "SFX_Mixer_Node", "Mixer", {}, "SNAP_MIDPOINT")
+        #insertNode(layout, "SFX_Adder_Node", "Adder", {}, "FULLSCREEN_EXIT")
 
 class SFX_ActMenu(bpy.types.Menu):
     bl_idname = "SFX_MT_actuator_menu"
@@ -51,7 +58,7 @@ class SFX_ActMenu(bpy.types.Menu):
 
     def draw(self,context):
         layout = self.layout
-        insertNode(layout, "SFX_LinRailNode",  "Rail",  {}, "ARROW_LEFTRIGHT")
+        insertNode(layout, "SFX_LinRail_Node",  "Rail",  {}, "ARROW_LEFTRIGHT")
 
 def insertNode(layout, type, text, settings = {}, icon = "NONE"):
     operator = layout.operator("node.add_node", text = text, icon = icon)

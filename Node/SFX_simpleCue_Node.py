@@ -3,10 +3,10 @@ import bpy
 from .. exchange_data.SFX_Joystick_Inset import SFX_Joystick_Inset
 from .. exchange_data.SFX_simple_actuator_Inset import SFX_simple_Actuator_Inset
 
-class SFX_simpleCueNode(bpy.types.Node):
+class SFX_simpleCue_Node(bpy.types.Node):
     ''' Takes Joystick Data and outputs selected Data'''
-    bl_idname = 'SFX_simpleCueNode'
-    bl_label = 'SimpleCue Node'
+    bl_idname = 'SFX_simpleCue_Node'
+    bl_label = 'simpleCueNode'
     bl_icon = 'ANCHOR_LEFT'
     bl_width_min = 580
     bl_width_max = 580
@@ -183,7 +183,7 @@ class SFX_simpleCueNode(bpy.types.Node):
         row5.prop(self, 'operator_running_modal', text = '')
         row6.prop(self, 'operator_started_bit1', text = '')
         if not(self.operator_started_bit1):
-            row7.operator('sfx.simplecueop',text ='Start')
+            row7.operator('sfx.simplecue_op',text ='Start')
         else:
             row7.operator('sfx.commstarteddiag',text ='Started')
 
