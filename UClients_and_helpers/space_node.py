@@ -199,7 +199,7 @@ class NODE_MT_editor_menus(Menu):
         layout.menu("NODE_MT_node")
         layout.operator('sfx.stopmodals', text = 'Stop', icon = "PAUSE" )
         layout.operator('sfx.startmodals', text = 'Start', icon = "PLAY" )
-
+        layout.operator('sfx.registermodals', text = 'Register', icon = "MOD_PARTICLE_INSTANCE" )
 
 class NODE_MT_add(bpy.types.Menu):
     bl_space_type = 'NODE_EDITOR'

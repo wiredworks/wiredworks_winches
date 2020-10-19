@@ -24,6 +24,9 @@ class SFX_simpleCue_Node(bpy.types.Node):
     operator_running_modal: bpy.props.BoolProperty(name = "Operator Running Modal",
                                     description = "Operator Running Modal",
                                     default = False)
+    operator_restart : bpy.props.BoolProperty(name = "Operator Started",
+                                    description = "Operator Started",
+                                    default = False)
 
     play_state_items = (('Play','Play','Play','PLAY',1),
                         ('Pause','Pause','Pause','PAUSE',2),

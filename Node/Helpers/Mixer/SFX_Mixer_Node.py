@@ -23,6 +23,9 @@ class SFX_Mixer_Node(bpy.types.Node):
     operator_running_modal: bpy.props.BoolProperty(name = "Mixer Operator Running Modal",
                                     description = "Mixer Operator Running Modal",
                                     default = False)
+    operator_restart : bpy.props.BoolProperty(name = "Operator Started",
+                                    description = "Operator Started",
+                                    default = False)
         
     TickTime_prop : bpy.props.FloatProperty(default=0.0,
                                             update = update_value)

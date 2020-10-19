@@ -35,8 +35,12 @@ class SFX_OT_Clock_Op(bpy.types.Operator):
         if not(context.active_node.operator_started):
             self.old_time = time.time_ns()
             self.MotherNode = context.active_node
-            self.MotherNode.operator_started=True 
-            return self.execute(context)
+            self.MotherNode.operator_started=True
+            if (self.MotherNode.operator_restart): 
+                return self.execute(context)
+            else:
+                # Do Init Stuff
+                return self.execute(context)
         else:
             return {'CANCELLED'}
 

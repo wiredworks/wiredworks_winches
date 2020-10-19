@@ -30,7 +30,11 @@ class SFX_OT_Mixer_Op(bpy.types.Operator):
             self.old_time = time.time_ns()
             self.MotherNode = context.active_node
             self.MotherNode.operator_started = True
-            return self.execute(context)
+            if (self.MotherNode.operator_restart): 
+                return self.execute(context)
+            else:
+                # Do Init Stuff
+                return self.execute(context)
         else:
             return{'CANCELLED'}
             
