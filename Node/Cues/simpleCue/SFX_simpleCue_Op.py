@@ -135,7 +135,21 @@ class SFX_simpleCue_Op(bpy.types.Operator):
             self.FcurvesInitialized = False
             self.VelInPosInitialized = False
             self.CalculateGrenzVelCalculated = False
-            if (self.MotherNode.operator_restart): 
+            if (self.MotherNode.operator_restart):
+                self.Dataobject =  bpy.data.objects[self.MotherNode.name+'_Data']
+                self.Dataobject.animation_data_clear()
+                bpy.data.actions.remove(bpy.data.actions.get(self.MotherNode.name+'_Cue'))
+                if not self.Dataobject.animation_data:
+                    self.Dataobject.animation_data_create()
+                if not self.Dataobject.animation_data.action:
+                    self.Dataobject.animation_data.action = \
+                bpy.data.actions.new(self.MotherNode.name+"_Cue")# or bpy.data.actions.get(self.MotherNode.name+"_Cue")
+                self.action = self.Dataobject.animation_data.action
+                self.FcurvesInitialized = False
+                self.VelInPosInitialized = False
+                self.CalculateGrenzVelCalculated = False
+                self.MotherNode.toTime_executed = False
+                self.initGraph()
                 return self.execute(context)
             else:
                 # Do Init Stuff
@@ -160,27 +174,44 @@ class SFX_simpleCue_Op(bpy.types.Operator):
         self.InitializeVelInPos() 
 
     def initFcurves(self):
-        self.VelInPos = self.action.fcurves.new('Vel In Pos Domain')
-        self.VelInPos.keyframe_points.insert( 0, 1 )
-        self.VelInPos.keyframe_points.insert( 1, 1 )
-        self.VelInPos.keyframe_points.insert( 2, 1 )
-        self.VelInPos.keyframe_points.insert( 3, 1 )
-        self.VelInPos.select = True
-
-        self.GrenzVel = self.action.fcurves.new('Vel Limit')
-        self.GrenzVel.keyframe_points.insert( 0, 0 )
-        self.GrenzVel.keyframe_points.insert( 1, 0 )
-        self.GrenzVel.keyframe_points.insert( 2, 0 )
-        self.GrenzVel.keyframe_points.insert( 3, 0 )
-        self.GrenzVel.select = True
-        self.GrenzVel.lock = True
-        self.GrenzVel.mute = True
-
-        self.VelInTime1 = self.action.fcurves.new('Vel In Time Domain Kp')
-        self.VelInTime1.lock = True
-
-        self.GradInTime = self.action.fcurves.new('Grad In Time Domain')
-        self.GradInTime.lock = True
+        err = False
+        try:
+            self.VelInPos = self.action.fcurves.new('Vel In Pos Domain')
+        except RuntimeError:
+            err = True
+        if not(err):
+            self.VelInPos.keyframe_points.insert( 0, 1 )
+            self.VelInPos.keyframe_points.insert( 1, 1 )
+            self.VelInPos.keyframe_points.insert( 2, 1 )
+            self.VelInPos.keyframe_points.insert( 3, 1 )
+            self.VelInPos.select = True
+        err = False
+        try:
+            self.GrenzVel = self.action.fcurves.new('Vel Limit')
+        except RuntimeError:
+            err = True
+        if not(err):
+            self.GrenzVel.keyframe_points.insert( 0, 0 )
+            self.GrenzVel.keyframe_points.insert( 1, 0 )
+            self.GrenzVel.keyframe_points.insert( 2, 0 )
+            self.GrenzVel.keyframe_points.insert( 3, 0 )
+            self.GrenzVel.select = True
+            self.GrenzVel.lock = True
+            self.GrenzVel.mute = True
+        err = False
+        try:
+            self.VelInTime1 = self.action.fcurves.new('Vel In Time Domain Kp')
+        except RuntimeError:
+            err = True
+        if not(err):
+            self.VelInTime1.lock = True
+        err = False
+        try:
+            self.GradInTime = self.action.fcurves.new('Grad In Time Domain')
+        except RuntimeError:
+            err = True
+        if not(err):
+            self.GradInTime.lock = True
 
         self.FcurvesInitialized = True
 
