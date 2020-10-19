@@ -49,6 +49,10 @@ class SFX_JoyDemux_Node(bpy.types.Node):
         self.MotherNode.demux_operator_started_bit1 = False
 
     def update(self):
+        if self.operator_running_modal:
+            self.use_custom_color = True
+        else:
+            self.use_custom_color = False
         try:
             out1 = self.outputs["Stick"]
             out2 = self.outputs["Button 1"]

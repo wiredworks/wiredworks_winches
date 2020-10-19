@@ -15,6 +15,8 @@ class SFX_simpleCue_Op(bpy.types.Operator):
         if event.type == 'TIMER':
             if self.MotherNode.operator_started:
                 self.MotherNode.operator_running_modal = True
+                self.MotherNode.color = (0,0.4,0.1)
+                self.MotherNode.use_custom_color = True 
                 # Trigger Node Update
                 self.MotherNode.TickTime_prop = (time.time_ns() - self.old_time)/1000000.0
 
@@ -108,6 +110,7 @@ class SFX_simpleCue_Op(bpy.types.Operator):
                 self.old_time = time.time_ns()
                 return {'PASS_THROUGH'}
             self.MotherNode.operator_running_modal = False
+            self.MotherNode.use_custom_color = False
             return{'CANCELLED'}
         return {'PASS_THROUGH'}
     def execute(self, context):

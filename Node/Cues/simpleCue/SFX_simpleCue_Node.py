@@ -232,6 +232,10 @@ class SFX_simpleCue_Node(bpy.types.Node):
             self.Actuator_props.drawActuatorSetup(context, row)
 
     def update(self):
+        if self.operator_running_modal:
+            self.use_custom_color = True
+        else:
+            self.use_custom_color = False
         try:
             out1 = self.outputs["Set Vel"]
             inp1 = self.inputs["Forward"]

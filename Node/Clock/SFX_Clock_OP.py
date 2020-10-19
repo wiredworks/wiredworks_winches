@@ -11,10 +11,13 @@ class SFX_OT_Clock_Op(bpy.types.Operator):
             self.MotherNode.TickTime_prop = (time.time_ns() - self.old_time)/100000.0
             if not(self.MotherNode.operator_started):
                 self.MotherNode.operator_running_modal = False
+                self.MotherNode.use_custom_color = False
                 ret =self.End_Comm(context)
                 return ret
             else:
-                self.MotherNode.operator_running_modal = True 
+                self.MotherNode.operator_running_modal = True
+                self.MotherNode.color = (0,0.4,0.1)
+                self.MotherNode.use_custom_color = True 
                 self.MotherNode.date = time.asctime()
                 self.old_time = time.time_ns()
                 return {'PASS_THROUGH'}

@@ -10,10 +10,9 @@ class SFX_OT_MN_Stop(bpy.types.Operator):
         for key in bpy.data.node_groups[node_tree].nodes.keys():
             Node = bpy.data.node_groups[node_tree].nodes[key]
             bpy.data.node_groups[node_tree].nodes.active = Node
-            Node_root = Node.name.split('.')
-            print(Node_root)
             Node.operator_started = False
             Node.operator_running_modal = False
+            Node.update()
         return {'FINISHED'}
 
     def draw(self,context):

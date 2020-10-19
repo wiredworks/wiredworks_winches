@@ -64,7 +64,10 @@ class SFX_Mixer_Node(bpy.types.Node):
         self.operator_started = False
 
     def update(self):
-        #print('update')
+        if self.operator_running_modal:
+            self.use_custom_color = True
+        else:
+            self.use_custom_color = False
         try:
             out1 = self.outputs["Set Vel"]
             inp1 = self.inputs["Channel 1"]

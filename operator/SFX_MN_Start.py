@@ -11,7 +11,6 @@ class SFX_OT_MN_Start(bpy.types.Operator):
             Node = bpy.data.node_groups[node_tree].nodes[key]
             bpy.data.node_groups[node_tree].nodes.active = Node
             Node_root = Node.name.split('.')[0]
-            print(Node_root)
             if not(Node_root == 'linrail' or
                    Node_root == 'joystick'):
                 Op = 'bpy.ops.sfx.'+str(key)+'_op(\'INVOKE_DEFAULT\')'
