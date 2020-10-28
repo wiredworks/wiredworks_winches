@@ -1,5 +1,15 @@
 # wiredworks_winches
-Dir structure
+
+THX to Tintwotin some tips for the install:
+
+"When downloading the Zip from Github, it needs to be unzipped and this part of the name ‘-master’ needs to be removed before zipping it again and then installed.
+
+When enabling the add-on, you’re informed that scipy is missing.
+
+It can be installed very simply with this new & nifty add-on: https://blenderartists.org/t/pip-for-blender/1259938"
+
+
+Folder structure
 
 /Node                
   - Actuators   Interface to Motors
