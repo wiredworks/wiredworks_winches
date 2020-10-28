@@ -7,10 +7,14 @@ class SFX_OT_Clock_IN(bpy.types.Operator):
 
     def invoke(self, context, event):
         node_tree = bpy.context.space_data.edit_tree.name
-        Node = bpy.data.node_groups[node_tree].nodes.new('SFX_Clock_Node')
-        bpy.data.node_groups[node_tree].nodes.active = Node
-        bpy.ops.sfx.clock_op('INVOKE_DEFAULT')
-        return {'FINISHED'}
+        if not('clock' in bpy.data.node_groups[node_tree].nodes):
+            Node = bpy.data.node_groups[node_tree].nodes.new('SFX_Clock_Node')
+            bpy.data.node_groups[node_tree].nodes.active = Node
+            bpy.ops.sfx.clock_op('INVOKE_DEFAULT')
+            return {'FINISHED'}
+        else:
+            print('Clock')
+            return {'CANCELLED'}
 
     def draw(self,context):
         pass

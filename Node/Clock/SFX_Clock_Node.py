@@ -38,6 +38,7 @@ class SFX_Clock_Node(bpy.types.Node):
 
     def init(self, context):
         self.draw_model(context)
+        self.init_sfxData()
         pass
 
     def copy(self, node):
@@ -68,6 +69,10 @@ class SFX_Clock_Node(bpy.types.Node):
     def draw_model(self,context):
         collection = bpy.data.collections.new('ww SFX_Nodes')
         bpy.context.scene.collection.children.link(collection)
+
+    def init_sfxData(self):
+        bpy.context.scene['sfx']= {'foo':10}
+        pass
 
     def update(self):
         pass
