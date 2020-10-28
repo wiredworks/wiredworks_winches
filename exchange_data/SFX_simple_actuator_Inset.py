@@ -35,6 +35,11 @@ class SFX_simple_Actuator_Inset(bpy.types.PropertyGroup):
                                     description = " Set if Data is confirmed",
                                     default = False)
 
+    def update_confirm(self):
+       #self.simple_actuator_confirm = False 
+       self.simple_actuator_confirmed = False
+       pass
+
     def drawActuatorSetup(self, context, layout):
 
         boxA = layout.box()
