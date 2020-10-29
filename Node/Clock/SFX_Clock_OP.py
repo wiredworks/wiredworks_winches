@@ -1,6 +1,9 @@
 import bpy
 import time
 
+from ... exchange_data.sfx import sfx
+from ... exchange_data.sfx import sfx_clock
+
 class SFX_OT_Clock_Op(bpy.types.Operator):
     """ This operator Starts the Clock"""
     bl_idname = "sfx.clock_op"
@@ -8,19 +11,24 @@ class SFX_OT_Clock_Op(bpy.types.Operator):
 
     def modal(self, context, event):
         if event.type == 'TIMER':
-            self.MotherNode.TickTime_prop = (time.time_ns() - self.old_time)/100000.0
-            if not(self.MotherNode.operator_started):
-                self.MotherNode.operator_running_modal = False
-                self.MotherNode.use_custom_color = False
-                ret =self.End_Comm(context)
-                return ret
-            else:
-                self.MotherNode.operator_running_modal = True
-                self.MotherNode.color = (0,0.4,0.1)
-                self.MotherNode.use_custom_color = True 
-                self.MotherNode.date = time.asctime()
-                self.old_time = time.time_ns()
-                return {'PASS_THROUGH'}
+            try:
+                sfx.clocks[self.MotherNode.name].TickTime_prop = (time.time_ns() - self.old_time)/100000.0
+            except KeyError:
+                self.sfx_entry_exists = False
+            if self.sfx_entry_exists:
+                if not(sfx.clocks[self.MotherNode.name].operator_started):
+                    sfx.clocks[self.MotherNode.name].operator_running_modal = False
+                    self.MotherNode.use_custom_color = False
+                    ret =self.End_Comm(context)
+                    return ret
+                else:
+                    sfx.clocks[self.MotherNode.name].operator_running_modal = True
+                    self.MotherNode.color = (0,0.4,0.1)
+                    self.MotherNode.use_custom_color = True
+                    sfx.clocks[self.MotherNode.name].date = time.asctime() 
+                    self.old_time = time.time_ns()
+                    return {'PASS_THROUGH'}
+            self.old_time = time.time_ns()
         return {'PASS_THROUGH'}
 
     def execute(self, context):
@@ -32,11 +40,12 @@ class SFX_OT_Clock_Op(bpy.types.Operator):
         return {'RUNNING_MODAL'}
 
     def invoke(self, context, event):
-        if not(context.active_node.operator_started):
+        self.sfx_entry_exists = True
+        self.MotherNode = context.active_node
+        if not(sfx.clocks[self.MotherNode.name].operator_started):
             self.old_time = time.time_ns()
-            self.MotherNode = context.active_node
-            self.MotherNode.operator_started=True
-            if (self.MotherNode.operator_restart): 
+            sfx.clocks[context.active_node.name].operator_started = True
+            if (sfx.clocks[self.MotherNode.name].operator_restart): 
                 return self.execute(context)
             else:
                 # Do Init Stuff
