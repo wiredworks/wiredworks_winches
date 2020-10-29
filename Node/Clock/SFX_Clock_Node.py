@@ -58,6 +58,6 @@ class SFX_Clock_Node(bpy.types.Node):
     def init_sfxData(self):
         sfx.clocks.update({self.name :self.sfx_clock})
         pass
-
+ # as long as SFX_MN_Stop not ready update has to be kept
     def update(self):
         pass

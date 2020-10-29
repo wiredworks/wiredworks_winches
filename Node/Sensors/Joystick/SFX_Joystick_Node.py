@@ -2,6 +2,9 @@ import bpy
 
 from .... exchange_data.SFX_Joystick_Inset import SFX_Joystick_Inset
 
+from .... exchange_data.sfx import sfx
+from .... exchange_data.sfx import sfx_sensor
+
 
 class SFX_Joystick_Node(bpy.types.Node):
     '''SFX_JoyStick'''
@@ -18,6 +21,9 @@ class SFX_Joystick_Node(bpy.types.Node):
     def update_value(self,context):
         self.update()
         pass
+
+    sfx        : bpy.props.PointerProperty(type = sfx)
+    sfx_sensor : bpy.props.PointerProperty(type = sfx_sensor)
 
     ww_Joystick_props : bpy.props.PointerProperty(type = SFX_Joystick_Inset)
 
@@ -52,6 +58,7 @@ class SFX_Joystick_Node(bpy.types.Node):
                                     default = False)
 
     def init(self, context):
+        self.init_sfxData()
 
         self.outputs.new('SFX_Joy',name= 'Joy Values')
         self.outputs["Joy Values"].default_value_set = self.ww_Joystick_props
@@ -60,7 +67,9 @@ class SFX_Joystick_Node(bpy.types.Node):
         print("copied node", node)
 
     def free(self):
-        self.operator_registered = False
+        sfx.sensors[self.name].operator_started = False
+        sfx.sensors.pop(self.name)
+        #self.operator_registered = False
         print('Node destroyed',self)
 
     def draw_buttons(self, context, layout):
@@ -74,25 +83,29 @@ class SFX_Joystick_Node(bpy.types.Node):
         row9 = row8.split(factor=0.85)        # rsocket 
         row10 = row9.split(factor=0.5)        # IP
         row11 = row10.split(factor=1)         # Name
-        row4.prop( self, 'TickTime_prop', text = '')
-        row5.prop(self, 'actuator_connected_bit2', text = '')
-        row6.prop(self, 'actuator_connected_bit1', text = '')
-        if not(self.operator_registered):
+        row4.prop(sfx.sensors[self.name], 'TickTime_prop', text = '')
+        row5.prop(sfx.sensors[self.name], 'actuator_connected_bit2', text = '')
+        row6.prop(sfx.sensors[self.name], 'actuator_connected_bit1', text = '')
+        if not(sfx.sensors[self.name].operator_registered):
             row7.operator('sfx.joystick_op',text ='Register')
         else:
            row7.operator('sfx.commstarteddiag',text ='Registered')
-        row8.prop(self, 'ssocket_port', text = '')
-        row9.prop(self, 'rsocket_port', text = '')
-        row10.prop(self, 'socket_ip', text = '')
-        row11.prop(self, 'actuator_name', text = '')        
+        row8.prop(sfx.sensors[self.name], 'ssocket_port', text = '')
+        row9.prop(sfx.sensors[self.name], 'rsocket_port', text = '')
+        row10.prop(sfx.sensors[self.name], 'socket_ip', text = '')
+        row11.prop(sfx.sensors[self.name], 'actuator_name', text = '')        
 
         row2 = layout.row(align=True)
-        row2.prop(self, 'expand_Joystick_data')
+        row2.prop(sfx.sensors[self.name], 'expand_Joystick_data')
 
-        if self.expand_Joystick_data:
-            self.ww_Joystick_props.draw_Joystick_props(context, layout)
+        if sfx.sensors[self.name].expand_Joystick_data:
+            sfx.sensors[self.name].ww_Joystick_props.draw_Joystick_props(context, layout)
 
     def draw_buttons_ext(self, context, layout):
+        pass
+
+    def init_sfxData(self):
+        sfx.sensors.update({self.name :self.sfx_sensor})
         pass
 
     def update(self):
