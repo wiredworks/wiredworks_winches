@@ -25,49 +25,49 @@ class SFX_Joystick_Node(bpy.types.Node):
     sfx        : bpy.props.PointerProperty(type = sfx)
     sfx_sensor : bpy.props.PointerProperty(type = sfx_sensor)
 
-    ww_Joystick_props : bpy.props.PointerProperty(type = SFX_Joystick_Inset)
+    # ww_Joystick_props : bpy.props.PointerProperty(type = SFX_Joystick_Inset)
 
-    actuator_connected_bit1 : bpy.props.BoolProperty(name = "Connected",
-                                    description = " Actuator Connected ?",
-                                    default = False)
-    actuator_connected_bit2 : bpy.props.BoolProperty(name = "Connected",
-                                    description = " Actuator Connected ?",
-                                    default = False)
-    actuator_name: bpy.props.StringProperty(name = "Actuator Name",
-                                    description = "Name of Actuator",
-                                    default = "Joystick")    
-    socket_ip: bpy.props.StringProperty(name = "Socket ip",
-                                    description = "IP of Actuator",
-                                    default = "127.0.0.1")
-    rsocket_port: bpy.props.StringProperty(name = "Receive Socket port",
-                                    description = "Receive Port of Actuator",
-                                    default = "15017")
-    ssocket_port: bpy.props.StringProperty(name = "Send Socket port",
-                                    description = "Send Port of Actuator",
-                                    default = "15018")
-    operator_registered : bpy.props.BoolProperty(name = "Operator Started",
-                                    description = "Operator Started",
-                                    default = False)
-    TickTime_prop: bpy.props.FloatProperty(name = "Tick Time",
-                                    description ="Sanity Check message round trip Time",
-                                    default=0.1,
-                                    precision=1,
-                                    update = update_value)
-    expand_Joystick_data : bpy.props.BoolProperty(name = "Joystick Data",
-                                    description = "Show Joystick Data",
-                                    default = False)
+    # actuator_connected_bit1 : bpy.props.BoolProperty(name = "Connected",
+    #                                 description = " Actuator Connected ?",
+    #                                 default = False)
+    # actuator_connected_bit2 : bpy.props.BoolProperty(name = "Connected",
+    #                                 description = " Actuator Connected ?",
+    #                                 default = False)
+    # actuator_name: bpy.props.StringProperty(name = "Actuator Name",
+    #                                 description = "Name of Actuator",
+    #                                 default = "Joystick")    
+    # socket_ip: bpy.props.StringProperty(name = "Socket ip",
+    #                                 description = "IP of Actuator",
+    #                                 default = "127.0.0.1")
+    # rsocket_port: bpy.props.StringProperty(name = "Receive Socket port",
+    #                                 description = "Receive Port of Actuator",
+    #                                 default = "15017")
+    # ssocket_port: bpy.props.StringProperty(name = "Send Socket port",
+    #                                 description = "Send Port of Actuator",
+    #                                 default = "15018")
+    # operator_registered : bpy.props.BoolProperty(name = "Operator Started",
+    #                                 description = "Operator Started",
+    #                                 default = False)
+    # TickTime_prop: bpy.props.FloatProperty(name = "Tick Time",
+    #                                 description ="Sanity Check message round trip Time",
+    #                                 default=0.1,
+    #                                 precision=1,
+    #                                 update = update_value)
+    # expand_Joystick_data : bpy.props.BoolProperty(name = "Joystick Data",
+    #                                 description = "Show Joystick Data",
+    #                                 default = False)
 
     def init(self, context):
         self.init_sfxData()
 
         self.outputs.new('SFX_Joy',name= 'Joy Values')
-        self.outputs["Joy Values"].default_value_set = self.ww_Joystick_props
+        self.outputs["Joy Values"].default_value_set = sfx.sensors[self.name].ww_Joystick_props
 
     def copy(self, node):
         print("copied node", node)
 
     def free(self):
-        sfx.sensors[self.name].operator_started = False
+        sfx.sensors[self.name].operator_registered = False
         sfx.sensors.pop(self.name)
         #self.operator_registered = False
         print('Node destroyed',self)
@@ -118,23 +118,24 @@ class SFX_Joystick_Node(bpy.types.Node):
             if out1.is_linked:
                 for o in out1.links:
                     if o.is_valid:
-                        o.to_socket.node.inputs[o.to_socket.name].default_value.X_Achse        =self.ww_Joystick_props.X_Achse        
-                        o.to_socket.node.inputs[o.to_socket.name].default_value.Y_Achse        =self.ww_Joystick_props.Y_Achse        
-                        o.to_socket.node.inputs[o.to_socket.name].default_value.Z_Achse        =self.ww_Joystick_props.Z_Achse        
-                        o.to_socket.node.inputs[o.to_socket.name].default_value.X_Rot          =self.ww_Joystick_props.X_Rot          
-                        o.to_socket.node.inputs[o.to_socket.name].default_value.Y_Rot          =self.ww_Joystick_props.Y_Rot          
-                        o.to_socket.node.inputs[o.to_socket.name].default_value.Z_Rot          =self.ww_Joystick_props.Z_Rot          
-                        o.to_socket.node.inputs[o.to_socket.name].default_value.Slider         =self.ww_Joystick_props.Slider         
-                        o.to_socket.node.inputs[o.to_socket.name].default_value.Button1        =self.ww_Joystick_props.Button1        
-                        o.to_socket.node.inputs[o.to_socket.name].default_value.Button2        =self.ww_Joystick_props.Button2        
-                        o.to_socket.node.inputs[o.to_socket.name].default_value.Button3        =self.ww_Joystick_props.Button3        
-                        o.to_socket.node.inputs[o.to_socket.name].default_value.Button4        =self.ww_Joystick_props.Button4        
-                        o.to_socket.node.inputs[o.to_socket.name].default_value.Button5        =self.ww_Joystick_props.Button5        
-                        o.to_socket.node.inputs[o.to_socket.name].default_value.Button6        =self.ww_Joystick_props.Button6        
-                        o.to_socket.node.inputs[o.to_socket.name].default_value.Button7        =self.ww_Joystick_props.Button7        
-                        o.to_socket.node.inputs[o.to_socket.name].default_value.Button8        =self.ww_Joystick_props.Button8        
-                        o.to_socket.node.inputs[o.to_socket.name].default_value.Button9        =self.ww_Joystick_props.Button9        
-                        o.to_socket.node.inputs[o.to_socket.name].default_value.Button10       =self.ww_Joystick_props.Button10       
-                        o.to_socket.node.inputs[o.to_socket.name].default_value.Button11       =self.ww_Joystick_props.Button11       
-                        o.to_socket.node.inputs[o.to_socket.name].default_value.Button12       =self.ww_Joystick_props.Button12 
+                        o.to_socket.node.inputs[o.to_socket.name].default_value.X_Achse        =sfx.sensors[self.name].ww_Joystick_props.X_Achse        
+                        #print(o.to_socket.node.inputs[o.to_socket.name].default_value.X_Achse)
+                        o.to_socket.node.inputs[o.to_socket.name].default_value.Y_Achse        =sfx.sensors[self.name].ww_Joystick_props.Y_Achse        
+                        o.to_socket.node.inputs[o.to_socket.name].default_value.Z_Achse        =sfx.sensors[self.name].ww_Joystick_props.Z_Achse        
+                        o.to_socket.node.inputs[o.to_socket.name].default_value.X_Rot          =sfx.sensors[self.name].ww_Joystick_props.X_Rot          
+                        o.to_socket.node.inputs[o.to_socket.name].default_value.Y_Rot          =sfx.sensors[self.name].ww_Joystick_props.Y_Rot          
+                        o.to_socket.node.inputs[o.to_socket.name].default_value.Z_Rot          =sfx.sensors[self.name].ww_Joystick_props.Z_Rot          
+                        o.to_socket.node.inputs[o.to_socket.name].default_value.Slider         =sfx.sensors[self.name].ww_Joystick_props.Slider         
+                        o.to_socket.node.inputs[o.to_socket.name].default_value.Button1        =sfx.sensors[self.name].ww_Joystick_props.Button1        
+                        o.to_socket.node.inputs[o.to_socket.name].default_value.Button2        =sfx.sensors[self.name].ww_Joystick_props.Button2        
+                        o.to_socket.node.inputs[o.to_socket.name].default_value.Button3        =sfx.sensors[self.name].ww_Joystick_props.Button3        
+                        o.to_socket.node.inputs[o.to_socket.name].default_value.Button4        =sfx.sensors[self.name].ww_Joystick_props.Button4        
+                        o.to_socket.node.inputs[o.to_socket.name].default_value.Button5        =sfx.sensors[self.name].ww_Joystick_props.Button5        
+                        o.to_socket.node.inputs[o.to_socket.name].default_value.Button6        =sfx.sensors[self.name].ww_Joystick_props.Button6        
+                        o.to_socket.node.inputs[o.to_socket.name].default_value.Button7        =sfx.sensors[self.name].ww_Joystick_props.Button7        
+                        o.to_socket.node.inputs[o.to_socket.name].default_value.Button8        =sfx.sensors[self.name].ww_Joystick_props.Button8        
+                        o.to_socket.node.inputs[o.to_socket.name].default_value.Button9        =sfx.sensors[self.name].ww_Joystick_props.Button9        
+                        o.to_socket.node.inputs[o.to_socket.name].default_value.Button10       =sfx.sensors[self.name].ww_Joystick_props.Button10       
+                        o.to_socket.node.inputs[o.to_socket.name].default_value.Button11       =sfx.sensors[self.name].ww_Joystick_props.Button11       
+                        o.to_socket.node.inputs[o.to_socket.name].default_value.Button12       =sfx.sensors[self.name].ww_Joystick_props.Button12 
                         # print(o.to_socket.node.inputs[o.to_socket.name].default_value.Y_Achse)'

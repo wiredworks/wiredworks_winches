@@ -15,10 +15,13 @@ class SFX_OT_Joystick_Op(bpy.types.Operator):
 
     def modal(self, context, event):
         if event.type == 'TIMER':
+            #print((time.time_ns() - self.old_time)/100000.0)
             try:
-                sfx.clocks[self.MotherNode.name].TickTime_prop = (time.time_ns() - self.old_time)/100000.0
+                sfx.sensors[self.MotherNode.name].TickTime_prop = (time.time_ns() - self.old_time)/100000.0
             except KeyError:
                 self.sfx_entry_exists = False
+                ret =self.End_Comm(context)
+                return ret
             if self.sfx_entry_exists:
                 sfx.sensors[self.MotherNode.name].TickTime_prop = (time.time_ns() - self.old_time)/1000000.0
                 if not(sfx.sensors[self.MotherNode.name].operator_registered):             # destroy
@@ -64,11 +67,12 @@ class SFX_OT_Joystick_Op(bpy.types.Operator):
         return {'RUNNING_MODAL'}
 
     def invoke(self, context, event):
+        #print('invoke')
         self.sfx_entry_exists = True
         self.MotherNode = context.active_node
         if not(sfx.sensors[self.MotherNode.name].operator_registered):            
             sfx.sensors[self.MotherNode.name].operator_registered = True
-            #self.Node_Context_Active_Node_Joystick_props = self.MotherNode.ww_Joystick_props
+
             self.NAME      = sfx.sensors[self.MotherNode.name].actuator_name
             self.UDP_IP    = sfx.sensors[self.MotherNode.name].socket_ip
             self.RUDP_PORT = int(sfx.sensors[self.MotherNode.name].rsocket_port) 
@@ -174,7 +178,7 @@ class SFX_OT_Joystick_Op(bpy.types.Operator):
             sfx.sensors[self.MotherNode.name].ww_Joystick_props.Button8        =message['Buttons'][7]
             sfx.sensors[self.MotherNode.name].ww_Joystick_props.Button9        =message['Buttons'][8]
             sfx.sensors[self.MotherNode.name].ww_Joystick_props.Button10       =message['Buttons'][9]
-            ssfx.sensors[self.MotherNode.name].ww_Joystick_props.Button11       =message['Buttons'][10]
+            sfx.sensors[self.MotherNode.name].ww_Joystick_props.Button11       =message['Buttons'][10]
             sfx.sensors[self.MotherNode.name].ww_Joystick_props.Button12       =message['Buttons'][11]
 
         MESSAGE = json.dumps(self.ww_Joy_Data).encode('utf-8')
@@ -182,6 +186,7 @@ class SFX_OT_Joystick_Op(bpy.types.Operator):
             self.ssock.sendto(MESSAGE, (self.UDP_IP, self.SUDP_PORT))
         except AttributeError :
             print('NO SSOCK')
+        self.MotherNode.update()
         return {'PASS_THROUGH'}
 
     def End_Comm(self,context):        
@@ -196,4 +201,18 @@ class SFX_OT_Joystick_Op(bpy.types.Operator):
             pass
         print('Communication Start -- end timer')
         #context.window_manager.event_timer_remove(self._timer)
+        return {'CANCELLED'}
+
+    def destroy(self,context):
+        #print('destroy')
+        try:
+            self.rsock.close()
+            self.ssock.close()
+            del(self.rsock)
+            del(self.ssock)
+        except AttributeError:
+            #print('You tried to disconnect without beeing connected')
+            pass
+        sfx.sensors[self.MotherNode.name].actuator_connected_bit1 = False
+        sfx.sensors[self.MotherNode.name].actuator_connected_bit2 = False
         return {'CANCELLED'}

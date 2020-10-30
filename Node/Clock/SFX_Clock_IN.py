@@ -13,7 +13,7 @@ class SFX_OT_Clock_IN(bpy.types.Operator):
             bpy.ops.sfx.clock_op('INVOKE_DEFAULT')
             return {'FINISHED'}
         else:
-            print('Clock')
+            #print('Clock')
             return {'CANCELLED'}
 
     def draw(self,context):

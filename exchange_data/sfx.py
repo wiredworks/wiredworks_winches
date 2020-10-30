@@ -55,14 +55,18 @@ class sfx_kinematic(bpy.types.PropertyGroup):
                                     precision = 3,
                                     default = 0.001)
 
-class sfx_helper(bpy.types.PropertyGroup):
+class helper_demux(bpy.types.PropertyGroup):
     ''' Defines sfx_helper'''
     bl_idname = "sfx_helper"
 
-    X_Achse : bpy.props.FloatProperty(name = "X-Achse",
-                                    description = "X-Achse",
-                                    precision = 3,
-                                    default = 0.001)
+    operator_started : bpy.props.BoolProperty(name = "Demux Operator Started",
+                                    description = "Demux Operator Started",
+                                    default = False)
+    operator_running_modal: bpy.props.BoolProperty(name = "Demux Operator Running Modal",
+                                    description = "Demux Operator Running Modal",
+                                    default = False)
+        
+    TickTime_prop : bpy.props.FloatProperty(default=0.0)
 
 class sfx_actuator(bpy.types.PropertyGroup):
     ''' Defines sfx_actuator'''
@@ -73,7 +77,7 @@ class sfx_actuator(bpy.types.PropertyGroup):
                                     precision = 3,
                                     default = 0.001)
 
-class sfx_clock(bpy.types.PropertyGroup):
+class clock(bpy.types.PropertyGroup):
     ''' Defines sfx_clock'''
     bl_idname = "sfx_clock"
 
@@ -83,10 +87,6 @@ class sfx_clock(bpy.types.PropertyGroup):
     operator_running_modal: bpy.props.BoolProperty(name = "Operator Running Modal",
                                     description = "Operator Running Modal",
                                     default = False)
-    operator_restart : bpy.props.BoolProperty(name = "Operator Started",
-                                    description = "Operator Started",
-                                    default = False)
-
     date :bpy.props.StringProperty(name='Date',
                                 description='Date',
                                 default = 'Sun Jun 20 23:21:05 1993')

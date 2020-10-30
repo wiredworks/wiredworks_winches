@@ -2,7 +2,6 @@ import bpy
 import time
 
 from ... exchange_data.sfx import sfx
-from ... exchange_data.sfx import sfx_clock
 
 class SFX_OT_Clock_Op(bpy.types.Operator):
     """ This operator Starts the Clock"""
@@ -15,20 +14,19 @@ class SFX_OT_Clock_Op(bpy.types.Operator):
                 sfx.clocks[self.MotherNode.name].TickTime_prop = (time.time_ns() - self.old_time)/100000.0
             except KeyError:
                 self.sfx_entry_exists = False
+                ret = self.End_Timers
+                return ret
             if self.sfx_entry_exists:
+                self.MotherNode.sfx_update()
                 if not(sfx.clocks[self.MotherNode.name].operator_started):
                     sfx.clocks[self.MotherNode.name].operator_running_modal = False
-                    self.MotherNode.use_custom_color = False
-                    ret =self.End_Comm(context)
+                    ret =self.End_Timers(context)
                     return ret
                 else:
                     sfx.clocks[self.MotherNode.name].operator_running_modal = True
-                    self.MotherNode.color = (0,0.4,0.1)
-                    self.MotherNode.use_custom_color = True
                     sfx.clocks[self.MotherNode.name].date = time.asctime() 
                     self.old_time = time.time_ns()
                     return {'PASS_THROUGH'}
-            self.old_time = time.time_ns()
         return {'PASS_THROUGH'}
 
     def execute(self, context):
@@ -44,16 +42,15 @@ class SFX_OT_Clock_Op(bpy.types.Operator):
         self.MotherNode = context.active_node
         if not(sfx.clocks[self.MotherNode.name].operator_started):
             self.old_time = time.time_ns()
-            sfx.clocks[context.active_node.name].operator_started = True
-            if (sfx.clocks[self.MotherNode.name].operator_restart): 
-                return self.execute(context)
-            else:
-                # Do Init Stuff
-                return self.execute(context)
+            sfx.clocks[self.MotherNode.name].operator_started = True
+            return self.execute(context)
         else:
             return {'CANCELLED'}
+            
+    def draw(self,context):
+        pass
 
-    def End_Comm(self,context):        
+    def End_Timers(self,context):        
         context.window_manager.event_timer_remove(self._timer)
         context.window_manager.event_timer_remove(self._timer1)
         context.window_manager.event_timer_remove(self._timer2)

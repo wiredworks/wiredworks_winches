@@ -1,7 +1,7 @@
 import bpy
 
 from ... exchange_data.sfx import sfx
-from ... exchange_data.sfx import sfx_clock
+from ... exchange_data.sfx import clock
 
 class SFX_Clock_Node(bpy.types.Node):
     '''SFX_ClockNode'''
@@ -16,11 +16,11 @@ class SFX_Clock_Node(bpy.types.Node):
         return ntree.bl_idname == 'SFX_NodeTree'
 
     sfx       : bpy.props.PointerProperty(type = sfx)
-    sfx_clock : bpy.props.PointerProperty(type = sfx_clock)
+    sfx_clock : bpy.props.PointerProperty(type = clock)
 
     def init(self, context):
-        self.draw_model(context)
         self.init_sfxData()
+        self.draw_model(context)
         pass
 
     def copy(self, node):
@@ -31,9 +31,6 @@ class SFX_Clock_Node(bpy.types.Node):
         sfx.clocks.pop(self.name)
         bpy.data.collections.remove(bpy.data.collections.get('ww SFX_Nodes'))
         print('Node destroyed',self)
-
-    def tick(self,context):
-        self.draw_buttons(context,self.layout)
 
     def draw_buttons(self, context, layout):
         box = layout.box()
@@ -50,14 +47,20 @@ class SFX_Clock_Node(bpy.types.Node):
 
     def draw_buttons_ext(self, context, layout):
         pass
+    
+    def init_sfxData(self):
+        sfx.clocks.update({self.name :self.sfx_clock})
+        pass
+
+    def sfx_update(self):
+        if sfx.clocks[self.name].operator_running_modal:
+            self.color = (0,0.4,0.1)
+            self.use_custom_color = True
+        else:
+            self.use_custom_color = False
+        pass
 
     def draw_model(self,context):
         collection = bpy.data.collections.new('ww SFX_Nodes')
         bpy.context.scene.collection.children.link(collection)
 
-    def init_sfxData(self):
-        sfx.clocks.update({self.name :self.sfx_clock})
-        pass
- # as long as SFX_MN_Stop not ready update has to be kept
-    def update(self):
-        pass
