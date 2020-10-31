@@ -18,6 +18,7 @@ class SFX_OT_Joystick_Op(bpy.types.Operator):
             #print((time.time_ns() - self.old_time)/100000.0)
             try:
                 sfx.sensors[self.MotherNode.name].TickTime_prop = (time.time_ns() - self.old_time)/100000.0
+                self.MotherNode.sfx_update()
             except KeyError:
                 self.sfx_entry_exists = False
                 ret =self.End_Comm(context)
@@ -60,14 +61,11 @@ class SFX_OT_Joystick_Op(bpy.types.Operator):
         return {'PASS_THROUGH'}
 
     def execute(self, context):
-        #print('Communication Start -- execute')
-        #self._timer = context.window_manager.event_timer_add(0.001, window=context.window)
         context.window_manager.modal_handler_add(self)
         self.old_time = time.time_ns()
         return {'RUNNING_MODAL'}
 
     def invoke(self, context, event):
-        #print('invoke')
         self.sfx_entry_exists = True
         self.MotherNode = context.active_node
         if not(sfx.sensors[self.MotherNode.name].operator_registered):            
@@ -82,11 +80,11 @@ class SFX_OT_Joystick_Op(bpy.types.Operator):
                        str(self.RUDP_PORT)+'_'+
                        str(self.SUDP_PORT))           
 
-            self.ww_Joy_Data={  'Ptime'  : 0,'Btime'  : 0,
-                                'X-Achse': 0,'Y-Achse': 0,'Z-Achse'   : 0,
-                                'X-Rot'  : 0,'Y-Rot'  : 0,'Z-Rot'     : 0,
-                                'Slider' : 0,'Buttons': 0,'HAT-Switch': 0,
-                                'EndCommOPerator': False,'Destroy'    : False}
+            self.Joy_Data={  'Ptime'  : 0,'Btime'  : 0,
+                             'X-Achse': 0,'Y-Achse': 0,'Z-Achse'   : 0,
+                             'X-Rot'  : 0,'Y-Rot'  : 0,'Z-Rot'     : 0,
+                             'Slider' : 0,'Buttons': 0,'HAT-Switch': 0,
+                             'EndCommOPerator': False,'Destroy'    : False}
             return self.execute(context)
         else:
             return {'CANCELLED'}
@@ -148,45 +146,45 @@ class SFX_OT_Joystick_Op(bpy.types.Operator):
         if data != "NO DATA":
             message = json.loads(data.decode('utf-8'))
             # exchange Data with Python Joystick Input
-            self.ww_Joy_Data["Ptime"]                  =message['Ptime']
-            self.ww_Joy_Data["Btime"]                  =message['Btime']
-            self.ww_Joy_Data["X-Achse"]                =message['X-Achse']
-            self.ww_Joy_Data["Y-Achse"]                =message['Y-Achse']
-            self.ww_Joy_Data["Z-Achse"]                =message['Z-Achse']
-            self.ww_Joy_Data["X-Rot"]                  =message['X-Rot']
-            self.ww_Joy_Data["Y-Rot"]                  =message['Y-Rot']
-            self.ww_Joy_Data["Z-Rot"]                  =message['Z-Rot']
-            self.ww_Joy_Data["Slider"]                 =message['Slider']
-            self.ww_Joy_Data["Buttons"]                =message['Buttons']
-            self.ww_Joy_Data["HAT-Switch"]             =message['HAT-Switch']
+            self.Joy_Data["Ptime"]                  =message['Ptime']
+            self.Joy_Data["Btime"]                  =message['Btime']
+            self.Joy_Data["X-Achse"]                =message['X-Achse']
+            self.Joy_Data["Y-Achse"]                =message['Y-Achse']
+            self.Joy_Data["Z-Achse"]                =message['Z-Achse']
+            self.Joy_Data["X-Rot"]                  =message['X-Rot']
+            self.Joy_Data["Y-Rot"]                  =message['Y-Rot']
+            self.Joy_Data["Z-Rot"]                  =message['Z-Rot']
+            self.Joy_Data["Slider"]                 =message['Slider']
+            self.Joy_Data["Buttons"]                =message['Buttons']
+            self.Joy_Data["HAT-Switch"]             =message['HAT-Switch']
             # excange Data with Node
-            sfx.sensors[self.MotherNode.name].ww_Joystick_props.X_Achse        =(float(message["X-Achse"])/32768.0)*100
-            sfx.sensors[self.MotherNode.name].ww_Joystick_props.Y_Achse        =(float(message["Y-Achse"])/32768.0)*100
-            sfx.sensors[self.MotherNode.name].ww_Joystick_props.Z_Achse        =(float(message["Z-Achse"])/32768.0)*100
-            sfx.sensors[self.MotherNode.name].ww_Joystick_props.X_Rot          =(float(message["X-Rot"])/32768.0)*100
-            sfx.sensors[self.MotherNode.name].ww_Joystick_props.Y_Rot          =(float(message["Y-Rot"])/32768.0)*100
-            sfx.sensors[self.MotherNode.name].ww_Joystick_props.Z_Rot          =(float(message["Z-Rot"])/32768.0)*100
-            sfx.sensors[self.MotherNode.name].ww_Joystick_props.Slider         =(float(message["Slider"])/32768.0)*100
-            sfx.sensors[self.MotherNode.name].ww_Joystick_props.HAT_Switch     =message["HAT-Switch"]
-            sfx.sensors[self.MotherNode.name].ww_Joystick_props.Button1        =message['Buttons'][0]
-            sfx.sensors[self.MotherNode.name].ww_Joystick_props.Button2        =message['Buttons'][1]
-            sfx.sensors[self.MotherNode.name].ww_Joystick_props.Button3        =message['Buttons'][2]
-            sfx.sensors[self.MotherNode.name].ww_Joystick_props.Button4        =message['Buttons'][3]
-            sfx.sensors[self.MotherNode.name].ww_Joystick_props.Button5        =message['Buttons'][4]
-            sfx.sensors[self.MotherNode.name].ww_Joystick_props.Button6        =message['Buttons'][5]
-            sfx.sensors[self.MotherNode.name].ww_Joystick_props.Button7        =message['Buttons'][6]
-            sfx.sensors[self.MotherNode.name].ww_Joystick_props.Button8        =message['Buttons'][7]
-            sfx.sensors[self.MotherNode.name].ww_Joystick_props.Button9        =message['Buttons'][8]
-            sfx.sensors[self.MotherNode.name].ww_Joystick_props.Button10       =message['Buttons'][9]
-            sfx.sensors[self.MotherNode.name].ww_Joystick_props.Button11       =message['Buttons'][10]
-            sfx.sensors[self.MotherNode.name].ww_Joystick_props.Button12       =message['Buttons'][11]
+            sfx.sensors[self.MotherNode.name].Joystick_props.X_Achse        =(float(message["X-Achse"])/32768.0)*100
+            sfx.sensors[self.MotherNode.name].Joystick_props.Y_Achse        =(float(message["Y-Achse"])/32768.0)*100
+            sfx.sensors[self.MotherNode.name].Joystick_props.Z_Achse        =(float(message["Z-Achse"])/32768.0)*100
+            sfx.sensors[self.MotherNode.name].Joystick_props.X_Rot          =(float(message["X-Rot"])/32768.0)*100
+            sfx.sensors[self.MotherNode.name].Joystick_props.Y_Rot          =(float(message["Y-Rot"])/32768.0)*100
+            sfx.sensors[self.MotherNode.name].Joystick_props.Z_Rot          =(float(message["Z-Rot"])/32768.0)*100
+            sfx.sensors[self.MotherNode.name].Joystick_props.Slider         =(float(message["Slider"])/32768.0)*100
+            sfx.sensors[self.MotherNode.name].Joystick_props.HAT_Switch     =message["HAT-Switch"]
+            sfx.sensors[self.MotherNode.name].Joystick_props.Button1        =message['Buttons'][0]
+            sfx.sensors[self.MotherNode.name].Joystick_props.Button2        =message['Buttons'][1]
+            sfx.sensors[self.MotherNode.name].Joystick_props.Button3        =message['Buttons'][2]
+            sfx.sensors[self.MotherNode.name].Joystick_props.Button4        =message['Buttons'][3]
+            sfx.sensors[self.MotherNode.name].Joystick_props.Button5        =message['Buttons'][4]
+            sfx.sensors[self.MotherNode.name].Joystick_props.Button6        =message['Buttons'][5]
+            sfx.sensors[self.MotherNode.name].Joystick_props.Button7        =message['Buttons'][6]
+            sfx.sensors[self.MotherNode.name].Joystick_props.Button8        =message['Buttons'][7]
+            sfx.sensors[self.MotherNode.name].Joystick_props.Button9        =message['Buttons'][8]
+            sfx.sensors[self.MotherNode.name].Joystick_props.Button10       =message['Buttons'][9]
+            sfx.sensors[self.MotherNode.name].Joystick_props.Button11       =message['Buttons'][10]
+            sfx.sensors[self.MotherNode.name].Joystick_props.Button12       =message['Buttons'][11]
 
-        MESSAGE = json.dumps(self.ww_Joy_Data).encode('utf-8')
+        MESSAGE = json.dumps(self.Joy_Data).encode('utf-8')
         try:
             self.ssock.sendto(MESSAGE, (self.UDP_IP, self.SUDP_PORT))
         except AttributeError :
             print('NO SSOCK')
-        self.MotherNode.update()
+
         return {'PASS_THROUGH'}
 
     def End_Comm(self,context):        

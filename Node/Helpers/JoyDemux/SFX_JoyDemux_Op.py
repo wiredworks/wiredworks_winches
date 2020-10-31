@@ -27,15 +27,16 @@ class SFX_OT_JoyDemux_Op(bpy.types.Operator):
         return {'PASS_THROUGH'}
 
     def execute(self, context):
+        self.sfx_entry_exists = True
+        self.MotherNode = context.active_node
+        self.old_time = time.time_ns()
         context.window_manager.modal_handler_add(self)
         return {'RUNNING_MODAL'}
 
     def invoke(self, context, event):
         self.sfx_entry_exists = True
-        self.MotherNode = context.active_node       
-        if not(sfx.helpers[self.MotherNode.name].operator_started):
-            self.old_time = time.time_ns()
-            sfx.helpers[self.MotherNode.name].operator_started = True
+        self.MotherNode = context.active_node
+        if not(sfx.helpers[self.MotherNode.name].operator_running_modal):
             return self.execute(context)
         else:
             return{'CANCELLED'}

@@ -8,8 +8,8 @@ class SFX_Clock_Node(bpy.types.Node):
     bl_idname = 'SFX_Clock_Node'
     bl_label = 'clock'
     bl_icon = 'CURVE_NCIRCLE'
-    bl_width_min = 340
-    bl_width_max = 340
+    bl_width_min = 350
+    bl_width_max = 350
 
     @classmethod
     def poll(cls, ntree):
@@ -33,18 +33,22 @@ class SFX_Clock_Node(bpy.types.Node):
         print('Node destroyed',self)
 
     def draw_buttons(self, context, layout):
-        box = layout.box()
-        col = box.column(align = True)
-        row = col.split(factor = 0.3)
-        if not(sfx.clocks[self.name].operator_started):
-            row.operator('sfx.clock_op',text ='Start')
-        else:
-           row.operator('sfx.commstarteddiag',text ='Started')
-        row1 = row.split(factor = 0.75) 
+        box  = layout.box()
+        col  = box.column(align = True)
+        row  = col.split(factor = 0.85)
+        row1 = row.split(factor = 0.4)
+        row2 = row1.split(factor = 0.85)
+        row3 = row2.split(factor = 0.85)
+        row4 = row3.split(factor = 1)
+        row.prop( sfx.clocks[self.name], 'TickTime_prop', text = '')
         row1.prop(sfx.clocks[self.name],'date',text = '')
-        row2 = row1.split(factor = 1)
-        row2.prop( sfx.clocks[self.name], 'TickTime_prop', text = '')
-
+        row2.prop(sfx.clocks[self.name], 'operator_running_modal', text = '')
+        row3.prop(sfx.clocks[self.name], 'operator_started', text = '')
+        if not(sfx.clocks[self.name].operator_started):
+            row4.label(text ='Stoped')
+        else:
+           row4.label(text ='Started')
+           
     def draw_buttons_ext(self, context, layout):
         pass
     

@@ -16,22 +16,6 @@ class SFX_JoyDemux_Node(bpy.types.Node):
     def poll(cls, ntree):
         return ntree.bl_idname == 'SFX_NodeTree'
 
-    # def update_value(self, context):
-    #     self.update ()
-
-    # operator_started : bpy.props.BoolProperty(name = "Demux Operator Started",
-    #                                 description = "Demux Operator Started",
-    #                                 default = False)
-    # operator_running_modal: bpy.props.BoolProperty(name = "Demux Operator Running Modal",
-    #                                 description = "Demux Operator Running Modal",
-    #                                 default = False)
-    # operator_restart : bpy.props.BoolProperty(name = "Operator Started",
-    #                                 description = "Operator Started",
-    #                                 default = False)
-        
-    # TickTime_prop : bpy.props.FloatProperty(default=0.0,
-    #                                         update = update_value)
-
     sfx              : bpy.props.PointerProperty(type = sfx)
     sfx_helper_demux : bpy.props.PointerProperty(type = helper_demux)
 
@@ -51,8 +35,6 @@ class SFX_JoyDemux_Node(bpy.types.Node):
         self.inputs.new('SFX_Joy_In',name= 'Joy Values')
         self.inputs["Joy Values"].default_value_set = SFX_Joystick_Inset
 
-
-
     def copy(self, node):
         print("copied node", node)
         
@@ -71,9 +53,9 @@ class SFX_JoyDemux_Node(bpy.types.Node):
         row5.prop(sfx.helpers[self.name], 'operator_running_modal', text = '')
         row6.prop(sfx.helpers[self.name], 'operator_started', text = '')
         if not(sfx.helpers[self.name].operator_started):
-            row7.operator('sfx.joydemux_op',text ='Start')
+            row7.label(text ='Stoped')
         else:
-            row7.operator('sfx.commstarteddiag',text ='Started')
+            row7.label(text ='Started')
 
     def draw_buttons_ext(self, context, layout):
         pass

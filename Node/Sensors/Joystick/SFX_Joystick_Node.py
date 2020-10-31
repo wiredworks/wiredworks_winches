@@ -25,43 +25,11 @@ class SFX_Joystick_Node(bpy.types.Node):
     sfx        : bpy.props.PointerProperty(type = sfx)
     sfx_sensor : bpy.props.PointerProperty(type = sfx_sensor)
 
-    # ww_Joystick_props : bpy.props.PointerProperty(type = SFX_Joystick_Inset)
-
-    # actuator_connected_bit1 : bpy.props.BoolProperty(name = "Connected",
-    #                                 description = " Actuator Connected ?",
-    #                                 default = False)
-    # actuator_connected_bit2 : bpy.props.BoolProperty(name = "Connected",
-    #                                 description = " Actuator Connected ?",
-    #                                 default = False)
-    # actuator_name: bpy.props.StringProperty(name = "Actuator Name",
-    #                                 description = "Name of Actuator",
-    #                                 default = "Joystick")    
-    # socket_ip: bpy.props.StringProperty(name = "Socket ip",
-    #                                 description = "IP of Actuator",
-    #                                 default = "127.0.0.1")
-    # rsocket_port: bpy.props.StringProperty(name = "Receive Socket port",
-    #                                 description = "Receive Port of Actuator",
-    #                                 default = "15017")
-    # ssocket_port: bpy.props.StringProperty(name = "Send Socket port",
-    #                                 description = "Send Port of Actuator",
-    #                                 default = "15018")
-    # operator_registered : bpy.props.BoolProperty(name = "Operator Started",
-    #                                 description = "Operator Started",
-    #                                 default = False)
-    # TickTime_prop: bpy.props.FloatProperty(name = "Tick Time",
-    #                                 description ="Sanity Check message round trip Time",
-    #                                 default=0.1,
-    #                                 precision=1,
-    #                                 update = update_value)
-    # expand_Joystick_data : bpy.props.BoolProperty(name = "Joystick Data",
-    #                                 description = "Show Joystick Data",
-    #                                 default = False)
-
     def init(self, context):
         self.init_sfxData()
 
         self.outputs.new('SFX_Joy',name= 'Joy Values')
-        self.outputs["Joy Values"].default_value_set = sfx.sensors[self.name].ww_Joystick_props
+        self.outputs["Joy Values"].default_value_set = sfx.sensors[self.name].Joystick_props
 
     def copy(self, node):
         print("copied node", node)
@@ -69,7 +37,6 @@ class SFX_Joystick_Node(bpy.types.Node):
     def free(self):
         sfx.sensors[self.name].operator_registered = False
         sfx.sensors.pop(self.name)
-        #self.operator_registered = False
         print('Node destroyed',self)
 
     def draw_buttons(self, context, layout):
@@ -99,7 +66,7 @@ class SFX_Joystick_Node(bpy.types.Node):
         row2.prop(sfx.sensors[self.name], 'expand_Joystick_data')
 
         if sfx.sensors[self.name].expand_Joystick_data:
-            sfx.sensors[self.name].ww_Joystick_props.draw_Joystick_props(context, layout)
+            sfx.sensors[self.name].Joystick_props.draw_Joystick_props(context, layout)
 
     def draw_buttons_ext(self, context, layout):
         pass
@@ -108,7 +75,7 @@ class SFX_Joystick_Node(bpy.types.Node):
         sfx.sensors.update({self.name :self.sfx_sensor})
         pass
 
-    def update(self):
+    def sfx_update(self):
         try:
             out1 = self.outputs["Joy Values"]
             can_continue = True
@@ -119,7 +86,6 @@ class SFX_Joystick_Node(bpy.types.Node):
                 for o in out1.links:
                     if o.is_valid:
                         o.to_socket.node.inputs[o.to_socket.name].default_value.X_Achse        =sfx.sensors[self.name].ww_Joystick_props.X_Achse        
-                        #print(o.to_socket.node.inputs[o.to_socket.name].default_value.X_Achse)
                         o.to_socket.node.inputs[o.to_socket.name].default_value.Y_Achse        =sfx.sensors[self.name].ww_Joystick_props.Y_Achse        
                         o.to_socket.node.inputs[o.to_socket.name].default_value.Z_Achse        =sfx.sensors[self.name].ww_Joystick_props.Z_Achse        
                         o.to_socket.node.inputs[o.to_socket.name].default_value.X_Rot          =sfx.sensors[self.name].ww_Joystick_props.X_Rot          
@@ -138,4 +104,3 @@ class SFX_Joystick_Node(bpy.types.Node):
                         o.to_socket.node.inputs[o.to_socket.name].default_value.Button10       =sfx.sensors[self.name].ww_Joystick_props.Button10       
                         o.to_socket.node.inputs[o.to_socket.name].default_value.Button11       =sfx.sensors[self.name].ww_Joystick_props.Button11       
                         o.to_socket.node.inputs[o.to_socket.name].default_value.Button12       =sfx.sensors[self.name].ww_Joystick_props.Button12 
-                        # print(o.to_socket.node.inputs[o.to_socket.name].default_value.Y_Achse)'

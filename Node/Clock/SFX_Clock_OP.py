@@ -33,19 +33,19 @@ class SFX_OT_Clock_Op(bpy.types.Operator):
         self._timer = context.window_manager.event_timer_add(0.001, window=context.window)
         self._timer1 = context.window_manager.event_timer_add(0.001, window=context.window)
         self._timer2 = context.window_manager.event_timer_add(0.001, window=context.window)
-        context.window_manager.modal_handler_add(self)
+        self.sfx_entry_exists = True
+        self.MotherNode = context.active_node
         self.old_time = time.time_ns()
+        context.window_manager.modal_handler_add(self)
         return {'RUNNING_MODAL'}
 
     def invoke(self, context, event):
         self.sfx_entry_exists = True
         self.MotherNode = context.active_node
-        if not(sfx.clocks[self.MotherNode.name].operator_started):
-            self.old_time = time.time_ns()
-            sfx.clocks[self.MotherNode.name].operator_started = True
+        if not(sfx.clocks[self.MotherNode.name].operator_running_modal):
             return self.execute(context)
         else:
-            return {'CANCELLED'}
+            return{'CANCELLED'}
             
     def draw(self,context):
         pass

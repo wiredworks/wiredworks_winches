@@ -1,5 +1,7 @@
 import bpy
 
+from .. exchange_data.sfx import sfx
+
 class SFX_OT_MN_Start(bpy.types.Operator):
     """ Starts the Operators asociated with the Nodes in the Node Tree"""
     bl_idname = "sfx.startmodals"
@@ -13,8 +15,26 @@ class SFX_OT_MN_Start(bpy.types.Operator):
             Node_root = Node.name.split('.')[0]
             if not(Node_root == 'linrail' or
                    Node_root == 'joystick'):
-                Op = 'bpy.ops.sfx.'+Node_root+'_op(\'INVOKE_DEFAULT\')'
-                exec(Op)
+                try:
+                    sfx.clocks[Node.name].operator_started           = True
+                except KeyError:
+                    pass
+                try:
+                    sfx.helpers[Node.name].operator_started          = True
+                except KeyError:
+                    pass
+                try:
+                    sfx.cues[Node.name].operator_started             = True
+                except KeyError:
+                    pass
+                try:
+                    sfx.kinematics[Node.name].operator_started       = True
+                except KeyError:
+                    pass
+                try:
+                    sfx.helpers[Node.name].operator_started          = True
+                except KeyError:
+                    pass
         return {'FINISHED'}
 
     def draw(self,context):
