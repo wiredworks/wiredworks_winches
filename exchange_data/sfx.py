@@ -116,6 +116,22 @@ class helper_adder(bpy.types.PropertyGroup,helper_base):
                                     description = "Expand Basic Data",
                                     default = False)
 
+class helper_mixer(bpy.types.PropertyGroup,helper_base):
+    ''' Defines sfx_mixer'''
+    bl_idname = "sfx_mixer"
+
+    Actuator_basic_props : bpy.props.PointerProperty(type =SFX_actuator_basic_Inset)
+
+    expand_Actuator_basic_data : bpy.props.BoolProperty(name = "Expand Basic Data",
+                                    description = "Expand Basic Data",
+                                    default = False)
+
+    factor : bpy.props.FloatProperty(name='Factor',
+                                      description='Factor',
+                                      default = 50.0,
+                                      soft_max = 100.0,
+                                      soft_min = 0.0)
+
 
 class sfx_actuator(bpy.types.PropertyGroup):
     ''' Defines sfx_actuator'''

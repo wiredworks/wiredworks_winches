@@ -74,8 +74,7 @@ class SFX_Adder_Node(bpy.types.Node):
         pass
 
     def init_sfxData(self):
-        sfx.helpers.update({self.name :self.sfx_helper_demux})
-        pass
+        sfx.helpers.update({self.name :self.sfx_helper_adder})
 
     def sfx_update(self):
         if sfx.helpers[self.name].operator_running_modal:

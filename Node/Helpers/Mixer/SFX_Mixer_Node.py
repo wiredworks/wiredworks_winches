@@ -1,5 +1,7 @@
 import bpy
-from .... exchange_data.SFX_actuator_basic_Inset import SFX_actuator_basic_Inset
+
+from .... exchange_data.sfx import sfx
+from .... exchange_data.sfx import helper_mixer
 from .... exchange_data.SFX_Joystick_Inset import SFX_Joystick_Inset
 
 class SFX_Mixer_Node(bpy.types.Node):
@@ -14,42 +16,40 @@ class SFX_Mixer_Node(bpy.types.Node):
     def poll(cls, ntree):
         return ntree.bl_idname == 'SFX_NodeTree'
 
-    def update_value(self, context):
-        self.update ()
+    sfx              : bpy.props.PointerProperty(type = sfx)
+    sfx_helper_mixer : bpy.props.PointerProperty(type = helper_mixer)
 
-    operator_started : bpy.props.BoolProperty(name = "Mixer Operator Started",
-                                    description = "Mixer Operator Started",
-                                    default = False)
-    operator_running_modal: bpy.props.BoolProperty(name = "Mixer Operator Running Modal",
-                                    description = "Mixer Operator Running Modal",
-                                    default = False)
-    operator_restart : bpy.props.BoolProperty(name = "Operator Started",
-                                    description = "Operator Started",
-                                    default = False)
+    # def update_value(self, context):
+    #     self.update ()
+
+    # operator_started : bpy.props.BoolProperty(name = "Mixer Operator Started",
+    #                                 description = "Mixer Operator Started",
+    #                                 default = False)
+    # operator_running_modal: bpy.props.BoolProperty(name = "Mixer Operator Running Modal",
+    #                                 description = "Mixer Operator Running Modal",
+    #                                 default = False)
+    # operator_restart : bpy.props.BoolProperty(name = "Operator Started",
+    #                                 description = "Operator Started",
+    #                                 default = False)
         
-    TickTime_prop : bpy.props.FloatProperty(default=0.0,
-                                            update = update_value)
+    # TickTime_prop : bpy.props.FloatProperty(default=0.0,
+    #                                         update = update_value)
 
-    Actuator_basic_props : bpy.props.PointerProperty(type =SFX_actuator_basic_Inset)
+    # Actuator_basic_props : bpy.props.PointerProperty(type =SFX_actuator_basic_Inset)
 
-    expand_Actuator_basic_data : bpy.props.BoolProperty(name = "Expand Basic Data",
-                                    description = "Expand Basic Data",
-                                    default = False)
+    # expand_Actuator_basic_data : bpy.props.BoolProperty(name = "Expand Basic Data",
+    #                                 description = "Expand Basic Data",
+    #                                 default = False)
 
-    mixer_operator_started_bit1 : bpy.props.BoolProperty(name = "Mixer Operator Started",
-                                    description = "Mixer Operator Started",
-                                    default = False)
-    mixer_operator_running_modal: bpy.props.BoolProperty(name = "Mixer Operator Running Modal",
-                                    description = "Mixer Operator Running Modal",
-                                    default = False)
-
-    factor : bpy.props.FloatProperty(name='Factor',
-                                      description='Factor',
-                                      default = 50.0,
-                                      soft_max = 100.0,
-                                      soft_min = 0.0)
+    # factor : bpy.props.FloatProperty(name='Factor',
+    #                                   description='Factor',
+    #                                   default = 50.0,
+    #                                   soft_max = 100.0,
+    #                                   soft_min = 0.0)
 
     def init(self, context):
+        self.init_sfxData()
+
         self.outputs.new('SFX_Cue_Float', "Set Vel")
         self.outputs["Set Vel"].default_value_set = SFX_Joystick_Inset
         self.outputs["Set Vel"].ww_out_value = 0.0
@@ -59,15 +59,55 @@ class SFX_Mixer_Node(bpy.types.Node):
 
         self.inputs.new('SFX_act_in_set_Vel',name= 'Channel 2')
         self.inputs["Channel 2"].set_vel = 0.0
-        pass
+
     def copy(self, node):
         print("copied node", node)
         
     def free(self):
-        self.operator_started = False
+        sfx.helpers[self.name].operator_started = False
+        sfx.helpers.pop(self.name)
 
-    def update(self):
-        if self.operator_running_modal:
+    def draw_buttons(self, context, layout):
+        split = layout.split(factor=0.65)
+        col = split.column()
+        col1 = split.column()
+        box = col1.box()
+        col = box.column()
+        row4 = col.split(factor=0.75)         # Tick Time
+        row5 = row4.split(factor=0.9)       # running modal
+        row6 = row5.split(factor=0.9)       # started
+        row7 = row6.split(factor=1)        # register
+        row4.prop(sfx.helpers[self.name], 'TickTime_prop', text = '')
+        row5.prop(sfx.helpers[self.name], 'operator_running_modal', text = '')
+        row6.prop(sfx.helpers[self.name], 'operator_started', text = '')
+        if not(sfx.helpers[self.name].operator_started):
+            row7.label(text ='Stoped')
+        else:
+            row7.label(text ='Started')
+
+        box = layout.box()
+        col = box.column()
+        row = col.split(factor=0.9)
+        row1 = row.split(factor=0.1)
+        row2 = row1.split(factor=1)
+        row.label(text='Input 1')
+        row1.prop(sfx.helpers[self.name],'factor',text='',slider = True)
+        row2.label(text='Input 2')   
+
+        row2 = layout.row(align=True)
+        row2.prop(sfx.helpers[self.name], 'expand_Actuator_basic_data')
+        if sfx.helpers[self.name].expand_Actuator_basic_data:
+            sfx.helpers[self.name].Actuator_basic_props.draw_Actuator_basic_props(context, layout)
+
+    def draw_buttons_ext(self, context, layout):
+        pass
+
+    def init_sfxData(self):
+        sfx.helpers.update({self.name :self.sfx_helper_mixer})
+
+    def sfx_update(self):
+        if sfx.helpers[self.name].operator_running_modal:
+            self.color = (0,0.4,0.1)
             self.use_custom_color = True
         else:
             self.use_custom_color = False
@@ -119,35 +159,5 @@ class SFX_Mixer_Node(bpy.types.Node):
                         self.Actuator_basic_props.DigTwin_basic_props.y_z_scale                = o.to_socket.node.Actuator_basic_props.DigTwin_basic_props.y_z_scale
                         pass
  
-    def draw_buttons(self, context, layout):
-        split = layout.split(factor=0.65)
-        col = split.column()
-        col1 = split.column()
-        box = col1.box()
-        col = box.column()
-        row4 = col.split(factor=0.75)         # Tick Time
-        row5 = row4.split(factor=0.9)       # running modal
-        row6 = row5.split(factor=0.9)       # started
-        row7 = row6.split(factor=1)        # register
-        row4.prop( self, 'TickTime_prop', text = '')
-        row5.prop(self, 'operator_running_modal', text = '')
-        row6.prop(self, 'operator_started', text = '')
-        if not(self.operator_started):
-            row7.operator('sfx.mixer_op',text ='Start')
-        else:
-            row7.operator('sfx.commstarteddiag',text ='Started')
 
-        box = layout.box()
-        col = box.column()
-        row = col.split(factor=0.9)
-        row1 = row.split(factor=0.1)
-        row2 = row1.split(factor=1)
-        row.label(text='Input 1')
-        row1.prop(self,'factor',text='',slider = True)
-        row2.label(text='Input 2')   
-
-        row2 = layout.row(align=True)
-        row2.prop(self, 'expand_Actuator_basic_data')
-        if self.expand_Actuator_basic_data:
-            self.Actuator_basic_props.draw_Actuator_basic_props(context, layout)
 
