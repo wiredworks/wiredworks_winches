@@ -26,7 +26,7 @@ class sfx_sensor(bpy.types.PropertyGroup):
     ssocket_port: bpy.props.StringProperty(name = "Send Socket port",
                                     description = "Send Port of Actuator",
                                     default = "15018")
-    operator_registered : bpy.props.BoolProperty(name = "Operator Started",
+    operator_opened : bpy.props.BoolProperty(name = "Operator Started",
                                     description = "Operator Started",
                                     default = False)
     TickTime_prop: bpy.props.FloatProperty(name = "Tick Time",
