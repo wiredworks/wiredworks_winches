@@ -1,8 +1,34 @@
 import bpy
 
 from .. exchange_data.SFX_Joystick_Inset import SFX_Joystick_Inset
+from .. exchange_data.SFX_actuator_basic_Inset import SFX_actuator_basic_Inset
 
-class sfx_sensor(bpy.types.PropertyGroup):
+class sensor_base():
+    def a_update(self,context):
+        self.sfx_update(context)
+
+    operator_started : bpy.props.BoolProperty(name = "Demux Operator Started",
+                                    description = "Demux Operator Started",
+                                    default = False,
+                                    update = a_update)
+    operator_running_modal: bpy.props.BoolProperty(name = "Demux Operator Running Modal",
+                                    description = "Demux Operator Running Modal",
+                                    default = False)        
+    TickTime_prop : bpy.props.FloatProperty(default=0.0)
+
+    def sfx_update(self,context):
+        self.MotherNode = context.active_node
+        if self.operator_started:
+            Node_root = self.MotherNode.name.split('.')[0]
+            if not(Node_root == 'linrail' or
+                   Node_root == 'joystick'):
+                Op = 'bpy.ops.sfx.'+Node_root+'_op(\'INVOKE_DEFAULT\')'
+                exec(Op)
+        else:
+            sfx.sensors[self.MotherNode.name].operator_running_modal = False
+            self.MotherNode.sfx_update()
+
+class sfx_sensor_joystick(bpy.types.PropertyGroup,sensor_base):
     ''' Defines sfx_sensor'''
     bl_idname = "sfx_sensor"
 
@@ -14,7 +40,8 @@ class sfx_sensor(bpy.types.PropertyGroup):
     actuator_connected_bit2 : bpy.props.BoolProperty(name = "Connected",
                                     description = " Actuator Connected ?",
                                     default = False)
-    actuator_name: bpy.props.StringProperty(name = "Actuator Name",
+
+    sensor_name: bpy.props.StringProperty(name = "Actuator Name",
                                     description = "Name of Actuator",
                                     default = "Joystick")    
     socket_ip: bpy.props.StringProperty(name = "Socket ip",
@@ -26,13 +53,7 @@ class sfx_sensor(bpy.types.PropertyGroup):
     ssocket_port: bpy.props.StringProperty(name = "Send Socket port",
                                     description = "Send Port of Actuator",
                                     default = "15018")
-    operator_opened : bpy.props.BoolProperty(name = "Operator Started",
-                                    description = "Operator Started",
-                                    default = False)
-    TickTime_prop: bpy.props.FloatProperty(name = "Tick Time",
-                                    description ="Sanity Check message round trip Time",
-                                    default=0.1,
-                                    precision=1)
+
     expand_Joystick_data : bpy.props.BoolProperty(name = "Joystick Data",
                                     description = "Show Joystick Data",
                                     default = False)
@@ -55,10 +76,7 @@ class sfx_kinematic(bpy.types.PropertyGroup):
                                     precision = 3,
                                     default = 0.001)
 
-class helper_demux(bpy.types.PropertyGroup):
-    ''' Defines sfx_helper'''
-    bl_idname = "sfx_helper"
-
+class helper_base():
     def a_update(self,context):
         self.sfx_update(context)
 
@@ -68,8 +86,7 @@ class helper_demux(bpy.types.PropertyGroup):
                                     update = a_update)
     operator_running_modal: bpy.props.BoolProperty(name = "Demux Operator Running Modal",
                                     description = "Demux Operator Running Modal",
-                                    default = False)
-        
+                                    default = False)        
     TickTime_prop : bpy.props.FloatProperty(default=0.0)
 
     def sfx_update(self,context):
@@ -83,6 +100,21 @@ class helper_demux(bpy.types.PropertyGroup):
         else:
             sfx.helpers[self.MotherNode.name].operator_running_modal = False
             self.MotherNode.sfx_update()
+
+class helper_demux(bpy.types.PropertyGroup,helper_base):
+    ''' Defines sfx_demux'''
+    bl_idname = "sfx_demux"
+    pass
+
+class helper_adder(bpy.types.PropertyGroup,helper_base):
+    ''' Defines sfx_adder'''
+    bl_idname = "sfx_adder"
+
+    Actuator_basic_props : bpy.props.PointerProperty(type =SFX_actuator_basic_Inset)
+
+    expand_Actuator_basic_data : bpy.props.BoolProperty(name = "Expand Basic Data",
+                                    description = "Expand Basic Data",
+                                    default = False)
 
 
 class sfx_actuator(bpy.types.PropertyGroup):
@@ -120,8 +152,7 @@ class clock(bpy.types.PropertyGroup):
         self.MotherNode = context.active_node
         if self.operator_started:
             Node_root = self.MotherNode.name.split('.')[0]
-            if not(Node_root == 'linrail' or
-                   Node_root == 'joystick'):
+            if not(Node_root == 'linrail'):
                 Op = 'bpy.ops.sfx.'+Node_root+'_op(\'INVOKE_DEFAULT\')'
                 exec(Op)
         else:
@@ -131,7 +162,7 @@ class clock(bpy.types.PropertyGroup):
                 Node = bpy.data.node_groups[node_tree].nodes[key]
                 bpy.data.node_groups[node_tree].nodes.active = Node
                 try:
-                    sfx.helpers[Node.name].operator_running_modal    = False
+                    sfx.sensors[Node.name].operator_running_modal    = False
                 except KeyError:
                     pass
                 try:
