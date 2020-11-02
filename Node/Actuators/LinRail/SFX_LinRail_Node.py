@@ -4,9 +4,10 @@ import ctypes
 
 from mathutils import Vector
 
-from .... exchange_data.SFX_actuator_basic_Inset import SFX_actuator_basic_Inset
-from .... exchange_data.SFX_Joystick_Inset import SFX_Joystick_Inset
 from .SFX_LinRail_Model import SFX_LinRail_Model
+
+from .... exchange_data.sfx import sfx
+from .... exchange_data.sfx import sfx_actuator_linrail
 
 class SFX_LinRail_Node(bpy.types.Node):
     '''simple Linear Rail Actuator'''
@@ -20,56 +21,47 @@ class SFX_LinRail_Node(bpy.types.Node):
     def poll(cls, ntree):
         return ntree.bl_idname == 'SFX_NodeTree'
 
-    def update_value(self,context):
-        self.update()
-        pass
+    sfx          : bpy.props.PointerProperty(type = sfx)
+    sfx_actuator : bpy.props.PointerProperty(type = sfx_actuator_linrail)
 
-    operator_registered : bpy.props.BoolProperty(name = "Operator Started",
-                                        description = "Operator Started",
-                                        default = False)
+    # set_Vel : bpy.props.IntProperty(name = "Set Vel",
+    #                                     description = "Set Vel",
+    #                                     default = 0)
+    # enable_Act : bpy.props.BoolProperty(name='enable',
+    #                                 description = 'Enable Actuator',
+    #                                 default = False)
+    # selected_Act : bpy.props.BoolProperty(name='selected',
+    #                                 description = 'Select Actuator',
+    #                                 default = False)
 
-    set_Vel : bpy.props.IntProperty(name = "Set Vel",
-                                        description = "Set Vel",
-                                        default = 0)
-    enable_Act : bpy.props.BoolProperty(name='enable',
-                                    description = 'Enable Actuator',
-                                    default = False)
-    selected_Act : bpy.props.BoolProperty(name='selected',
-                                    description = 'Select Actuator',
-                                    default = False)
+    # Actuator_basic_props : bpy.props.PointerProperty(type =SFX_actuator_basic_Inset)
 
-    Actuator_basic_props : bpy.props.PointerProperty(type =SFX_actuator_basic_Inset)
+    # actuator_connected_bit1 : bpy.props.BoolProperty(name = "Connected",
+    #                                     description = " Actuator Connected ?",
+    #                                     default = False)
+    # actuator_connected_bit2 : bpy.props.BoolProperty(name = "Connected",
+    #                                     description = " Actuator Connected ?",
+    #                                     default = False)
+    # actuator_name: bpy.props.StringProperty(name = "Actuator Name",
+    #                                     description = "Name of Actuator",
+    #                                     default = "Anton")    
+    # socket_ip: bpy.props.StringProperty(name = "Socket ip",
+    #                                     description = "IP of Actuator",
+    #                                     default = "127.0.0.1")
+    # rsocket_port: bpy.props.StringProperty(name = "Receive Socket port",
+    #                                     description = "Receive Port of Actuator",
+    #                                     default = "15021")
+    # ssocket_port: bpy.props.StringProperty(name = "Send Socket port",
+    #                                     description = "Send Port of Actuator",
+    #                                     default = "15022")
 
-    actuator_connected_bit1 : bpy.props.BoolProperty(name = "Connected",
-                                        description = " Actuator Connected ?",
-                                        default = False)
-    actuator_connected_bit2 : bpy.props.BoolProperty(name = "Connected",
-                                        description = " Actuator Connected ?",
-                                        default = False)
-    actuator_name: bpy.props.StringProperty(name = "Actuator Name",
-                                        description = "Name of Actuator",
-                                        default = "Anton")    
-    socket_ip: bpy.props.StringProperty(name = "Socket ip",
-                                        description = "IP of Actuator",
-                                        default = "127.0.0.1")
-    rsocket_port: bpy.props.StringProperty(name = "Receive Socket port",
-                                        description = "Receive Port of Actuator",
-                                        default = "15021")
-    ssocket_port: bpy.props.StringProperty(name = "Send Socket port",
-                                        description = "Send Port of Actuator",
-                                        default = "15022")
-
-    TickTime_prop: bpy.props.FloatProperty(name = "Tick Time",
-                                        description ="Sanity Check message round trip Time",
-                                        default=0.014,
-                                        precision=1,
-                                        update = update_value)
-    expand_Actuator_basic_data : bpy.props.BoolProperty(name = "Expand Basic Data",
-                                    description = "Expand Basic Data",
-                                    default = False)
+    # expand_Actuator_basic_data : bpy.props.BoolProperty(name = "Expand Basic Data",
+    #                                 description = "Expand Basic Data",
+    #                                 default = False)
 
 
     def init(self, context):
+        self.init_sfxData()
 
         self.inputs.new('SFX_act_in_set_Vel', "Set Vel")
         self.inputs["Set Vel"].set_vel = 0.0
@@ -89,17 +81,17 @@ class SFX_LinRail_Node(bpy.types.Node):
         self.outputs.new('SFX_act_out_ist_Force',name= 'Ist Force')
         self.outputs["Ist Force"].default_value = 0.0
 
-        self.Actuator_basic_props.DigTwin_basic_props.Mother_name = self.name
+        sfx.actuators[self.name].Actuator_basic_props.DigTwin_basic_props.Mother_name = self.name
 
         self.SFX_drawLinRail = SFX_LinRail_Model(self.name)
-        #self.draw_model(context)
         self.draw_model(self.name)
 
     def copy(self, node):
         print("copied node", node)
 
     def free(self):
-        self.operator_registered = False
+        sfx.sensors[self.name].operator_opened = False
+        sfx.sensors.pop(self.name)
         bpy.data.objects.remove(bpy.data.objects[self.name+'_extr'], do_unlink=True)
         bpy.data.objects.remove(bpy.data.objects[self.name+'_In'],   do_unlink=True)
         bpy.data.objects.remove(bpy.data.objects[self.name+'_Out'],  do_unlink=True)
@@ -110,26 +102,30 @@ class SFX_LinRail_Node(bpy.types.Node):
 
     def draw_buttons(self, context, layout):       
         box = layout.box()
-        col = box.column(align = True)
-        row4 = col.split(factor=0.91)         # Tick Time
-        row5 = row4.split(factor=0.978)       # conn bit1
-        row6 = row5.split(factor=0.978)       # conn bit2
-        row7 = row6.split(factor=0.85)        # register
-        row8 = row7.split(factor=0.85)        # ssocket
-        row9 = row8.split(factor=0.85)        # rsocket 
-        row10 = row9.split(factor=0.5)        # IP
-        row11 = row10.split(factor=1)         # Name
-        row4.prop( self, 'TickTime_prop', text = '')
-        row5.prop(self, 'actuator_connected_bit2', text = '')
-        row6.prop(self, 'actuator_connected_bit1', text = '')
-        if not(self.operator_registered):
-            row7.operator('sfx.linrail_op',text ='Register')
+        col   = box.column(align = True)
+        row4  = col.split(factor=0.85)         # Tick Time
+        row5  = row4.split(factor=0.978)       # conn bit1
+        row6  = row5.split(factor=0.978)       # conn bit2
+        row7  = row6.split(factor=0.978)       # started
+        row8  = row7.split(factor=0.978)       # running modal
+        row9  = row8.split(factor=0.85)        # label
+        row10  = row9.split(factor=0.85)        # ssocket
+        row11 = row10.split(factor=0.83)       # rsocket 
+        row12 = row11.split(factor=0.5)       # IP
+        row13 = row12.split(factor=1)         # Name
+        row4.prop(sfx.actuators[self.name], 'TickTime_prop', text = '')
+        row5.prop(sfx.actuators[self.name], 'actuator_connected_bit2', text = '')
+        row6.prop(sfx.actuators[self.name], 'actuator_connected_bit1', text = '')
+        row7.prop(sfx.actuators[self.name], 'operator_running_modal', text = '')
+        row8.prop(sfx.actuators[self.name], 'operator_started', text = '')
+        if not(sfx.actuators[self.name].operator_started):
+            row9.label(text ='Closed')
         else:
-            row7.operator('sfx.commstarteddiag',text ='Registered')    
-        row8.prop(self, 'ssocket_port', text = '')
-        row9.prop(self, 'rsocket_port', text = '')
-        row10.prop(self, 'socket_ip', text = '')
-        row11.prop(self, 'actuator_name', text = '') 
+           row9.label(text ='Opened')
+        row10.prop(sfx.actuators[self.name], 'ssocket_port', text = '')
+        row11.prop(sfx.actuators[self.name], 'rsocket_port', text = '')
+        row12.prop(sfx.actuators[self.name], 'socket_ip', text = '')
+        row13.prop(sfx.actuators[self.name], 'actuator_name', text = '')      
 
         box = layout.box()
         col = box.column()
@@ -137,24 +133,30 @@ class SFX_LinRail_Node(bpy.types.Node):
         row1= row.split(factor=0.7)
         row2= row1.split(factor=0.5)
         row3= row2.split(factor=1)
-        row3.prop(self.Actuator_basic_props,'online_Actuator')
-        row2.prop(self.Actuator_basic_props,'enable_Actuator')
-        row1.prop(self.Actuator_basic_props,'select_Actuator')
-        row.prop(self.Actuator_basic_props.Actuator_props,'simple_actuator_confirmed')
+        row3.prop(sfx.actuators[self.name].Actuator_basic_props,'online_Actuator')
+        row2.prop(sfx.actuators[self.name].Actuator_basic_props,'enable_Actuator')
+        row1.prop(sfx.actuators[self.name].Actuator_basic_props,'select_Actuator')
+        row.prop(sfx.actuators[self.name].Actuator_basic_props.Actuator_props,'simple_actuator_confirmed')
 
         row2 = layout.row(align=True)
-        row2.prop(self, 'expand_Actuator_basic_data')
+        row2.prop(sfx.actuators[self.name], 'expand_Actuator_basic_data')
 
-        if self.expand_Actuator_basic_data:
-            self.Actuator_basic_props.draw_Actuator_basic_props(context, layout)
+        if sfx.actuators[self.name].expand_Actuator_basic_data:
+            sfx.actuators[self.name].Actuator_basic_props.draw_Actuator_basic_props(context, layout)
 
     def draw_buttons_ext(self, context, layout):
-        layout.label(text='Adress')
-        layout.prop(self, 'socket_ip', text = 'IP')
-        layout.prop(self, 'rsocket_port', text = 'Rec Port')
-        layout.prop(self, 'ssocket_port', text = 'Send Port')
+        pass
 
-    def update(self):
+    def init_sfxData(self):
+        sfx.actuators.update({self.name :self.sfx_actuator})
+        pass
+
+    def sfx_update(self):
+        if sfx.actuators[self.name].operator_running_modal:
+            self.color = (0,0.4,0.1)
+            self.use_custom_color = True
+        else:
+            self.use_custom_color = False
         try:
             out1 = self.outputs["Ist Pos"]
             out2 = self.outputs["Ist Vel"]
@@ -203,11 +205,5 @@ class SFX_LinRail_Node(bpy.types.Node):
 
     def draw_model(self,name):
         self.SFX_drawLinRail.draw_model(name)
-
-    #OPTIONAL
-    #we can use this function to dynamically define the label of
-    #   the node, however defining the bl_label explicitly overrides it
-    #def draw_label(self):
-    #   return "this label is shown"
 
    

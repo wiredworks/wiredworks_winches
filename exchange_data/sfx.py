@@ -133,14 +133,69 @@ class helper_mixer(bpy.types.PropertyGroup,helper_base):
                                       soft_min = 0.0)
 
 
-class sfx_actuator(bpy.types.PropertyGroup):
+class actuator_base():
+    def a_update(self,context):
+        self.sfx_update(context)
+
+    operator_started : bpy.props.BoolProperty(name = "Demux Operator Started",
+                                    description = "Demux Operator Started",
+                                    default = False,
+                                    update = a_update)
+    operator_running_modal: bpy.props.BoolProperty(name = "Demux Operator Running Modal",
+                                    description = "Demux Operator Running Modal",
+                                    default = False)        
+    TickTime_prop : bpy.props.FloatProperty(default=0.0)
+
+    def sfx_update(self,context):
+        self.MotherNode = context.active_node
+        if self.operator_started:
+            Node_root = self.MotherNode.name.split('.')[0]
+            if not(Node_root == 'linrail' or
+                   Node_root == 'joystick'):
+                Op = 'bpy.ops.sfx.'+Node_root+'_op(\'INVOKE_DEFAULT\')'
+                exec(Op)
+        else:
+            sfx.actuator[self.MotherNode.name].operator_running_modal = False
+            self.MotherNode.sfx_update()
+
+class sfx_actuator_linrail(bpy.types.PropertyGroup,actuator_base):
     ''' Defines sfx_actuator'''
     bl_idname = "sfx_actuator"
 
-    X_Achse : bpy.props.FloatProperty(name = "X-Achse",
-                                    description = "X-Achse",
-                                    precision = 3,
-                                    default = 0.001)
+    set_Vel : bpy.props.IntProperty(name = "Set Vel",
+                                        description = "Set Vel",
+                                        default = 0)
+    enable_Act : bpy.props.BoolProperty(name='enable',
+                                    description = 'Enable Actuator',
+                                    default = False)
+    selected_Act : bpy.props.BoolProperty(name='selected',
+                                    description = 'Select Actuator',
+                                    default = False)
+
+    Actuator_basic_props : bpy.props.PointerProperty(type =SFX_actuator_basic_Inset)
+
+    actuator_connected_bit1 : bpy.props.BoolProperty(name = "Connected",
+                                        description = " Actuator Connected ?",
+                                        default = False)
+    actuator_connected_bit2 : bpy.props.BoolProperty(name = "Connected",
+                                        description = " Actuator Connected ?",
+                                        default = False)
+    actuator_name: bpy.props.StringProperty(name = "Actuator Name",
+                                        description = "Name of Actuator",
+                                        default = "Anton")    
+    socket_ip: bpy.props.StringProperty(name = "Socket ip",
+                                        description = "IP of Actuator",
+                                        default = "127.0.0.1")
+    rsocket_port: bpy.props.StringProperty(name = "Receive Socket port",
+                                        description = "Receive Port of Actuator",
+                                        default = "15021")
+    ssocket_port: bpy.props.StringProperty(name = "Send Socket port",
+                                        description = "Send Port of Actuator",
+                                        default = "15022")
+
+    expand_Actuator_basic_data : bpy.props.BoolProperty(name = "Expand Basic Data",
+                                    description = "Expand Basic Data",
+                                    default = False)
 
 class clock(bpy.types.PropertyGroup):
     ''' Defines sfx_clock'''
@@ -168,9 +223,8 @@ class clock(bpy.types.PropertyGroup):
         self.MotherNode = context.active_node
         if self.operator_started:
             Node_root = self.MotherNode.name.split('.')[0]
-            if not(Node_root == 'linrail'):
-                Op = 'bpy.ops.sfx.'+Node_root+'_op(\'INVOKE_DEFAULT\')'
-                exec(Op)
+            Op = 'bpy.ops.sfx.'+Node_root+'_op(\'INVOKE_DEFAULT\')'
+            exec(Op)
         else:
             sfx.clocks[self.MotherNode.name].operator_running_modal = False
             node_tree = bpy.context.space_data.edit_tree.name
@@ -191,6 +245,10 @@ class clock(bpy.types.PropertyGroup):
                     pass
                 try:
                     sfx.helpers[Node.name].operator_running_modal    = False
+                except KeyError:
+                    pass
+                try:
+                    sfx.actuators[Node.name].operator_running_modal    = False
                 except KeyError:
                     pass
                 Node.sfx_update() 

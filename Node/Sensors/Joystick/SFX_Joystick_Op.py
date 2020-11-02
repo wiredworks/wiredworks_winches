@@ -3,8 +3,6 @@ import socket
 import time
 import json
 
-from ....exchange_data.SFX_Joystick_Inset import SFX_Joystick_Inset
-
 from .... exchange_data.sfx import sfx
 from .... exchange_data.sfx import sfx_sensor_joystick
 
@@ -107,13 +105,22 @@ class SFX_OT_Joystick_Op(bpy.types.Operator):
                 self.End_Comm(context)
                 socketerr = True
         if socketerr:
+            sfx.sensors[self.MotherNode.name].actuator_connected_bit2 = False
             return {'PASS_THROUGH'}
         else:
             sfx.sensors[self.MotherNode.name].actuator_connected_bit2 = True
             return {'PASS_THROUGH'}
 
     def exchange_data(self,context):
-        data = "NO DATA" 
+        data = "NO DATA"
+
+        Message = json.dumps(self.Joy_Data).encode('utf-8')
+        try:
+            self.ssock.sendto(Message, (self.UDP_IP, self.SUDP_PORT))
+        except AttributeError :
+            #print('NO SSOCK')
+            pass
+
         try:
             data, addr = self.rsock.recvfrom(1024)
         except socket.error as e:
@@ -160,16 +167,11 @@ class SFX_OT_Joystick_Op(bpy.types.Operator):
             sfx.sensors[self.MotherNode.name].Joystick_props.Button11       =message['Buttons'][10]
             sfx.sensors[self.MotherNode.name].Joystick_props.Button12       =message['Buttons'][11]
 
-        MESSAGE = json.dumps(self.Joy_Data).encode('utf-8')
-        try:
-            self.ssock.sendto(MESSAGE, (self.UDP_IP, self.SUDP_PORT))
-        except AttributeError :
-            #print('NO SSOCK')
-            pass
+
         return {'PASS_THROUGH'}
 
     def dis_connect(self, context):
-        print('Communication Start -- dis-connect')
+        #print('Communication Start -- dis-connect')
         try:
             self.rsock.close()
             self.ssock.close()
@@ -183,7 +185,6 @@ class SFX_OT_Joystick_Op(bpy.types.Operator):
         return {'PASS_THROUGH'}
 
     def End_Comm(self,context):        
-        print('Communication Start -- end-communication')
         try:
             self.rsock.close()
             self.ssock.close()
@@ -192,5 +193,4 @@ class SFX_OT_Joystick_Op(bpy.types.Operator):
         except AttributeError:
             #print('You tried to disconnect without beeing connected')
             pass
-        print('Communication Start -- end timer')
         return {'CANCELLED'}

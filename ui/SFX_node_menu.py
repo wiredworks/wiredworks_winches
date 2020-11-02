@@ -52,7 +52,7 @@ class SFX_ActMenu(bpy.types.Menu):
 
     def draw(self,context):
         layout = self.layout
-        insertNode(layout, "SFX_LinRail_Node",  "Rail",  {}, "ARROW_LEFTRIGHT")
+        layout.operator('sfx.linrail_in',text = 'Rail', icon='ARROW_LEFTRIGHT')
 
 def insertNode(layout, type, text, settings = {}, icon = "NONE"):
     operator = layout.operator("node.add_node", text = text, icon = icon)
