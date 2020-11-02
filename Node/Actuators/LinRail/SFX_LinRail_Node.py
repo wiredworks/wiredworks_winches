@@ -7,7 +7,7 @@ from mathutils import Vector
 from .SFX_LinRail_Model import SFX_LinRail_Model
 
 from .... exchange_data.sfx import sfx
-from .... exchange_data.sfx import sfx_actuator_linrail
+from .... exchange_data.sfx import actuator_linrail
 
 class SFX_LinRail_Node(bpy.types.Node):
     '''simple Linear Rail Actuator'''
@@ -22,43 +22,7 @@ class SFX_LinRail_Node(bpy.types.Node):
         return ntree.bl_idname == 'SFX_NodeTree'
 
     sfx          : bpy.props.PointerProperty(type = sfx)
-    sfx_actuator : bpy.props.PointerProperty(type = sfx_actuator_linrail)
-
-    # set_Vel : bpy.props.IntProperty(name = "Set Vel",
-    #                                     description = "Set Vel",
-    #                                     default = 0)
-    # enable_Act : bpy.props.BoolProperty(name='enable',
-    #                                 description = 'Enable Actuator',
-    #                                 default = False)
-    # selected_Act : bpy.props.BoolProperty(name='selected',
-    #                                 description = 'Select Actuator',
-    #                                 default = False)
-
-    # Actuator_basic_props : bpy.props.PointerProperty(type =SFX_actuator_basic_Inset)
-
-    # actuator_connected_bit1 : bpy.props.BoolProperty(name = "Connected",
-    #                                     description = " Actuator Connected ?",
-    #                                     default = False)
-    # actuator_connected_bit2 : bpy.props.BoolProperty(name = "Connected",
-    #                                     description = " Actuator Connected ?",
-    #                                     default = False)
-    # actuator_name: bpy.props.StringProperty(name = "Actuator Name",
-    #                                     description = "Name of Actuator",
-    #                                     default = "Anton")    
-    # socket_ip: bpy.props.StringProperty(name = "Socket ip",
-    #                                     description = "IP of Actuator",
-    #                                     default = "127.0.0.1")
-    # rsocket_port: bpy.props.StringProperty(name = "Receive Socket port",
-    #                                     description = "Receive Port of Actuator",
-    #                                     default = "15021")
-    # ssocket_port: bpy.props.StringProperty(name = "Send Socket port",
-    #                                     description = "Send Port of Actuator",
-    #                                     default = "15022")
-
-    # expand_Actuator_basic_data : bpy.props.BoolProperty(name = "Expand Basic Data",
-    #                                 description = "Expand Basic Data",
-    #                                 default = False)
-
+    sfx_actuator : bpy.props.PointerProperty(type = actuator_linrail)
 
     def init(self, context):
         self.init_sfxData()

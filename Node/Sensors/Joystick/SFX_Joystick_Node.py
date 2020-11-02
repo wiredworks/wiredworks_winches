@@ -3,7 +3,7 @@ import bpy
 from .... exchange_data.SFX_Joystick_Inset import SFX_Joystick_Inset
 
 from .... exchange_data.sfx import sfx
-from .... exchange_data.sfx import sfx_sensor_joystick
+from .... exchange_data.sfx import sensor_joystick
 
 
 class SFX_Joystick_Node(bpy.types.Node):
@@ -19,7 +19,7 @@ class SFX_Joystick_Node(bpy.types.Node):
         return ntree.bl_idname == 'SFX_NodeTree'
 
     sfx        : bpy.props.PointerProperty(type = sfx)
-    sfx_sensor : bpy.props.PointerProperty(type = sfx_sensor_joystick)
+    sfx_sensor : bpy.props.PointerProperty(type = sensor_joystick)
 
     def init(self, context):
         self.init_sfxData()

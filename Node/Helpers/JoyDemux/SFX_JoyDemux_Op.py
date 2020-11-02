@@ -15,15 +15,14 @@ class SFX_OT_JoyDemux_Op(bpy.types.Operator):
             except KeyError:
                 self.sfx_entry_exists = False
                 return {'CANCELLED'}
-            if self.sfx_entry_exists: 
-                self.MotherNode.sfx_update()   
-                if not(sfx.helpers[self.MotherNode.name].operator_started):
-                    sfx.helpers[self.MotherNode.name].operator_running_modal = False
-                    return{'CANCELLED'}
-                else:
-                    sfx.helpers[self.MotherNode.name].operator_running_modal = True
-                    self.old_time = time.time_ns()
-                    return {'PASS_THROUGH'}
+            self.MotherNode.sfx_update()   
+            if not(sfx.helpers[self.MotherNode.name].operator_started):
+                sfx.helpers[self.MotherNode.name].operator_running_modal = False
+                return{'CANCELLED'}
+            else:
+                sfx.helpers[self.MotherNode.name].operator_running_modal = True
+                self.old_time = time.time_ns()
+                return {'PASS_THROUGH'}
         return {'PASS_THROUGH'}
 
     def execute(self, context):
