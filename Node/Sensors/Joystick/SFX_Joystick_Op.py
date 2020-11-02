@@ -114,7 +114,7 @@ class SFX_OT_Joystick_Op(bpy.types.Operator):
             self.rsock.setblocking(0)    
         except socket.error as e:
             if e.errno == 10048:
-                self.destroy(context)
+                self.End_Comm(context)
                 socketerr = True
         if socketerr:
             return {'PASS_THROUGH'}

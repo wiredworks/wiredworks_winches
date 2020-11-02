@@ -22,91 +22,15 @@ class SFX_simpleCue_Op(bpy.types.Operator):
 
                 self.cue_act_pos = self.MotherNode.cue_act_pos
                 self.cue_act_speed = self.MotherNode.cue_act_speed
-                if self.MotherNode.confirm:
-                    self.MotherNode.confirmed = True
-                self.KP = ''
-                try:
-                    for i in range(0,len(self.VelInPos.keyframe_points)):
-                        self.KP = self.KP+str(self.VelInPos.keyframe_points[i].co)
-                except:
-                    pass
-                self.MD5 = hashlib.md5(self.KP.encode('utf-8')).hexdigest()
-                if self.MD5 != self.MD5Old:
-                    self.MotherNode.toTime_executed = False
-                    self.MotherNode.confirm = False
-                    self.MotherNode.confirmed = False                
 
-                if (self.max_Vel > self.MotherNode.Actuator_props.simple_actuator_VelMax_prop or
-                    self.max_Acc > self.MotherNode.Actuator_props.simple_actuator_AccMax_prop) :
-                    self.MotherNode.confirm = False
-                    self.MotherNode.confirmed = False
-                    self.MotherNode.toTime_executed = False
-                if (self.MotherNode.ActConfirmed or self.MotherNode.ActConfirm):
-                    if not(self.FcurvesInitialized):
-                        self.initFcurves()
-                    if not(self.VelInPosInitialized):
-                        self.InitializeVelInPos()
-                    if not(self.CalculateGrenzVelCalculated):
-                        self.CalculateGrenzVel()
-                    self.FixEndsOfVelInPos()
-                    if self.MotherNode.toTime:
-                        self.VelFromPosToTime()
-                    if (self.max_Acc > self.MotherNode.Actuator_props.simple_actuator_VelMax_prop) or \
-                       (self.max_Vel > self.MotherNode.Actuator_props.simple_actuator_AccMax_prop):
-                        self.MotherNode.confirm = False
-                        self.MotherNode.confirmed = False
-                    if self.MotherNode.confirmed:
-                        self.target_speed= self.VelInPos.evaluate(self.cue_act_pos*100.0)/100.0
-                        max_Vel = float(self.MotherNode.Actuator_props.simple_actuator_VelMax_prop)
-                        try:
-                            self.target_speed_percent = (self.target_speed/max_Vel)*100.0
-                        except ZeroDivisionError:
-                            self.target_speed_percent =0.0
-                        self.MotherNode.cue_target_speed = self.target_speed                        
-                        if not(self.MotherNode.inputs['Go To 1'].bool):
-                            if (self.MotherNode.inputs['Forward'].bool == True and
-                                self.MotherNode.inputs['Reverse'].bool == False):
-                                self.MotherNode.cue_diff_speed = self.target_speed - self.cue_act_speed
-                                if (self.target_speed - self.cue_act_speed) > 0:
-                                    self.MotherNode.play_state = 'SpeedUp'
-                                    self.MotherNode.outputs["Set Vel"].ww_out_value = self.target_speed_percent
-                                else:
-                                    self.MotherNode.play_state = 'Play'
-                                    self.MotherNode.outputs["Set Vel"].ww_out_value = self.target_speed_percent                                
-                            elif (self.MotherNode.inputs['Forward'].bool == False and
-                                  self.MotherNode.inputs['Reverse'].bool == True):
-                                self.MotherNode.cue_diff_speed = (-self.target_speed - self.cue_act_speed)
-                                if (self.target_speed - self.cue_act_speed) < 0:
-                                    self.MotherNode.play_state = 'Slowing'
-                                    self.MotherNode.outputs["Set Vel"].ww_out_value = -self.target_speed_percent
-                                else:  
-                                    self.MotherNode.play_state = 'Reverse'
-                                    self.MotherNode.outputs["Set Vel"].ww_out_value = -self.target_speed_percent
-                            else:                                
-                                self.MotherNode.play_state = 'Pause'
-                                self.MotherNode.outputs["Set Vel"].ww_out_value = 0.0
-                        else:
-                            self.MotherNode.play_state = 'GoTo1'
-                            self.MotherNode.outputs["Set Vel"].ww_out_value = 0.0
+                self.test_if_cue_can_be_confirmed()
+
+                if self.MotherNode.confirmed:
+                    self.calculate_target_speed()                   
+                    self.react_to_inputs()
                 else:
-                    if self.FcurvesInitialized:
-                        self.action.fcurves.remove(self.VelInPos)
-                        self.action.fcurves.remove(self.GrenzVel)
-                        self.action.fcurves.remove(self.VelInTime1)
-                        self.action.fcurves.remove(self.GradInTime)
-                        self.FcurvesInitialized = False
-                        self.VelInPosInitialized = False
-                        self.CalculateGrenzVelCalculated = False
-                        self.MotherNode.toTime_executed = False
-
-                self.KPOld = ''
-                try:
-                    for i in range(0,len(self.VelInPos.keyframe_points)):
-                        self.KPOld = self.KPOld+str(self.VelInPos.keyframe_points[i].co)
-                except:
-                    pass
-                self.MD5Old = hashlib.md5(self.KPOld.encode('utf-8')).hexdigest()
-
+                    self.reset_fcurves()
+                self.calc_Keypoints_hash()
                 self.old_time = time.time_ns()
                 return {'PASS_THROUGH'}
             self.MotherNode.operator_running_modal = False
@@ -350,3 +274,95 @@ class SFX_simpleCue_Op(bpy.types.Operator):
         self.GradInTime.lock = True 
         for i in range(0,len(self.Acc),10):
             self.GradInTime.keyframe_points.insert( self.XT[i],self.Acc[i])
+
+    def test_if_cue_can_be_confirmed(self):
+        if self.MotherNode.confirm:
+            self.MotherNode.confirmed = True
+        self.KP = ''
+        try:
+            for i in range(0,len(self.VelInPos.keyframe_points)):
+                self.KP = self.KP+str(self.VelInPos.keyframe_points[i].co)
+        except:
+            pass
+        self.MD5 = hashlib.md5(self.KP.encode('utf-8')).hexdigest()
+        if self.MD5 != self.MD5Old:
+            self.MotherNode.toTime_executed = False
+            self.MotherNode.confirm = False
+            self.MotherNode.confirmed = False                
+
+        if (self.max_Vel > self.MotherNode.Actuator_props.simple_actuator_VelMax_prop or
+            self.max_Acc > self.MotherNode.Actuator_props.simple_actuator_AccMax_prop) :
+            self.MotherNode.confirm = False
+            self.MotherNode.confirmed = False
+            self.MotherNode.toTime_executed = False
+        if (self.MotherNode.ActConfirmed or self.MotherNode.ActConfirm):
+            if not(self.FcurvesInitialized):
+                self.initFcurves()
+            if not(self.VelInPosInitialized):
+                self.InitializeVelInPos()
+            if not(self.CalculateGrenzVelCalculated):
+                self.CalculateGrenzVel()
+            self.FixEndsOfVelInPos()
+            if self.MotherNode.toTime:
+                self.VelFromPosToTime()
+            if (self.max_Acc > self.MotherNode.Actuator_props.simple_actuator_VelMax_prop) or \
+                (self.max_Vel > self.MotherNode.Actuator_props.simple_actuator_AccMax_prop):
+                self.MotherNode.confirm = False
+                self.MotherNode.confirmed = False
+
+    def calc_Keypoints_hash(self):
+        self.KPOld = ''
+        try:
+            for i in range(0,len(self.VelInPos.keyframe_points)):
+                self.KPOld = self.KPOld+str(self.VelInPos.keyframe_points[i].co)
+        except:
+            pass
+        self.MD5Old = hashlib.md5(self.KPOld.encode('utf-8')).hexdigest()
+
+    def react_to_inputs(self):                       
+        if not(self.MotherNode.inputs['Go To 1'].bool):
+            if (self.MotherNode.inputs['Forward'].bool == True and
+                self.MotherNode.inputs['Reverse'].bool == False):
+                self.MotherNode.cue_diff_speed = self.target_speed - self.cue_act_speed
+                if (self.target_speed - self.cue_act_speed) > 0:
+                    self.MotherNode.play_state = 'SpeedUp'
+                    self.MotherNode.outputs["Set Vel"].ww_out_value = self.target_speed_percent
+                else:
+                    self.MotherNode.play_state = 'Play'
+                    self.MotherNode.outputs["Set Vel"].ww_out_value = self.target_speed_percent                                
+            elif (self.MotherNode.inputs['Forward'].bool == False and
+                    self.MotherNode.inputs['Reverse'].bool == True):
+                self.MotherNode.cue_diff_speed = (-self.target_speed - self.cue_act_speed)
+                if (self.target_speed - self.cue_act_speed) < 0:
+                    self.MotherNode.play_state = 'Slowing'
+                    self.MotherNode.outputs["Set Vel"].ww_out_value = -self.target_speed_percent
+                else:  
+                    self.MotherNode.play_state = 'Reverse'
+                    self.MotherNode.outputs["Set Vel"].ww_out_value = -self.target_speed_percent
+            else:                                
+                self.MotherNode.play_state = 'Pause'
+                self.MotherNode.outputs["Set Vel"].ww_out_value = 0.0
+        else:
+            self.MotherNode.play_state = 'GoTo1'
+            self.MotherNode.outputs["Set Vel"].ww_out_value = 0.0
+
+    def calculate_target_speed(self):
+        self.target_speed= self.VelInPos.evaluate(self.cue_act_pos*100.0)/100.0
+        max_Vel = float(self.MotherNode.Actuator_props.simple_actuator_VelMax_prop)
+        try:
+            self.target_speed_percent = (self.target_speed/max_Vel)*100.0
+        except ZeroDivisionError:
+            self.target_speed_percent =0.0
+        self.MotherNode.cue_target_speed = self.target_speed
+
+    def reset_fcurves(self):
+        if self.FcurvesInitialized:
+            self.action.fcurves.remove(self.VelInPos)
+            self.action.fcurves.remove(self.GrenzVel)
+            self.action.fcurves.remove(self.VelInTime1)
+            self.action.fcurves.remove(self.GradInTime)
+            self.FcurvesInitialized = False
+            self.VelInPosInitialized = False
+            self.CalculateGrenzVelCalculated = False
+            self.MotherNode.toTime_executed = False
+ 
