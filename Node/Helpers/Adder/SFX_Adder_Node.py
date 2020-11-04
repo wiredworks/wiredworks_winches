@@ -19,7 +19,7 @@ class SFX_Adder_Node(bpy.types.Node):
         return ntree.bl_idname == 'SFX_NodeTree'
 
     sfx              : bpy.props.PointerProperty(type = sfx)
-    sfx_helper_demux : bpy.props.PointerProperty(type = helper_adder)
+    sfx_helper_adder : bpy.props.PointerProperty(type = helper_adder)
 
 
     def init(self, context):
