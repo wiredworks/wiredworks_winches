@@ -263,7 +263,7 @@ class actuator_base():
             Op = 'bpy.ops.sfx.'+Node_root+'_op(\'INVOKE_DEFAULT\')'
             exec(Op)
         else:
-            sfx.actuator[self.MotherNode.name].operator_running_modal = False
+            sfx.actuators[self.MotherNode.name].operator_running_modal = False
             self.MotherNode.sfx_update()
 
 class actuator_linrail(bpy.types.PropertyGroup,actuator_base):
