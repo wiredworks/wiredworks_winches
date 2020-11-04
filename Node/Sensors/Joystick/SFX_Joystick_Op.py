@@ -17,40 +17,39 @@ class SFX_OT_Joystick_Op(bpy.types.Operator):
                 sfx.sensors[self.MotherNode.name].TickTime_prop = (time.time_ns() - self.old_time)/100000.0
             except KeyError:
                 self.sfx_entry_exists = False
-                ret =self.End_Comm(context)
-                return ret
-            if self.sfx_entry_exists:
-                self.MotherNode.sfx_update()
-                if not(sfx.sensors[self.MotherNode.name].operator_started):
-                    sfx.sensors[self.MotherNode.name].operator_running_modal = False
-                    ret =self.End_Comm(context)                                           # End_Comm
-                    return ret
-                else:
-                    sfx.sensors[self.MotherNode.name].operator_running_modal = True 
-                    if (sfx.sensors[self.MotherNode.name].actuator_connected_bit1 and
-                        not(sfx.sensors[self.MotherNode.name].actuator_connected_bit2)):
-                        # Bit1 (try connect) True Bit2 (connected) False ->               # init stuff and setup ports.
-                        ret = self.connect(context)
-                        self.old_time = time.time_ns()
-                        return ret
-                    elif (sfx.sensors[self.MotherNode.name].actuator_connected_bit1 and
-                        (sfx.sensors[self.MotherNode.name].actuator_connected_bit2)):
-                        # Bit1 (try connect) True Bit2 (connected) True ->                 # excange data
-                        ret = self.exchange_data(context)
-                        self.old_time = time.time_ns()
-                        return ret
-                    elif (not(sfx.sensors[self.MotherNode.name].actuator_connected_bit1) and
-                        (sfx.sensors[self.MotherNode.name].actuator_connected_bit2)):
-                        # Bit1 (try connect) False Bit2 (connected) True ->                # close sockets
-                        ret = self.dis_connect(context)
-                        self.old_time = time.time_ns()
-                        return ret
-                    elif (sfx.sensors[self.MotherNode.name].actuator_connected_bit1 and 
-                        not(sfx.sensors[self.MotherNode.name].actuator_connected_bit2)):
-                        # Bit1 (try connect) False Bit2 (connected) False ->               # do nothing
-                        pass
+                self.End_Comm(context)
+                return {'CANCELLED'}
+            self.MotherNode.sfx_update()
+            if not(sfx.sensors[self.MotherNode.name].operator_started):
+                sfx.sensors[self.MotherNode.name].operator_running_modal = False
+                self.End_Comm(context)                                           # End_Comm
+                return {'CANCELLED'}
+            else:
+                sfx.sensors[self.MotherNode.name].operator_running_modal = True 
+                if (sfx.sensors[self.MotherNode.name].actuator_connected_bit1 and
+                    not(sfx.sensors[self.MotherNode.name].actuator_connected_bit2)):
+                    # Bit1 (try connect) True Bit2 (connected) False ->               # init stuff and setup ports.
+                    ret = self.connect(context)
                     self.old_time = time.time_ns()
-                    return {'PASS_THROUGH'}
+                    return ret
+                elif (sfx.sensors[self.MotherNode.name].actuator_connected_bit1 and
+                    (sfx.sensors[self.MotherNode.name].actuator_connected_bit2)):
+                    # Bit1 (try connect) True Bit2 (connected) True ->                 # excange data
+                    ret = self.exchange_data(context)
+                    self.old_time = time.time_ns()
+                    return ret
+                elif (not(sfx.sensors[self.MotherNode.name].actuator_connected_bit1) and
+                    (sfx.sensors[self.MotherNode.name].actuator_connected_bit2)):
+                    # Bit1 (try connect) False Bit2 (connected) True ->                # close sockets
+                    ret = self.dis_connect(context)
+                    self.old_time = time.time_ns()
+                    return ret
+                elif (sfx.sensors[self.MotherNode.name].actuator_connected_bit1 and 
+                    not(sfx.sensors[self.MotherNode.name].actuator_connected_bit2)):
+                    # Bit1 (try connect) False Bit2 (connected) False ->               # do nothing
+                    pass
+                self.old_time = time.time_ns()
+                return {'PASS_THROUGH'}
         return {'PASS_THROUGH'}
 
     def execute(self, context):

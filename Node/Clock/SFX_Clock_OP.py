@@ -14,19 +14,18 @@ class SFX_OT_Clock_Op(bpy.types.Operator):
                 sfx.clocks[self.MotherNode.name].TickTime_prop = (time.time_ns() - self.old_time)/100000.0
             except KeyError:
                 self.sfx_entry_exists = False
-                ret = self.End_Timers
-                return ret
-            if self.sfx_entry_exists:
-                self.MotherNode.sfx_update()
-                if not(sfx.clocks[self.MotherNode.name].operator_started):
-                    sfx.clocks[self.MotherNode.name].operator_running_modal = False
-                    ret =self.End_Timers(context)
-                    return ret
-                else:
-                    sfx.clocks[self.MotherNode.name].operator_running_modal = True
-                    sfx.clocks[self.MotherNode.name].date = time.asctime() 
-                    self.old_time = time.time_ns()
-                    return {'PASS_THROUGH'}
+                self.End_Timers
+                return {'CANCELLED'}
+            self.MotherNode.sfx_update()
+            if not(sfx.clocks[self.MotherNode.name].operator_started):
+                sfx.clocks[self.MotherNode.name].operator_running_modal = False
+                self.End_Timers(context)
+                return {'CANCELLED'}
+            else:
+                sfx.clocks[self.MotherNode.name].operator_running_modal = True
+                sfx.clocks[self.MotherNode.name].date = time.asctime() 
+                self.old_time = time.time_ns()
+                return {'PASS_THROUGH'}
         return {'PASS_THROUGH'}
 
     def execute(self, context):

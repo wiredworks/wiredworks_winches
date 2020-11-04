@@ -32,6 +32,16 @@ class SFX_OT_MN_Stop(bpy.types.Operator):
                 sfx.kinematics[Node.name].operator_running_modal = False
             except KeyError:
                 pass
+            try:
+                sfx.sensors[Node.name].operator_started       = False
+                sfx.sensors[Node.name].operator_running_modal = False
+            except KeyError:
+                pass
+            try:
+                sfx.actuators[Node.name].operator_started       = False
+                sfx.actuators[Node.name].operator_running_modal = False
+            except KeyError:
+                pass
         return {'FINISHED'}
 
     def draw(self,context):

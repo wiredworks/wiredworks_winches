@@ -19,8 +19,8 @@ class SFX_Clock_Node(bpy.types.Node):
     sfx_clock : bpy.props.PointerProperty(type = clock)
 
     def init(self, context):
-        self.init_sfxData()
         self.draw_model(context)
+        self.init_sfxData()
         pass
 
     def copy(self, node):

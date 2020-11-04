@@ -6,6 +6,7 @@ from .. exchange_data.SFX_simple_actuator_Inset import SFX_simple_Actuator_Inset
 
 class sensor_base():
     def a_update(self,context):
+        print('####')
         self.sfx_update(context)
 
     operator_started : bpy.props.BoolProperty(name = "Demux Operator Started",
@@ -21,10 +22,8 @@ class sensor_base():
         self.MotherNode = context.active_node
         if self.operator_started:
             Node_root = self.MotherNode.name.split('.')[0]
-            if not(Node_root == 'linrail' or
-                   Node_root == 'joystick'):
-                Op = 'bpy.ops.sfx.'+Node_root+'_op(\'INVOKE_DEFAULT\')'
-                exec(Op)
+            Op = 'bpy.ops.sfx.'+Node_root+'_op(\'INVOKE_DEFAULT\')'
+            exec(Op)
         else:
             sfx.sensors[self.MotherNode.name].operator_running_modal = False
             self.MotherNode.sfx_update()
@@ -261,10 +260,8 @@ class actuator_base():
         self.MotherNode = context.active_node
         if self.operator_started:
             Node_root = self.MotherNode.name.split('.')[0]
-            if not(Node_root == 'linrail' or
-                   Node_root == 'joystick'):
-                Op = 'bpy.ops.sfx.'+Node_root+'_op(\'INVOKE_DEFAULT\')'
-                exec(Op)
+            Op = 'bpy.ops.sfx.'+Node_root+'_op(\'INVOKE_DEFAULT\')'
+            exec(Op)
         else:
             sfx.actuator[self.MotherNode.name].operator_running_modal = False
             self.MotherNode.sfx_update()
