@@ -2,7 +2,7 @@ import bpy
 
 from .. exchange_data.SFX_Joystick_Inset import SFX_Joystick_Inset
 from .. exchange_data.SFX_actuator_basic_Inset import SFX_actuator_basic_Inset
-from .. exchange_data.SFX_simple_Actuator_Inset import SFX_simple_Actuator_Inset 
+from .. exchange_data.SFX_simple_actuator_Inset import SFX_simple_Actuator_Inset 
 
 class sensor_base():
     def a_update(self,context):
