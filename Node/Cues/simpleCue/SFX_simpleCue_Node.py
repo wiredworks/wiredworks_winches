@@ -283,20 +283,20 @@ class SFX_simpleCue_Node(bpy.types.Node):
                  for o in out1.links:
                     if o.is_valid:
                         o.to_socket.node.inputs[o.to_socket.name].set_vel = self.outputs["Set Vel"].ww_out_value
-                        sfx.cues[self.name].Actuator_props.simple_actuator_HardMax_prop  = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop
-                        sfx.cues[self.name].Actuator_props.simple_actuator_HardMin_prop  = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_HardMin_prop
-                        sfx.cues[self.name].Actuator_props.simple_actuator_VelMax_prop   = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_VelMax_prop
-                        sfx.cues[self.name].Actuator_props.simple_actuator_AccMax_prop   = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_AccMax_prop
-                        sfx.cues[self.name].Actuator_props.simple_actuator_confirm       = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_confirm
-                        sfx.cues[self.name].Actuator_props.simple_actuator_confirmed     = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_confirmed
+                        sfx.cues[self.name].Actuator_props.simple_actuator_HardMax_prop  = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop
+                        sfx.cues[self.name].Actuator_props.simple_actuator_HardMin_prop  = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMin_prop
+                        sfx.cues[self.name].Actuator_props.simple_actuator_VelMax_prop   = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.Actuator_props.simple_actuator_VelMax_prop
+                        sfx.cues[self.name].Actuator_props.simple_actuator_AccMax_prop   = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.Actuator_props.simple_actuator_AccMax_prop
+                        sfx.cues[self.name].Actuator_props.simple_actuator_confirm       = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.Actuator_props.simple_actuator_confirm
+                        sfx.cues[self.name].Actuator_props.simple_actuator_confirmed     = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.Actuator_props.simple_actuator_confirmed
                         sfx.cues[self.name].ActConfirm    = sfx.cues[self.name].Actuator_props.simple_actuator_confirm
                         sfx.cues[self.name].ActConfirmed  = sfx.cues[self.name].Actuator_props.simple_actuator_confirmed
                         sfx.cues[self.name].cue_min_pos   = sfx.cues[self.name].Actuator_props.simple_actuator_HardMin_prop
-                        sfx.cues[self.name].cue_act_pos   = o.to_socket.node.Actuator_basic_props.ist_Pos
-                        sfx.cues[self.name].cue_act_speed = o.to_socket.node.Actuator_basic_props.ist_Vel
+                        sfx.cues[self.name].cue_act_pos   = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.ist_Pos
+                        sfx.cues[self.name].cue_act_speed = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.ist_Vel
                         sfx.cues[self.name].cue_diff_pos  = sfx.cues[self.name].cue_act_pos - sfx.cues[self.name].cue_set_pos
                         sfx.cues[self.name].cue_max_pos   = sfx.cues[self.name].Actuator_props.simple_actuator_HardMax_prop
-                        sfx.cues[self.name].length        = o.to_socket.node.Actuator_basic_props.DigTwin_basic_props.length
+                        sfx.cues[self.name].length        = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.DigTwin_basic_props.length
                         pass
                     else:
                         sfx.cues[self.name].ActConfirm   = False

@@ -19,34 +19,6 @@ class SFX_Mixer_Node(bpy.types.Node):
     sfx              : bpy.props.PointerProperty(type = sfx)
     sfx_helper_mixer : bpy.props.PointerProperty(type = helper_mixer)
 
-    # def update_value(self, context):
-    #     self.update ()
-
-    # operator_started : bpy.props.BoolProperty(name = "Mixer Operator Started",
-    #                                 description = "Mixer Operator Started",
-    #                                 default = False)
-    # operator_running_modal: bpy.props.BoolProperty(name = "Mixer Operator Running Modal",
-    #                                 description = "Mixer Operator Running Modal",
-    #                                 default = False)
-    # operator_restart : bpy.props.BoolProperty(name = "Operator Started",
-    #                                 description = "Operator Started",
-    #                                 default = False)
-        
-    # TickTime_prop : bpy.props.FloatProperty(default=0.0,
-    #                                         update = update_value)
-
-    # Actuator_basic_props : bpy.props.PointerProperty(type =SFX_actuator_basic_Inset)
-
-    # expand_Actuator_basic_data : bpy.props.BoolProperty(name = "Expand Basic Data",
-    #                                 description = "Expand Basic Data",
-    #                                 default = False)
-
-    # factor : bpy.props.FloatProperty(name='Factor',
-    #                                   description='Factor',
-    #                                   default = 50.0,
-    #                                   soft_max = 100.0,
-    #                                   soft_min = 0.0)
-
     def init(self, context):
         self.init_sfxData()
 
@@ -132,32 +104,31 @@ class SFX_Mixer_Node(bpy.types.Node):
             if out1.is_linked:
                  for o in out1.links:
                     if o.is_valid:
-                        self.outputs["Set Vel"].ww_out_value = (self.inputs["Channel 1"].set_vel*(self.factor/100.0)+self.inputs["Channel 2"].set_vel*(1.0-self.factor/100.0))
+                        self.outputs["Set Vel"].ww_out_value = (self.inputs["Channel 1"].set_vel*(sfx.helpers[self.name].factor/100.0)+self.inputs["Channel 2"].set_vel*(1.0-sfx.helpers[self.name].factor/100.0))
                         o.to_socket.node.inputs[o.to_socket.name].set_vel = self.outputs["Set Vel"].ww_out_value
-                        self.Actuator_basic_props.diff_Vel                                     = o.to_socket.node.Actuator_basic_props.diff_Vel
-                        self.Actuator_basic_props.soll_Vel                                     = o.to_socket.node.Actuator_basic_props.soll_Vel
-                        self.Actuator_basic_props.ist_Pos                                      = o.to_socket.node.Actuator_basic_props.ist_Pos
-                        self.Actuator_basic_props.ist_Force                                    = o.to_socket.node.Actuator_basic_props.ist_Force
-                        self.Actuator_basic_props.ist_Vel                                      = o.to_socket.node.Actuator_basic_props.ist_Vel
-                        self.Actuator_basic_props.enable_Actuator                              = o.to_socket.node.Actuator_basic_props.enable_Actuator
-                        self.Actuator_basic_props.select_Actuator                              = o.to_socket.node.Actuator_basic_props.select_Actuator
-                        self.Actuator_basic_props.online_Actuator                              = o.to_socket.node.Actuator_basic_props.online_Actuator
-                        self.Actuator_basic_props.Status                                       = o.to_socket.node.Actuator_basic_props.Status
-                        self.Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop  = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop
-                        self.Actuator_basic_props.Actuator_props.simple_actuator_HardMin_prop  = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_HardMin_prop
-                        self.Actuator_basic_props.Actuator_props.simple_actuator_VelMax_prop   = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_VelMax_prop
-                        self.Actuator_basic_props.Actuator_props.simple_actuator_AccMax_prop   = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_AccMax_prop
-                        self.Actuator_basic_props.Actuator_props.simple_actuator_confirm       = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_confirm
-                        self.Actuator_basic_props.Actuator_props.simple_actuator_confirmed     = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_confirmed
-                        self.Actuator_basic_props.DigTwin_basic_props.start_Loc                = o.to_socket.node.Actuator_basic_props.DigTwin_basic_props.start_Loc
-                        self.Actuator_basic_props.DigTwin_basic_props.con_Loc                  = o.to_socket.node.Actuator_basic_props.DigTwin_basic_props.con_Loc
-                        self.Actuator_basic_props.DigTwin_basic_props.end_Loc                  = o.to_socket.node.Actuator_basic_props.DigTwin_basic_props.end_Loc
-                        self.Actuator_basic_props.DigTwin_basic_props.length                   = o.to_socket.node.Actuator_basic_props.DigTwin_basic_props.length
-                        self.Actuator_basic_props.DigTwin_basic_props.mass_column1             = o.to_socket.node.Actuator_basic_props.DigTwin_basic_props.mass_column1
-                        self.Actuator_basic_props.DigTwin_basic_props.mass_column2             = o.to_socket.node.Actuator_basic_props.DigTwin_basic_props.mass_column2
-                        self.Actuator_basic_props.DigTwin_basic_props.mass_column3             = o.to_socket.node.Actuator_basic_props.DigTwin_basic_props.mass_column3
-                        self.Actuator_basic_props.DigTwin_basic_props.y_z_scale                = o.to_socket.node.Actuator_basic_props.DigTwin_basic_props.y_z_scale
-                        pass
+                        sfx.helpers[self.name].Actuator_basic_props.diff_Vel                                     = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.diff_Vel
+                        sfx.helpers[self.name].Actuator_basic_props.soll_Vel                                     = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.soll_Vel
+                        sfx.helpers[self.name].Actuator_basic_props.ist_Pos                                      = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.ist_Pos
+                        sfx.helpers[self.name].Actuator_basic_props.ist_Force                                    = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.ist_Force
+                        sfx.helpers[self.name].Actuator_basic_props.ist_Vel                                      = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.ist_Vel
+                        sfx.helpers[self.name].Actuator_basic_props.enable_Actuator                              = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.enable_Actuator
+                        sfx.helpers[self.name].Actuator_basic_props.select_Actuator                              = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.select_Actuator
+                        sfx.helpers[self.name].Actuator_basic_props.online_Actuator                              = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.online_Actuator
+                        sfx.helpers[self.name].Actuator_basic_props.Status                                       = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.Status
+                        sfx.helpers[self.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop  = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop
+                        sfx.helpers[self.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMin_prop  = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMin_prop
+                        sfx.helpers[self.name].Actuator_basic_props.Actuator_props.simple_actuator_VelMax_prop   = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.Actuator_props.simple_actuator_VelMax_prop
+                        sfx.helpers[self.name].Actuator_basic_props.Actuator_props.simple_actuator_AccMax_prop   = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.Actuator_props.simple_actuator_AccMax_prop
+                        sfx.helpers[self.name].Actuator_basic_props.Actuator_props.simple_actuator_confirm       = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.Actuator_props.simple_actuator_confirm
+                        sfx.helpers[self.name].Actuator_basic_props.Actuator_props.simple_actuator_confirmed     = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.Actuator_props.simple_actuator_confirmed
+                        sfx.helpers[self.name].Actuator_basic_props.DigTwin_basic_props.start_Loc                = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.DigTwin_basic_props.start_Loc
+                        sfx.helpers[self.name].Actuator_basic_props.DigTwin_basic_props.con_Loc                  = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.DigTwin_basic_props.con_Loc
+                        sfx.helpers[self.name].Actuator_basic_props.DigTwin_basic_props.end_Loc                  = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.DigTwin_basic_props.end_Loc
+                        sfx.helpers[self.name].Actuator_basic_props.DigTwin_basic_props.length                   = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.DigTwin_basic_props.length
+                        sfx.helpers[self.name].Actuator_basic_props.DigTwin_basic_props.mass_column1             = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.DigTwin_basic_props.mass_column1
+                        sfx.helpers[self.name].Actuator_basic_props.DigTwin_basic_props.mass_column2             = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.DigTwin_basic_props.mass_column2
+                        sfx.helpers[self.name].Actuator_basic_props.DigTwin_basic_props.mass_column3             = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.DigTwin_basic_props.mass_column3
+                        sfx.helpers[self.name].Actuator_basic_props.DigTwin_basic_props.y_z_scale                = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.DigTwin_basic_props.y_z_scale
  
 
 
