@@ -1,6 +1,8 @@
 import bpy
 import time
 
+from ... exchange_data.sfx import sfx
+
 class SFX_OT_Clock_Op(bpy.types.Operator):
     """ This operator Starts the Clock"""
     bl_idname = "sfx.clock_op"
@@ -8,17 +10,20 @@ class SFX_OT_Clock_Op(bpy.types.Operator):
 
     def modal(self, context, event):
         if event.type == 'TIMER':
-            self.MotherNode.TickTime_prop = (time.time_ns() - self.old_time)/100000.0
-            if not(self.MotherNode.operator_started):
-                self.MotherNode.operator_running_modal = False
-                self.MotherNode.use_custom_color = False
-                ret =self.End_Comm(context)
-                return ret
+            try:
+                sfx.clocks[self.MotherNode.name].TickTime_prop = (time.time_ns() - self.old_time)/100000.0
+            except KeyError:
+                self.sfx_entry_exists = False
+                self.End_Timers
+                return {'CANCELLED'}
+            self.MotherNode.sfx_update()
+            if not(sfx.clocks[self.MotherNode.name].operator_started):
+                sfx.clocks[self.MotherNode.name].operator_running_modal = False
+                self.End_Timers(context)
+                return {'CANCELLED'}
             else:
-                self.MotherNode.operator_running_modal = True
-                self.MotherNode.color = (0,0.4,0.1)
-                self.MotherNode.use_custom_color = True 
-                self.MotherNode.date = time.asctime()
+                sfx.clocks[self.MotherNode.name].operator_running_modal = True
+                sfx.clocks[self.MotherNode.name].date = time.asctime() 
                 self.old_time = time.time_ns()
                 return {'PASS_THROUGH'}
         return {'PASS_THROUGH'}
@@ -27,24 +32,24 @@ class SFX_OT_Clock_Op(bpy.types.Operator):
         self._timer = context.window_manager.event_timer_add(0.001, window=context.window)
         self._timer1 = context.window_manager.event_timer_add(0.001, window=context.window)
         self._timer2 = context.window_manager.event_timer_add(0.001, window=context.window)
-        context.window_manager.modal_handler_add(self)
+        self.sfx_entry_exists = True
+        self.MotherNode = context.active_node
         self.old_time = time.time_ns()
+        context.window_manager.modal_handler_add(self)
         return {'RUNNING_MODAL'}
 
     def invoke(self, context, event):
-        if not(context.active_node.operator_started):
-            self.old_time = time.time_ns()
-            self.MotherNode = context.active_node
-            self.MotherNode.operator_started=True
-            if (self.MotherNode.operator_restart): 
-                return self.execute(context)
-            else:
-                # Do Init Stuff
-                return self.execute(context)
+        self.sfx_entry_exists = True
+        self.MotherNode = context.active_node
+        if not(sfx.clocks[self.MotherNode.name].operator_running_modal):
+            return self.execute(context)
         else:
-            return {'CANCELLED'}
+            return{'CANCELLED'}
+            
+    def draw(self,context):
+        pass
 
-    def End_Comm(self,context):        
+    def End_Timers(self,context):        
         context.window_manager.event_timer_remove(self._timer)
         context.window_manager.event_timer_remove(self._timer1)
         context.window_manager.event_timer_remove(self._timer2)

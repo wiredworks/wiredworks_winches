@@ -21,7 +21,7 @@ class SFX_SensorsMenu(bpy.types.Menu):
 
     def draw(self,context):
         layout = self.layout
-        insertNode(layout, "SFX_Joystick_Node", "Joystick", {}, "ARROW_LEFTRIGHT")
+        layout.operator('sfx.joystick_in',text = 'Joystick', icon='ARROW_LEFTRIGHT')
 
 class SFX_CuesMenu(bpy.types.Menu):
     bl_idname = "SFX_MT_cues_menu"
@@ -52,7 +52,7 @@ class SFX_ActMenu(bpy.types.Menu):
 
     def draw(self,context):
         layout = self.layout
-        insertNode(layout, "SFX_LinRail_Node",  "Rail",  {}, "ARROW_LEFTRIGHT")
+        layout.operator('sfx.linrail_in',text = 'Rail', icon='ARROW_LEFTRIGHT')
 
 def insertNode(layout, type, text, settings = {}, icon = "NONE"):
     operator = layout.operator("node.add_node", text = text, icon = icon)

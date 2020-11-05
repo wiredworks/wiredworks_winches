@@ -1,5 +1,8 @@
 import bpy
-from .... exchange_data.SFX_Joystick_Inset import SFX_Joystick_Inset
+
+from .... exchange_data.sfx import sfx
+
+from . SFX_JoyDemux_Data import helper_demux
 
 class SFX_JoyDemux_Node(bpy.types.Node):
     ''' Takes Joystick Data and outputs selected Data'''
@@ -9,29 +12,18 @@ class SFX_JoyDemux_Node(bpy.types.Node):
     bl_width_min = 220
     bl_width_max = 500
 
+    sfx_type = 'Helper'
+
     @classmethod
     def poll(cls, ntree):
         return ntree.bl_idname == 'SFX_NodeTree'
 
-    def update_value(self, context):
-        self.update ()
-
-    operator_started : bpy.props.BoolProperty(name = "Demux Operator Started",
-                                    description = "Demux Operator Started",
-                                    default = False)
-    operator_running_modal: bpy.props.BoolProperty(name = "Demux Operator Running Modal",
-                                    description = "Demux Operator Running Modal",
-                                    default = False)
-    operator_restart : bpy.props.BoolProperty(name = "Operator Started",
-                                    description = "Operator Started",
-                                    default = False)
-        
-    TickTime_prop : bpy.props.FloatProperty(default=0.0,
-                                            update = update_value)
-
-
+    sfx              : bpy.props.PointerProperty(type = sfx)
+    sfx_helper_demux : bpy.props.PointerProperty(type = helper_demux)
 
     def init(self, context):
+        self.init_sfxData()
+
         self.outputs.new('SFX_Joy_Float', "Stick")
         self.outputs["Stick"].default_value_set = SFX_Joystick_Inset
 
@@ -49,10 +41,38 @@ class SFX_JoyDemux_Node(bpy.types.Node):
         print("copied node", node)
         
     def free(self):
-        self.MotherNode.demux_operator_started_bit1 = False
+        sfx.helpers[self.name].operator_started = False
+        sfx.helpers.pop(self.name)
 
-    def update(self):
-        if self.operator_running_modal:
+    def draw_buttons(self, context, layout):
+        try:
+            sfx.sensors[self.name]
+        except KeyError:
+            self.init_sfxData()
+        box = layout.box()
+        col = box.column()
+        row4 = col.split(factor=0.75)         # Tick Time
+        row5 = row4.split(factor=0.9)         # running modal
+        row6 = row5.split(factor=0.9)         # started
+        row7 = row6.split(factor=1)           # register
+        row4.prop(sfx.helpers[self.name], 'TickTime_prop', text = '')
+        row5.prop(sfx.helpers[self.name], 'operator_running_modal', text = '')
+        row6.prop(sfx.helpers[self.name], 'operator_started', text = '')
+        if not(sfx.helpers[self.name].operator_started):
+            row7.label(text ='Stoped')
+        else:
+            row7.label(text ='Started')
+
+    def draw_buttons_ext(self, context, layout):
+        pass
+
+    def init_sfxData(self):
+        sfx.helpers.update({self.name :self.sfx_helper_demux})
+        pass
+
+    def sfx_update(self):
+        if sfx.helpers[self.name].operator_running_modal:
+            self.color = (0,0.4,0.1)
             self.use_custom_color = True
         else:
             self.use_custom_color = False
@@ -200,17 +220,4 @@ class SFX_JoyDemux_Node(bpy.types.Node):
                         else:
                             o.to_socket.node.inputs[o.to_socket.name].default_value = False
 
-    def draw_buttons(self, context, layout):
-        box = layout.box()
-        col = box.column()
-        row4 = col.split(factor=0.75)         # Tick Time
-        row5 = row4.split(factor=0.9)       # running modal
-        row6 = row5.split(factor=0.9)       # started
-        row7 = row6.split(factor=1)        # register
-        row4.prop( self, 'TickTime_prop', text = '')
-        row5.prop(self, 'operator_running_modal', text = '')
-        row6.prop(self, 'operator_started', text = '')
-        if not(self.operator_started):
-            row7.operator('sfx.joydemux_op',text ='Start')
-        else:
-            row7.operator('sfx.commstarteddiag',text ='Started')
+

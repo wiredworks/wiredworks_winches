@@ -23,12 +23,13 @@ Folder structure
 /UClients_and_helpers
   - clients        (simulated physical motors at different UDP ports)
   - Joystick       (Interface from USB to UDP)
-  - space_node.py  (expose some operators to the UI)
+  - space_node.py  (expose some operators to the UI replace the original script in
+                    C:\Program Files\Blender Foundation\Blender 2.83\2.83\scripts\startup\bl_ui)
   - example.blend
   
 /excange_data      (some structures for Data excange)
 
-/operator          (some dialogs and ops not specific to a Node)
+/operator          (some ops used in space_node.py)
 
 /sockets           (Node sockets)
 

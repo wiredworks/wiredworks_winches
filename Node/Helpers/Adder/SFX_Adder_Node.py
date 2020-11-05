@@ -1,6 +1,9 @@
 import bpy
-from .... exchange_data.SFX_actuator_basic_Inset import SFX_actuator_basic_Inset
-from .... exchange_data.SFX_Joystick_Inset import SFX_Joystick_Inset
+
+from .... exchange_data.sfx import sfx
+from .... exchange_data.sfx import SFX_Joystick_Inset
+
+from .SFX_Adder_Data import helper_adder
 
 class SFX_Adder_Node(bpy.types.Node):
     ''' Takes two Inputs and adds them'''
@@ -10,36 +13,19 @@ class SFX_Adder_Node(bpy.types.Node):
     bl_width_min = 580
     bl_width_max = 580
 
+    sfx_type = 'Helper'
+
     @classmethod
     def poll(cls, ntree):
         return ntree.bl_idname == 'SFX_NodeTree'
 
-    def update_value(self, context):
-        self.update ()
-
-    operator_started : bpy.props.BoolProperty(name = "Mixer Operator Started",
-                                    description = "Mixer Operator Started",
-                                    default = False)
-    operator_running_modal: bpy.props.BoolProperty(name = "Mixer Operator Running Modal",
-                                    description = "Mixer Operator Running Modal",
-                                    default = False)
-    operator_restart : bpy.props.BoolProperty(name = "Operator Started",
-                                    description = "Operator Started",
-                                    default = False)
-        
-    TickTime_prop : bpy.props.FloatProperty(default=0.0,
-                                            update = update_value)
-
-    Actuator_basic_props : bpy.props.PointerProperty(type =SFX_actuator_basic_Inset)
-
-    expand_Actuator_basic_data : bpy.props.BoolProperty(name = "Expand Basic Data",
-                                    description = "Expand Basic Data",
-                                    default = False)
-
-
+    sfx              : bpy.props.PointerProperty(type = sfx)
+    sfx_helper_adder : bpy.props.PointerProperty(type = helper_adder)
 
 
     def init(self, context):
+        self.init_sfxData()
+
         self.outputs.new('SFX_Cue_Float', "Set Vel")
         self.outputs["Set Vel"].default_value_set = SFX_Joystick_Inset
         self.outputs["Set Vel"].ww_out_value = 0.0
@@ -50,17 +36,54 @@ class SFX_Adder_Node(bpy.types.Node):
         self.inputs.new('SFX_act_in_set_Vel',name= 'Channel 2')
         self.inputs["Channel 2"].set_vel = 0.0
 
-        #bpy.ops.sfx.adderop('INVOKE_DEFAULT')
-
-        pass
     def copy(self, node):
         print("copied node", node)
         
     def free(self):
-        self.operator_started = False
+        sfx.helpers[self.name].operator_started = False
+        sfx.helpers.pop(self.name)
 
-    def update(self):
-        if self.operator_running_modal:
+    def draw_buttons(self, context, layout):
+        try:
+            sfx.sensors[self.name]
+        except KeyError:
+            self.init_sfxData()
+        split = layout.split(factor=0.65)
+        col = split.column()
+        col1 = split.column()
+        box = col1.box()
+        col = box.column()
+        row4 = col.split(factor=0.75)         # Tick Time
+        row5 = row4.split(factor=0.9)       # running modal
+        row6 = row5.split(factor=0.9)       # started
+        row7 = row6.split(factor=1)        # register
+        row4.prop(sfx.helpers[self.name], 'TickTime_prop', text = '')
+        row5.prop(sfx.helpers[self.name], 'operator_running_modal', text = '')
+        row6.prop(sfx.helpers[self.name], 'operator_started', text = '')
+        if not(sfx.helpers[self.name].operator_started):
+            row7.label(text ='Stoped')
+        else:
+            row7.label(text ='Started')
+
+        box = layout.box()
+        col = box.column()
+        row = col.split(factor=1)
+        row.label(text='min ( 100 , max ( -100 , ( Input 1 + Input 2 )))') 
+
+        row2 = layout.row(align=True)
+        row2.prop(sfx.helpers[self.name], 'expand_Actuator_basic_data')
+        if sfx.helpers[self.name].expand_Actuator_basic_data:
+            sfx.helpers[self.name].Actuator_basic_props.draw_Actuator_basic_props(context, layout)
+
+    def draw_buttons_ext(self, context, layout):
+        pass
+
+    def init_sfxData(self):
+        sfx.helpers.update({self.name :self.sfx_helper_adder})
+
+    def sfx_update(self):
+        if sfx.helpers[self.name].operator_running_modal:
+            self.color = (0,0.4,0.1)
             self.use_custom_color = True
         else:
             self.use_custom_color = False
@@ -87,57 +110,26 @@ class SFX_Adder_Node(bpy.types.Node):
                     if o.is_valid:
                         self.outputs["Set Vel"].ww_out_value = min(100.0,max(-100.0,(self.inputs["Channel 1"].set_vel+self.inputs["Channel 2"].set_vel)))
                         o.to_socket.node.inputs[o.to_socket.name].set_vel = self.outputs["Set Vel"].ww_out_value
-                        self.Actuator_basic_props.diff_Vel                                     = o.to_socket.node.Actuator_basic_props.diff_Vel
-                        self.Actuator_basic_props.soll_Vel                                     = o.to_socket.node.Actuator_basic_props.soll_Vel
-                        self.Actuator_basic_props.ist_Pos                                      = o.to_socket.node.Actuator_basic_props.ist_Pos
-                        self.Actuator_basic_props.ist_Force                                    = o.to_socket.node.Actuator_basic_props.ist_Force
-                        self.Actuator_basic_props.ist_Vel                                      = o.to_socket.node.Actuator_basic_props.ist_Vel
-                        self.Actuator_basic_props.enable_Actuator                              = o.to_socket.node.Actuator_basic_props.enable_Actuator
-                        self.Actuator_basic_props.select_Actuator                              = o.to_socket.node.Actuator_basic_props.select_Actuator
-                        self.Actuator_basic_props.online_Actuator                              = o.to_socket.node.Actuator_basic_props.online_Actuator
-                        self.Actuator_basic_props.Status                                       = o.to_socket.node.Actuator_basic_props.Status
-                        self.Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop  = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop
-                        self.Actuator_basic_props.Actuator_props.simple_actuator_HardMin_prop  = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_HardMin_prop
-                        self.Actuator_basic_props.Actuator_props.simple_actuator_VelMax_prop   = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_VelMax_prop
-                        self.Actuator_basic_props.Actuator_props.simple_actuator_AccMax_prop   = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_AccMax_prop
-                        self.Actuator_basic_props.Actuator_props.simple_actuator_confirm       = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_confirm
-                        self.Actuator_basic_props.Actuator_props.simple_actuator_confirmed     = o.to_socket.node.Actuator_basic_props.Actuator_props.simple_actuator_confirmed
-                        self.Actuator_basic_props.DigTwin_basic_props.start_Loc                = o.to_socket.node.Actuator_basic_props.DigTwin_basic_props.start_Loc
-                        self.Actuator_basic_props.DigTwin_basic_props.con_Loc                  = o.to_socket.node.Actuator_basic_props.DigTwin_basic_props.con_Loc
-                        self.Actuator_basic_props.DigTwin_basic_props.end_Loc                  = o.to_socket.node.Actuator_basic_props.DigTwin_basic_props.end_Loc
-                        self.Actuator_basic_props.DigTwin_basic_props.length                   = o.to_socket.node.Actuator_basic_props.DigTwin_basic_props.length
-                        self.Actuator_basic_props.DigTwin_basic_props.mass_column1             = o.to_socket.node.Actuator_basic_props.DigTwin_basic_props.mass_column1
-                        self.Actuator_basic_props.DigTwin_basic_props.mass_column2             = o.to_socket.node.Actuator_basic_props.DigTwin_basic_props.mass_column2
-                        self.Actuator_basic_props.DigTwin_basic_props.mass_column3             = o.to_socket.node.Actuator_basic_props.DigTwin_basic_props.mass_column3
-                        self.Actuator_basic_props.DigTwin_basic_props.y_z_scale                = o.to_socket.node.Actuator_basic_props.DigTwin_basic_props.y_z_scale
-                        pass
- 
-    def draw_buttons(self, context, layout):
-        split = layout.split(factor=0.65)
-        col = split.column()
-        col1 = split.column()
-        box = col1.box()
-        col = box.column()
-        row4 = col.split(factor=0.75)         # Tick Time
-        row5 = row4.split(factor=0.9)       # running modal
-        row6 = row5.split(factor=0.9)       # started
-        row7 = row6.split(factor=1)        # register
-        row4.prop( self, 'TickTime_prop', text = '')
-        row5.prop(self, 'operator_running_modal', text = '')
-        row6.prop(self, 'operator_started', text = '')
-        if not(self.operator_started):
-            row7.operator('sfx.adder_op',text ='Start')
-        else:
-            row7.operator('sfx.commstarteddiag',text ='Started')
-
-        box = layout.box()
-        col = box.column()
-        row = col.split(factor=1)
-        row.label(text='min ( 100 , max ( -100 , ( Input 1 + Input 2 )))')
- 
-
-        row2 = layout.row(align=True)
-        row2.prop(self, 'expand_Actuator_basic_data')
-        if self.expand_Actuator_basic_data:
-            self.Actuator_basic_props.draw_Actuator_basic_props(context, layout)
-
+                        sfx.helpers[self.name].Actuator_basic_props.diff_Vel                                     = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.diff_Vel
+                        sfx.helpers[self.name].Actuator_basic_props.soll_Vel                                     = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.soll_Vel
+                        sfx.helpers[self.name].Actuator_basic_props.ist_Pos                                      = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.ist_Pos
+                        sfx.helpers[self.name].Actuator_basic_props.ist_Force                                    = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.ist_Force
+                        sfx.helpers[self.name].Actuator_basic_props.ist_Vel                                      = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.ist_Vel
+                        sfx.helpers[self.name].Actuator_basic_props.enable_Actuator                              = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.enable_Actuator
+                        sfx.helpers[self.name].Actuator_basic_props.select_Actuator                              = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.select_Actuator
+                        sfx.helpers[self.name].Actuator_basic_props.online_Actuator                              = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.online_Actuator
+                        sfx.helpers[self.name].Actuator_basic_props.Status                                       = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.Status
+                        sfx.helpers[self.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop  = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop
+                        sfx.helpers[self.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMin_prop  = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMin_prop
+                        sfx.helpers[self.name].Actuator_basic_props.Actuator_props.simple_actuator_VelMax_prop   = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.Actuator_props.simple_actuator_VelMax_prop
+                        sfx.helpers[self.name].Actuator_basic_props.Actuator_props.simple_actuator_AccMax_prop   = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.Actuator_props.simple_actuator_AccMax_prop
+                        sfx.helpers[self.name].Actuator_basic_props.Actuator_props.simple_actuator_confirm       = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.Actuator_props.simple_actuator_confirm
+                        sfx.helpers[self.name].Actuator_basic_props.Actuator_props.simple_actuator_confirmed     = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.Actuator_props.simple_actuator_confirmed
+                        sfx.helpers[self.name].Actuator_basic_props.DigTwin_basic_props.start_Loc                = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.DigTwin_basic_props.start_Loc
+                        sfx.helpers[self.name].Actuator_basic_props.DigTwin_basic_props.con_Loc                  = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.DigTwin_basic_props.con_Loc
+                        sfx.helpers[self.name].Actuator_basic_props.DigTwin_basic_props.end_Loc                  = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.DigTwin_basic_props.end_Loc
+                        sfx.helpers[self.name].Actuator_basic_props.DigTwin_basic_props.length                   = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.DigTwin_basic_props.length
+                        sfx.helpers[self.name].Actuator_basic_props.DigTwin_basic_props.mass_column1             = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.DigTwin_basic_props.mass_column1
+                        sfx.helpers[self.name].Actuator_basic_props.DigTwin_basic_props.mass_column2             = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.DigTwin_basic_props.mass_column2
+                        sfx.helpers[self.name].Actuator_basic_props.DigTwin_basic_props.mass_column3             = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.DigTwin_basic_props.mass_column3
+                        sfx.helpers[self.name].Actuator_basic_props.DigTwin_basic_props.y_z_scale                = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.DigTwin_basic_props.y_z_scale

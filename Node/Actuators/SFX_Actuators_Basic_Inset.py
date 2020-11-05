@@ -1,16 +1,16 @@
 import bpy
 import time
 
-from .. exchange_data.SFX_simple_actuator_Inset import SFX_simple_Actuator_Inset
-from .. exchange_data.SFX_digtwin_basic_Inset import SFX_DigTwin_basic_Inset 
+from . SFX_Actuators_Expanded_Inset import SFX_Actuators_Expanded_Inset
+from . SFX_Digtwin_Basic_Inset import SFX_Digtwin_Basic_Inset 
 
-class SFX_actuator_basic_Inset(bpy.types.PropertyGroup):
+class SFX_Actuators_Basic_Inset(bpy.types.PropertyGroup):
     ''' Inset with the Basic Properties of an Actuator''' 
     bl_idname = "SFX_actuator_basic_Inset"
 
-    Actuator_props : bpy.props.PointerProperty(type = SFX_simple_Actuator_Inset)
+    Actuator_props : bpy.props.PointerProperty(type = SFX_Actuators_Expanded_Inset)
 
-    DigTwin_basic_props : bpy.props.PointerProperty(type = SFX_DigTwin_basic_Inset)
+    DigTwin_basic_props : bpy.props.PointerProperty(type = SFX_Digtwin_Basic_Inset)
 
     diff_Vel : bpy.props.FloatProperty(name = "Ist Pos",
                                     description = "Ist Position",

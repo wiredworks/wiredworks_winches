@@ -1,6 +1,8 @@
 import bpy
 import time
 
+from .... exchange_data.sfx import sfx
+
 class SFX_OT_Mixer_Op(bpy.types.Operator):
     """ This operator updates the mixer nodes"""
     bl_idname = "sfx.mixer_op"
@@ -8,33 +10,34 @@ class SFX_OT_Mixer_Op(bpy.types.Operator):
 
     def modal(self, context, event):
         if event.type == 'TIMER':
-            if self.MotherNode.operator_started:
-                self.MotherNode.operator_running_modal = True
-                self.MotherNode.color = (0,0.4,0.1)
-                self.MotherNode.use_custom_color = True 
-                # Trigger Node Update
-                self.MotherNode.TickTime_prop = (time.time_ns() - self.old_time)/1000000.0
-                self.old_time = time.time_ns()
-                pass
-                return {'PASS_THROUGH'}
-            self.MotherNode.operator_running_modal = False
-            self.MotherNode.use_custom_color = False
-            return{'CANCELLED'}
+            try:
+                sfx.helpers[self.MotherNode.name].TickTime_prop = (time.time_ns() - self.old_time)/100000.0
+            except KeyError:
+                self.sfx_entry_exists = False
+                return {'CANCELLED'}
+            if self.sfx_entry_exists: 
+                self.MotherNode.sfx_update()   
+                if not(sfx.helpers[self.MotherNode.name].operator_started):
+                    sfx.helpers[self.MotherNode.name].operator_running_modal = False
+                    return{'CANCELLED'}
+                else:
+                    sfx.helpers[self.MotherNode.name].operator_running_modal = True
+                    self.old_time = time.time_ns()
+                    return {'PASS_THROUGH'}
         return {'PASS_THROUGH'}
+
     def execute(self, context):
+        self.sfx_entry_exists = True
+        self.MotherNode = context.active_node
+        self.old_time = time.time_ns()
         context.window_manager.modal_handler_add(self)
         return {'RUNNING_MODAL'}
 
     def invoke(self, context, event):        
-        if not(context.active_node.operator_started):
-            self.old_time = time.time_ns()
-            self.MotherNode = context.active_node
-            self.MotherNode.operator_started = True
-            if (self.MotherNode.operator_restart): 
-                return self.execute(context)
-            else:
-                # Do Init Stuff
-                return self.execute(context)
+        self.sfx_entry_exists = True
+        self.MotherNode = context.active_node
+        if not(sfx.helpers[self.MotherNode.name].operator_running_modal):
+            return self.execute(context)
         else:
             return{'CANCELLED'}
             
