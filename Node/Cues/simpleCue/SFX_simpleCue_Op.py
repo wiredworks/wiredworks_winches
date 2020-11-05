@@ -33,10 +33,14 @@ class SFX_simpleCue_Op(bpy.types.Operator):
        
                 if (sfx.cues[self.MotherNode.name].ActConfirmed or sfx.cues[self.MotherNode.name].ActConfirm):
                     self.CanCueBeConfirmed()
-
                     if sfx.cues[self.MotherNode.name].confirmed:
                         self.CalcTargetSpeed()                   
                         self.ReactToInputs()
+                else:
+                    sfx.cues[self.MotherNode.name].toTime_executed = False
+                    sfx.cues[self.MotherNode.name].confirm = False
+                    sfx.cues[self.MotherNode.name].confirmed = False
+                    self.ResetFcurves()
 
                 self.CalcKeypointsHash()
                 self.old_time = time.time_ns()
@@ -278,8 +282,15 @@ class SFX_simpleCue_Op(bpy.types.Operator):
         sfx.cues[self.MotherNode.name].toTime_executed = True
 
     def CanCueBeConfirmed(self):
-        if sfx.cues[self.MotherNode.name].confirm:
-            sfx.cues[self.MotherNode.name].confirmed = True
+        if sfx.cues[self.MotherNode.name].toTime_executed:
+            if sfx.cues[self.MotherNode.name].confirm:
+                sfx.cues[self.MotherNode.name].confirmed = True
+            else:
+                sfx.cues[self.MotherNode.name].confirmed = False
+        else:
+            sfx.cues[self.MotherNode.name].confirm = False
+            sfx.cues[self.MotherNode.name].confirmed = False
+
         self.KP = ''
         try:
             for i in range(0,len(self.VelInPos.keyframe_points)):

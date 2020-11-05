@@ -66,7 +66,11 @@ class SFX_LinRail_Node(bpy.types.Node):
         bpy.data.collections.remove(bpy.data.collections.get(self.name))
         print("Node removed",self)
 
-    def draw_buttons(self, context, layout):       
+    def draw_buttons(self, context, layout):
+        try:
+            sfx.sensors[self.name]
+        except KeyError:
+            self.init_sfxData()       
         box = layout.box()
         col   = box.column(align = True)
         row4  = col.split(factor=0.85)         # Tick Time

@@ -50,12 +50,15 @@ class SFX_simpleCue_Node(bpy.types.Node):
         bpy.data.actions.remove(bpy.data.actions[self.name+'_Cue'])
 
     def draw_buttons(self, context, layout):
+        try:
+            sfx.sensors[self.name]
+        except KeyError:
+            self.init_sfxData()
         split = layout.split(factor=0.65)
         col = split.column()
         box = col.box()
         col = box.column()
         row = col.row()
-        row.prop(sfx.cues[self.name],'play_state',text='')
         row.prop(sfx.cues[self.name],'play_head',text='')
         row.prop(sfx.cues[self.name],'play_head_percent',text='',slider = True)
         row.prop(sfx.cues[self.name],'confirm',text='')

@@ -45,6 +45,10 @@ class SFX_Adder_Node(bpy.types.Node):
         sfx.helpers.pop(self.name)
 
     def draw_buttons(self, context, layout):
+        try:
+            sfx.sensors[self.name]
+        except KeyError:
+            self.init_sfxData()
         split = layout.split(factor=0.65)
         col = split.column()
         col1 = split.column()

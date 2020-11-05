@@ -45,6 +45,10 @@ class SFX_JoyDemux_Node(bpy.types.Node):
         sfx.helpers.pop(self.name)
 
     def draw_buttons(self, context, layout):
+        try:
+            sfx.sensors[self.name]
+        except KeyError:
+            self.init_sfxData()
         box = layout.box()
         col = box.column()
         row4 = col.split(factor=0.75)         # Tick Time

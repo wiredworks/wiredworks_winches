@@ -38,6 +38,10 @@ class SFX_Joystick_Node(bpy.types.Node):
         print('Node destroyed',self)
 
     def draw_buttons(self, context, layout):
+        try:
+            sfx.sensors[self.name]
+        except KeyError:
+            self.init_sfxData()
         box = layout.box()
         col   = box.column(align = True)
         row4  = col.split(factor=0.85)         # Tick Time
