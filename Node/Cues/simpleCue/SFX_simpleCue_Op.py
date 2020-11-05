@@ -7,7 +7,7 @@ from scipy.integrate import simps
 import numpy as np
 
 from .... exchange_data.sfx import sfx
-from .... exchange_data.sfx import cue_simple
+from . SFX_simpleCue_Data import cue_simple
 
 class SFX_simpleCue_Op(bpy.types.Operator):
     """ simple Cue op"""

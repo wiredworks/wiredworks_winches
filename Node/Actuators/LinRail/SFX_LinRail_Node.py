@@ -7,7 +7,7 @@ from mathutils import Vector
 from .SFX_LinRail_Model import SFX_LinRail_Model
 
 from .... exchange_data.sfx import sfx
-from .... exchange_data.sfx import actuator_linrail
+from .SFX_LinRail_Data import actuator_linrail
 
 class SFX_LinRail_Node(bpy.types.Node):
     '''simple Linear Rail Actuator'''

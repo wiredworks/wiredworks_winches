@@ -1,6 +1,6 @@
 import bpy
 
-from .. exchange_data.SFX_Joystick_Inset import SFX_Joystick_Inset 
+from .. exchange_data.sfx import SFX_Joystick_Inset 
 
 class SFX_Joy_bool(bpy.types.NodeSocket):
     '''ww Joystick Socket'''

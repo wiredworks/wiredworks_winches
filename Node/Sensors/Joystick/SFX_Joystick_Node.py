@@ -1,10 +1,9 @@
 import bpy
 
-from .... exchange_data.SFX_Joystick_Inset import SFX_Joystick_Inset
-
 from .... exchange_data.sfx import sfx
-from .... exchange_data.sfx import sensor_joystick
 
+from .SFX_Joystick_Data import sensor_joystick
+from .SFX_Joystick_Inset import SFX_Joystick_Inset
 
 class SFX_Joystick_Node(bpy.types.Node):
     '''SFX_JoyStick'''

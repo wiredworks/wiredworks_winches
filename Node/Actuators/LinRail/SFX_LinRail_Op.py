@@ -4,7 +4,7 @@ import time
 import json
 
 from .... exchange_data.sfx import sfx
-from .... exchange_data.sfx import actuator_linrail
+from .SFX_LinRail_Data import actuator_linrail
 
 class SFX_OT_LinRail_Op(bpy.types.Operator):
     """ This operator is the interface between the pysical world, the 3D_View and the Node"""

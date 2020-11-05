@@ -1,8 +1,8 @@
 import bpy
 
 from .... exchange_data.sfx import sfx
-from .... exchange_data.sfx import helper_demux
-from .... exchange_data.SFX_Joystick_Inset import SFX_Joystick_Inset
+
+from . SFX_JoyDemux_Data import helper_demux
 
 class SFX_JoyDemux_Node(bpy.types.Node):
     ''' Takes Joystick Data and outputs selected Data'''

@@ -1,6 +1,6 @@
 import bpy
 
-class SFX_simple_Actuator_Inset(bpy.types.PropertyGroup):
+class SFX_Actuators_Expanded_Inset(bpy.types.PropertyGroup):
     '''Defines Physical Props of an Actuator'''
     bl_idname = "SFX_simple_Actuator_Inset"
     

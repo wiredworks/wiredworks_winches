@@ -1,8 +1,9 @@
 import bpy
 
 from .... exchange_data.sfx import sfx
-from .... exchange_data.sfx import helper_mixer
-from .... exchange_data.SFX_Joystick_Inset import SFX_Joystick_Inset
+from .... exchange_data.sfx import SFX_Joystick_Inset
+
+from .SFX_Mixer_Data import helper_mixer
 
 class SFX_Mixer_Node(bpy.types.Node):
     ''' Takes two Inputs and mixes them'''

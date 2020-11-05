@@ -1,10 +1,9 @@
 import bpy
 
 from .... exchange_data.sfx import sfx
-from .... exchange_data.sfx import helper_adder
+from .... exchange_data.sfx import SFX_Joystick_Inset
 
-from .... exchange_data.SFX_actuator_basic_Inset import SFX_actuator_basic_Inset
-from .... exchange_data.SFX_Joystick_Inset import SFX_Joystick_Inset
+from .SFX_Adder_Data import helper_adder
 
 class SFX_Adder_Node(bpy.types.Node):
     ''' Takes two Inputs and adds them'''

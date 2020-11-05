@@ -1,12 +1,12 @@
 import bpy
 
-from .. exchange_data.SFX_ww_digtwin_Inset import SFX_ww_DigTwin_Inset
+from . SFX_Digtwin_Expanded_Inset import SFX_Digtwin_Expanded_Inset
 
-class SFX_DigTwin_basic_Inset(bpy.types.PropertyGroup):
+class SFX_Digtwin_Basic_Inset(bpy.types.PropertyGroup):
     '''Basic Properties for the Digital Twin'''
     bl_idname = "SXF_DigTwin_basic_Inset"
 
-    DigTwin_props : bpy.props.PointerProperty(type = SFX_ww_DigTwin_Inset)
+    DigTwin_props : bpy.props.PointerProperty(type = SFX_Digtwin_Expanded_Inset)
 
     Mother_name   : bpy.props.StringProperty(name = "Mother Nodes Name",
                                         description = "Name of Mother Node",

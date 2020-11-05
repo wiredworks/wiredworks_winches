@@ -1,6 +1,6 @@
 import bpy
 
-class SFX_ww_DigTwin_Inset(bpy.types.PropertyGroup):
+class SFX_Digtwin_Expanded_Inset(bpy.types.PropertyGroup):
     ''' Dummy PlugIn Props'''
     bl_idname = "SFX_ww_DigTwin_Inset"
 
