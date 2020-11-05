@@ -6,7 +6,6 @@ from .. exchange_data.SFX_simple_actuator_Inset import SFX_simple_Actuator_Inset
 
 class sensor_base():
     def a_update(self,context):
-        print('####')
         self.sfx_update(context)
 
     operator_started : bpy.props.BoolProperty(name = "Demux Operator Started",

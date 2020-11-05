@@ -27,15 +27,17 @@ class SFX_simpleCue_Op(bpy.types.Operator):
                 return {'CANCELLED'}
             else:
                 sfx.cues[self.MotherNode.name].operator_running_modal = True
+
                 self.cue_act_pos = sfx.cues[self.MotherNode.name].cue_act_pos
                 self.cue_act_speed = sfx.cues[self.MotherNode.name].cue_act_speed
+       
+                if (sfx.cues[self.MotherNode.name].ActConfirmed or sfx.cues[self.MotherNode.name].ActConfirm):
+                    self.CanCueBeConfirmed()
 
-                self.CanCueBeConfirmed()
-                if sfx.cues[self.MotherNode.name].confirmed:
-                    self.CalcTargetSpeed()                   
-                    self.ReactToInputs()
-                else:
-                    self.ResetFcurves()
+                    if sfx.cues[self.MotherNode.name].confirmed:
+                        self.CalcTargetSpeed()                   
+                        self.ReactToInputs()
+
                 self.CalcKeypointsHash()
                 self.old_time = time.time_ns()
                 return {'PASS_THROUGH'}
@@ -52,7 +54,6 @@ class SFX_simpleCue_Op(bpy.types.Operator):
     def invoke(self, context, event):
         self.sfx_entry_exists = True
         self.MotherNode       = context.active_node
-        self.Dataobject       = True
         if not(sfx.cues[self.MotherNode.name].operator_running_modal):
             self.InitVars() 
             self.InitDataobject()
@@ -83,20 +84,17 @@ class SFX_simpleCue_Op(bpy.types.Operator):
             try:
                 self.Dataobject =  bpy.data.objects[self.MotherNode.name+'_Data']
             except KeyError:
-                self.DataObject = False
                 print(self.MotherNode.name+'_Data' +' not found in ww SFX_Nodes')
                 return {'CANCELLED'}
-            if self.Dataobject:
-                self.Dataobject =  bpy.data.objects[self.MotherNode.name+'_Data']
-                if self.Dataobject.animation_data:
-                    self.Dataobject.animation_data_clear()
-                    bpy.data.actions.remove(bpy.data.actions.get(self.MotherNode.name+'_Cue'))
-                if not self.Dataobject.animation_data:
-                    self.Dataobject.animation_data_create()
-                if not self.Dataobject.animation_data.action:
-                    self.Dataobject.animation_data.action = \
-                bpy.data.actions.new(self.MotherNode.name+"_Cue")# or bpy.data.actions.get(self.MotherNode.name+"_Cue")
-                self.action = self.Dataobject.animation_data.action
+            if self.Dataobject.animation_data:
+                self.Dataobject.animation_data_clear()
+                bpy.data.actions.remove(bpy.data.actions.get(self.MotherNode.name+'_Cue'))
+            if not self.Dataobject.animation_data:
+                self.Dataobject.animation_data_create()
+            if not self.Dataobject.animation_data.action:
+                self.Dataobject.animation_data.action = \
+            bpy.data.actions.new(self.MotherNode.name+"_Cue")# or bpy.data.actions.get(self.MotherNode.name+"_Cue")
+            self.action = self.Dataobject.animation_data.action
 
     def InitGraph(self):
         self.InitFcurves()
@@ -137,11 +135,11 @@ class SFX_simpleCue_Op(bpy.types.Operator):
             self.VelInTime1.lock = True
         err = False
         try:
-            self.GradInTime = self.action.fcurves.new('Grad In Time Domain')
+            self.AccInTime = self.action.fcurves.new('Acc In Time Domain')
         except RuntimeError:
             err = True
         if not(err):
-            self.GradInTime.lock = True
+            self.AccInTime.lock = True
 
         self.FcurvesInitialized = True
 
@@ -240,7 +238,6 @@ class SFX_simpleCue_Op(bpy.types.Operator):
         self.VelInPos.keyframe_points[-1].handle_right = (Point3[0]+500,0)
 
     def VelFromPosToTime(self):
-        sfx.cues[self.MotherNode.name].toTime = False
         sfx.cues[self.MotherNode.name].confirm = False
         sfx.cues[self.MotherNode.name].confirmen = False
 
@@ -255,29 +252,30 @@ class SFX_simpleCue_Op(bpy.types.Operator):
         # to travel self.length we have to multiply the x-Axis by 
         F = self.length/(self.RohLänge/100000.0)
         self.XT = self.X*F
-        # Controlcalculation
+        # Control-calculation
         #self.DehnLänge = simps(self.Y,self.XT)
 
         self.max_Vel                                   = max(self.Y)/100
         sfx.cues[self.MotherNode.name].max_Vel         = self.max_Vel
         self.Acc                                       = np.gradient(self.Y)*100
-        self.max_Acc                                   =  max(abs(self.Acc))/10.0
+        self.max_Acc                                   = max(abs(self.Acc))/10.0
         sfx.cues[self.MotherNode.name].max_Acc         = self.max_Acc
         sfx.cues[self.MotherNode.name].duration        = self.XT[-1]/1000.0
-        sfx.cues[self.MotherNode.name].toTime_executed = True
 
-        # Zur Visualisierung
         self.action.fcurves.remove(self.VelInTime1)
         self.VelInTime1 = self.action.fcurves.new('Vel In Time Domain Kp')
         self.VelInTime1.lock = True 
         for i in range(0,len(self.Y),10):
             self.VelInTime1.keyframe_points.insert( self.XT[i],self.Y[i])
 
-        self.action.fcurves.remove(self.GradInTime)
-        self.GradInTime = self.action.fcurves.new('Grad In Time Domain')
-        self.GradInTime.lock = True 
+        self.action.fcurves.remove(self.AccInTime)
+        self.AccInTime = self.action.fcurves.new('Acc In Time Domain')
+        self.AccInTime.lock = True 
         for i in range(0,len(self.Acc),10):
-            self.GradInTime.keyframe_points.insert( self.XT[i],self.Acc[i])
+            self.AccInTime.keyframe_points.insert( self.XT[i],self.Acc[i])
+
+        sfx.cues[self.MotherNode.name].toTime = False
+        sfx.cues[self.MotherNode.name].toTime_executed = True
 
     def CanCueBeConfirmed(self):
         if sfx.cues[self.MotherNode.name].confirm:
@@ -292,27 +290,25 @@ class SFX_simpleCue_Op(bpy.types.Operator):
         if self.MD5 != self.MD5Old:
             sfx.cues[self.MotherNode.name].toTime_executed = False
             sfx.cues[self.MotherNode.name].confirm = False
-            sfx.cues[self.MotherNode.name].confirmed = False                
+            sfx.cues[self.MotherNode.name].confirmed = False
+            self.ResetFcurves()
+
+        if not(self.FcurvesInitialized):
+            self.InitFcurves()
+        if not(self.VelInPosInitialized):
+            self.InitVelInPos()
+        if not(self.CalcGrenzVelCalculated):
+            self.CalcGrenzVel()
+        self.FixEndsOfVelInPos()
+
+        if sfx.cues[self.MotherNode.name].toTime:
+            self.VelFromPosToTime()                
 
         if (self.max_Vel > sfx.cues[self.MotherNode.name].Actuator_props.simple_actuator_VelMax_prop or
             self.max_Acc > sfx.cues[self.MotherNode.name].Actuator_props.simple_actuator_AccMax_prop) :
+            sfx.cues[self.MotherNode.name].toTime_executed = False
             sfx.cues[self.MotherNode.name].confirm = False
             sfx.cues[self.MotherNode.name].confirmed = False
-            sfx.cues[self.MotherNode.name].toTime_executed = False
-        if (sfx.cues[self.MotherNode.name].ActConfirmed or sfx.cues[self.MotherNode.name].ActConfirm):
-            if not(self.FcurvesInitialized):
-                self.InitFcurves()
-            if not(self.VelInPosInitialized):
-                self.InitVelInPos()
-            if not(self.CalcGrenzVelCalculated):
-                self.CalcGrenzVel()
-            self.FixEndsOfVelInPos()
-            if sfx.cues[self.MotherNode.name].toTime:
-                self.VelFromPosToTime()
-            if (self.max_Acc > sfx.cues[self.MotherNode.name].Actuator_props.simple_actuator_VelMax_prop) or \
-                (self.max_Vel > sfx.cues[self.MotherNode.name].Actuator_props.simple_actuator_AccMax_prop):
-                sfx.cues[self.MotherNode.name].confirm = False
-                sfx.cues[self.MotherNode.name].confirmed = False
 
     def CalcKeypointsHash(self):
         self.KPOld = ''
@@ -324,31 +320,31 @@ class SFX_simpleCue_Op(bpy.types.Operator):
         self.MD5Old = hashlib.md5(self.KPOld.encode('utf-8')).hexdigest()
 
     def ReactToInputs(self):                       
-        if not(sfx.cues[self.MotherNode.name].inputs['Go To 1'].bool):
-            if (sfx.cues[self.MotherNode.name].inputs['Forward'].bool == True and
-                sfx.cues[self.MotherNode.name].inputs['Reverse'].bool == False):
+        if not( self.MotherNode.inputs['Go To 1'].bool):
+            if (self.MotherNode.inputs['Forward'].bool == True and
+                self.MotherNode.inputs['Reverse'].bool == False):
                 sfx.cues[self.MotherNode.name].cue_diff_speed = self.target_speed - self.cue_act_speed
                 if (self.target_speed - self.cue_act_speed) > 0:
                     sfx.cues[self.MotherNode.name].play_state = 'SpeedUp'
-                    sfx.cues[self.MotherNode.name].outputs["Set Vel"].ww_out_value = self.target_speed_percent
+                    self.MotherNode.outputs["Set Vel"].ww_out_value = self.target_speed_percent
                 else:
                     sfx.cues[self.MotherNode.name].play_state = 'Play'
-                    sfx.cues[self.MotherNode.name].outputs["Set Vel"].ww_out_value = self.target_speed_percent                                
-            elif (sfx.cues[self.MotherNode.name].inputs['Forward'].bool == False and
-                    sfx.cues[self.MotherNode.name].inputs['Reverse'].bool == True):
+                    self.MotherNode.outputs["Set Vel"].ww_out_value = self.target_speed_percent                                
+            elif (self.MotherNode.inputs['Forward'].bool == False and
+                    self.MotherNode.inputs['Reverse'].bool == True):
                 sfx.cues[self.MotherNode.name].cue_diff_speed = (-self.target_speed - self.cue_act_speed)
                 if (self.target_speed - self.cue_act_speed) < 0:
                     sfx.cues[self.MotherNode.name].play_state = 'Slowing'
-                    sfx.cues[self.MotherNode.name].outputs["Set Vel"].ww_out_value = -self.target_speed_percent
+                    self.MotherNode.outputs["Set Vel"].ww_out_value = -self.target_speed_percent
                 else:  
                     sfx.cues[self.MotherNode.name].play_state = 'Reverse'
-                    sfx.cues[self.MotherNode.name].outputs["Set Vel"].ww_out_value = -self.target_speed_percent
+                    self.MotherNode.outputs["Set Vel"].ww_out_value = -self.target_speed_percent
             else:                                
                 sfx.cues[self.MotherNode.name].play_state = 'Pause'
-                sfx.cues[self.MotherNode.name].outputs["Set Vel"].ww_out_value = 0.0
+                self.MotherNode.outputs["Set Vel"].ww_out_value = 0.0
         else:
             sfx.cues[self.MotherNode.name].play_state = 'GoTo1'
-            sfx.cues[self.MotherNode.name].outputs["Set Vel"].ww_out_value = 0.0
+            self.MotherNode.outputs["Set Vel"].ww_out_value = 0.0
 
     def CalcTargetSpeed(self):
         self.target_speed= self.VelInPos.evaluate(self.cue_act_pos*100.0)/100.0
@@ -364,7 +360,7 @@ class SFX_simpleCue_Op(bpy.types.Operator):
             self.action.fcurves.remove(self.VelInPos)
             self.action.fcurves.remove(self.GrenzVel)
             self.action.fcurves.remove(self.VelInTime1)
-            self.action.fcurves.remove(self.GradInTime)
+            self.action.fcurves.remove(self.AccInTime)
             self.FcurvesInitialized = False
             self.VelInPosInitialized = False
             self.CalcGrenzVelCalculated = False

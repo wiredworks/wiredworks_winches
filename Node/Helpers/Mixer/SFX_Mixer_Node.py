@@ -12,6 +12,8 @@ class SFX_Mixer_Node(bpy.types.Node):
     bl_width_min = 580
     bl_width_max = 580
 
+    sfx_type = 'Helper'
+
     @classmethod
     def poll(cls, ntree):
         return ntree.bl_idname == 'SFX_NodeTree'

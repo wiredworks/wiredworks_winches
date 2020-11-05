@@ -17,6 +17,8 @@ class SFX_LinRail_Node(bpy.types.Node):
     bl_width_min = 580 # 920 to draw ww_Actuator_Props properly
     bl_width_max = 580
 
+    sfx_type = 'Actuator'
+
     @classmethod
     def poll(cls, ntree):
         return ntree.bl_idname == 'SFX_NodeTree'

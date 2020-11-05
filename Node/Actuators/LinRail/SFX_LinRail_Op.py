@@ -132,7 +132,7 @@ class SFX_OT_LinRail_Op(bpy.types.Operator):
         try:
             self.ssock.sendto(Message, (self.UDP_IP, self.SUDP_PORT))
         except AttributeError :
-            print('NO SSOCK')
+            #print('NO SSOCK')
             pass
         try:
             data, addr = self.rsock.recvfrom(500) # buffer size is 1024 bytes
@@ -142,7 +142,7 @@ class SFX_OT_LinRail_Op(bpy.types.Operator):
                                     # not be completed immediately --- No Data
                 data ="NO DATA"
         except AttributeError :
-            print('NO RSOCK')
+            #print('NO RSOCK')
             pass
         if data != "NO DATA":
             sfx.actuators[self.MotherNode.name].Actuator_basic_props.online_Actuator = True
