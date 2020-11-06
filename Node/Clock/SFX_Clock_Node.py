@@ -1,7 +1,7 @@
 import bpy
 
 from ... exchange_data.sfx import sfx
-from ... exchange_data.sfx import clock
+from .SFX_Clock_Data import clock
 
 class SFX_Clock_Node(bpy.types.Node):
     '''SFX_ClockNode'''

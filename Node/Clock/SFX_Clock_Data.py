@@ -1,5 +1,7 @@
 import bpy
 
+from ... exchange_data.sfx import sfx
+
 class clock(bpy.types.PropertyGroup):
     ''' Defines sfx_clock'''
     bl_idname = "sfx_clock"

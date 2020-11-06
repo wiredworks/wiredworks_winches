@@ -1,5 +1,7 @@
 import bpy
 
+from ... exchange_data.sfx import sfx
+
 class kinematic_base():
     def a_update(self,context):
         self.sfx_update(context)

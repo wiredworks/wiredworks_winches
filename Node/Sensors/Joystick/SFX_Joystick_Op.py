@@ -4,7 +4,7 @@ import time
 import json
 
 from .... exchange_data.sfx import sfx
-from .... exchange_data.sfx import sensor_joystick
+from . SFX_Joystick_Data import sensor_joystick
 
 class SFX_OT_Joystick_Op(bpy.types.Operator):
     """ This operator takes the Input of a Joystick"""

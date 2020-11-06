@@ -76,4 +76,4 @@ class SFX_LinRail_Model():
                 In.location = (float(name[-3:]),float(name[-3:]),0)
                 Out.location = (float(name[-3:]),float(name[-3:]),5)                
         else:
-            bpy.ops.sfx.collnotexisttdiag('INVOKE_DEFAULT')
+            print('ww SFX Collection not existing')

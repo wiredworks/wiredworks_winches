@@ -1,6 +1,7 @@
 import bpy
 
 from .... exchange_data.sfx import sfx
+from .... exchange_data.sfx import SFX_Joystick_Inset
 
 from . SFX_JoyDemux_Data import helper_demux
 
