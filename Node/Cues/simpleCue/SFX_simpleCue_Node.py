@@ -59,6 +59,7 @@ class SFX_simpleCue_Node(bpy.types.Node):
         box = col.box()
         col = box.column()
         row = col.row()
+        row.prop(sfx.cues[self.name],'play_state',text='')
         row.prop(sfx.cues[self.name],'play_head',text='')
         row.prop(sfx.cues[self.name],'play_head_percent',text='',slider = True)
         row.prop(sfx.cues[self.name],'confirm',text='')
