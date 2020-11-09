@@ -138,6 +138,7 @@ class SyncSend(Thread):
                 Shared.ww_Joy['Slider']     = 0
                 Shared.ww_Joy['Buttons']    = btns
                 Shared.ww_Joy['HAT-Switch'] = 0
+                print(Shared.ww_Joy['Ptime'],Shared.ww_Joy['Btime'],Shared.ww_Joy['X-Achse'], end='\r')
             
             self.send()
             self.rec()

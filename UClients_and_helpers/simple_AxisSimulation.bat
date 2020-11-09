@@ -1,2 +1,2 @@
-C:\\Users\\wiredworks\\anaconda3\\python.exe simple_AxisSimulation.py
+"C:\Program Files\Blender Foundation\Blender 2.83\2.83\python\bin\python" simple_AxisSimulation.py
 pause

@@ -299,7 +299,7 @@ class SyncSend(Thread):
         for i in range(100):
             self.sumT = self.sumT + self.lsT[i]
         self.avgT = self.sumT/100.0
-        print("Round Trip Time %7.4f ms Diff Time: %2.2f ms" %(self.avgB,self.avgT))
+        print("Round Trip Time %7.4f ms Diff Time: %2.2f ms" %(self.avgB,self.avgT),end='\r')
 
 class UI(wx.Panel):
     def __init__(self, parent, id, title):
