@@ -25,17 +25,17 @@ class SFX_JoyDemux_Node(bpy.types.Node):
     def init(self, context):
         self.init_sfxData()
 
-        self.outputs.new('SFX_Joy_Float', "Stick")
+        self.outputs.new('SFX_JoyDemux_Socket_Float', "Stick")
         self.outputs["Stick"].default_value_set = SFX_Joystick_Inset
 
-        self.outputs.new('SFX_Joy_bool', "Button 1")
+        self.outputs.new('SFX_JoyDemux_Socket_Bool', "Button 1")
         self.outputs["Button 1"].default_value_set = SFX_Joystick_Inset
 
-        self.outputs.new('SFX_Joy_bool', "Button 2")
+        self.outputs.new('SFX_JoyDemux_Socket_Bool', "Button 2")
         self.outputs["Button 2"].default_value_set = SFX_Joystick_Inset
         self.outputs["Button 2"].ww_enum_prop = 'Button6'
 
-        self.inputs.new('SFX_Joy_In',name= 'Joy Values')
+        self.inputs.new('SFX_Socket_JoyData',name= 'Joy Values')
         self.inputs["Joy Values"].default_value_set = SFX_Joystick_Inset
 
     def copy(self, node):
@@ -113,111 +113,111 @@ class SFX_JoyDemux_Node(bpy.types.Node):
             if out1.is_linked:
                  for o in out1.links:
                     if o.is_valid:
-                        if (self.outputs['Stick'].ww_enum_prop == 'X_Achse'):
+                        if (self.outputs['Stick'].enum_prop == 'X_Achse'):
                             o.to_socket.node.inputs[o.to_socket.name].default_value = self.outputs["Stick"].default_value.X_Achse
-                            self.outputs['Stick'].ww_out_value = self.outputs["Stick"].default_value.X_Achse
-                        elif (self.outputs['Stick'].ww_enum_prop == 'Y_Achse'):
+                            self.outputs['Stick'].float = self.outputs["Stick"].default_value.X_Achse
+                        elif (self.outputs['Stick'].enum_prop == 'Y_Achse'):
                             o.to_socket.node.inputs[o.to_socket.name].default_value = self.outputs["Stick"].default_value.Y_Achse
-                            self.outputs['Stick'].ww_out_value = self.outputs["Stick"].default_value.Y_Achse
-                        elif (self.outputs['Stick'].ww_enum_prop == 'Z_Achse'):
+                            self.outputs['Stick'].float = self.outputs["Stick"].default_value.Y_Achse
+                        elif (self.outputs['Stick'].enum_prop == 'Z_Achse'):
                             o.to_socket.node.inputs[o.to_socket.name].default_value = self.outputs["Stick"].default_value.Z_Achse
-                            self.outputs['Stick'].ww_out_value = self.outputs["Stick"].default_value.Z_Achse
-                        elif (self.outputs['Stick'].ww_enum_prop == 'X_Rot'):
+                            self.outputs['Stick'].float = self.outputs["Stick"].default_value.Z_Achse
+                        elif (self.outputs['Stick'].enum_prop == 'X_Rot'):
                             o.to_socket.node.inputs[o.to_socket.name].default_value = self.outputs["Stick"].default_value.X_Rot
-                            self.outputs['Stick'].ww_out_value = self.outputs["Stick"].default_value.X_Rot
-                        elif (self.outputs['Stick'].ww_enum_prop == 'Y_Rot'):
+                            self.outputs['Stick'].float = self.outputs["Stick"].default_value.X_Rot
+                        elif (self.outputs['Stick'].enum_prop == 'Y_Rot'):
                             o.to_socket.node.inputs[o.to_socket.name].default_value = self.outputs["Stick"].default_value.Y_Rot
-                            self.outputs['Stick'].ww_out_value = self.outputs["Stick"].default_value.Y_Rot
-                        elif (self.outputs['Stick'].ww_enum_prop == 'Z_Rot'):
+                            self.outputs['Stick'].float = self.outputs["Stick"].default_value.Y_Rot
+                        elif (self.outputs['Stick'].enum_prop == 'Z_Rot'):
                             o.to_socket.node.inputs[o.to_socket.name].default_value = self.outputs["Stick"].default_value.Z_Rot
-                            self.outputs['Stick'].ww_out_value = self.outputs["Stick"].default_value.Z_Rot
-                        elif (self.outputs['Stick'].ww_enum_prop == 'Slider'):
+                            self.outputs['Stick'].float = self.outputs["Stick"].default_value.Z_Rot
+                        elif (self.outputs['Stick'].enum_prop == 'Slider'):
                             o.to_socket.node.inputs[o.to_socket.name].default_value = self.outputs["Stick"].default_value.Slider
-                            self.outputs['Stick'].ww_out_value = self.outputs["Stick"].default_value.Slider
+                            self.outputs['Stick'].float = self.outputs["Stick"].default_value.Slider
                         else:
                             o.to_socket.node.inputs[o.to_socket.name].default_value = 0.0
             
             if out2.is_linked:
                  for o in out2.links:
                     if o.is_valid:
-                        if   (self.outputs['Button 1'].ww_enum_prop == 'Button1'):
+                        if   (self.outputs['Button 1'].enum_prop == 'Button1'):
                             o.to_socket.node.inputs[o.to_socket.name].default_value = self.outputs["Button 1"].default_value.Button1
-                            self.outputs['Button 1'].ww_out = self.outputs["Stick"].default_value.Button1
-                        elif (self.outputs['Button 1'].ww_enum_prop == 'Button2'):
+                            self.outputs['Button 1'].bool = self.outputs["Stick"].default_value.Button1
+                        elif (self.outputs['Button 1'].enum_prop == 'Button2'):
                             o.to_socket.node.inputs[o.to_socket.name].default_value = self.outputs["Button 1"].default_value.Button2
-                            self.outputs['Button 1'].ww_out = self.outputs["Stick"].default_value.Button2
-                        elif (self.outputs['Button 1'].ww_enum_prop == 'Button3'):
+                            self.outputs['Button 1'].bool = self.outputs["Stick"].default_value.Button2
+                        elif (self.outputs['Button 1'].enum_prop == 'Button3'):
                             o.to_socket.node.inputs[o.to_socket.name].default_value = self.outputs["Button 1"].default_value.Button3
-                            self.outputs['Button 1'].ww_out = self.outputs["Stick"].default_value.Button3
-                        elif (self.outputs['Button 1'].ww_enum_prop == 'Button4'):
+                            self.outputs['Button 1'].bool = self.outputs["Stick"].default_value.Button3
+                        elif (self.outputs['Button 1'].enum_prop == 'Button4'):
                             o.to_socket.node.inputs[o.to_socket.name].default_value = self.outputs["Button 1"].default_value.Button4
-                            self.outputs['Button 1'].ww_out = self.outputs["Stick"].default_value.Button4
-                        elif (self.outputs['Button 1'].ww_enum_prop == 'Button5'):
+                            self.outputs['Button 1'].bool = self.outputs["Stick"].default_value.Button4
+                        elif (self.outputs['Button 1'].enum_prop == 'Button5'):
                             o.to_socket.node.inputs[o.to_socket.name].default_value = self.outputs["Button 1"].default_value.Button5
-                            self.outputs['Button 1'].ww_out = self.outputs["Stick"].default_value.Button5
-                        elif (self.outputs['Button 1'].ww_enum_prop == 'Button6'):
+                            self.outputs['Button 1'].bool = self.outputs["Stick"].default_value.Button5
+                        elif (self.outputs['Button 1'].enum_prop == 'Button6'):
                             o.to_socket.node.inputs[o.to_socket.name].default_value = self.outputs["Button 1"].default_value.Button6
-                            self.outputs['Button 1'].ww_out = self.outputs["Stick"].default_value.Button6
-                        elif (self.outputs['Button 1'].ww_enum_prop == 'Button7'):
+                            self.outputs['Button 1'].bool = self.outputs["Stick"].default_value.Button6
+                        elif (self.outputs['Button 1'].enum_prop == 'Button7'):
                             o.to_socket.node.inputs[o.to_socket.name].default_value = self.outputs["Button 1"].default_value.Button7
-                            self.outputs['Button 1'].ww_out = self.outputs["Stick"].default_value.Button7
-                        elif (self.outputs['Button 1'].ww_enum_prop == 'Button8'):
+                            self.outputs['Button 1'].bool = self.outputs["Stick"].default_value.Button7
+                        elif (self.outputs['Button 1'].enum_prop == 'Button8'):
                             o.to_socket.node.inputs[o.to_socket.name].default_value = self.outputs["Button 1"].default_value.Button8
-                            self.outputs['Button 1'].ww_out = self.outputs["Stick"].default_value.Button8
-                        elif (self.outputs['Button 1'].ww_enum_prop == 'Button9'):
+                            self.outputs['Button 1'].bool = self.outputs["Stick"].default_value.Button8
+                        elif (self.outputs['Button 1'].enum_prop == 'Button9'):
                             o.to_socket.node.inputs[o.to_socket.name].default_value = self.outputs["Button 1"].default_value.Button9
-                            self.outputs['Button 1'].ww_out = self.outputs["Stick"].default_value.Button9
-                        elif (self.outputs['Button 1'].ww_enum_prop == 'Button10'):
+                            self.outputs['Button 1'].bool = self.outputs["Stick"].default_value.Button9
+                        elif (self.outputs['Button 1'].enum_prop == 'Button10'):
                             o.to_socket.node.inputs[o.to_socket.name].default_value = self.outputs["Button 1"].default_value.Button10
-                            self.outputs['Button 1'].ww_out = self.outputs["Stick"].default_value.Button10
-                        elif (self.outputs['Button 1'].ww_enum_prop == 'Button11'):
+                            self.outputs['Button 1'].bool = self.outputs["Stick"].default_value.Button10
+                        elif (self.outputs['Button 1'].enum_prop == 'Button11'):
                             o.to_socket.node.inputs[o.to_socket.name].default_value = self.outputs["Button 1"].default_value.Button11
-                            self.outputs['Button 1'].ww_out = self.outputs["Stick"].default_value.Button11
-                        elif (self.outputs['Button 1'].ww_enum_prop == 'Button12'):
+                            self.outputs['Button 1'].bool = self.outputs["Stick"].default_value.Button11
+                        elif (self.outputs['Button 1'].enum_prop == 'Button12'):
                             o.to_socket.node.inputs[o.to_socket.name].default_value = self.outputs["Button 1"].default_value.Button12
-                            self.outputs['Button 1'].ww_out = self.outputs["Stick"].default_value.Button12
+                            self.outputs['Button 1'].bool = self.outputs["Stick"].default_value.Button12
                         else:
                             o.to_socket.node.inputs[o.to_socket.name].default_value = False
 
             if out3.is_linked:
                  for o in out3.links:
                     if o.is_valid:
-                        if   (self.outputs['Button 2'].ww_enum_prop == 'Button1'):
+                        if   (self.outputs['Button 2'].enum_prop == 'Button1'):
                             o.to_socket.node.inputs[o.to_socket.name].default_value = self.outputs["Button 2"].default_value.Button1
-                            self.outputs['Button 2'].ww_out = self.outputs["Stick"].default_value.Button1
-                        elif (self.outputs['Button 2'].ww_enum_prop == 'Button2'):
+                            self.outputs['Button 2'].bool = self.outputs["Stick"].default_value.Button1
+                        elif (self.outputs['Button 2'].enum_prop == 'Button2'):
                             o.to_socket.node.inputs[o.to_socket.name].default_value = self.outputs["Button 2"].default_value.Button2
-                            self.outputs['Button 2'].ww_out = self.outputs["Stick"].default_value.Button2
-                        elif (self.outputs['Button 2'].ww_enum_prop == 'Button3'):
+                            self.outputs['Button 2'].bool = self.outputs["Stick"].default_value.Button2
+                        elif (self.outputs['Button 2'].enum_prop == 'Button3'):
                             o.to_socket.node.inputs[o.to_socket.name].default_value = self.outputs["Button 2"].default_value.Button3
-                            self.outputs['Button 2'].ww_out = self.outputs["Stick"].default_value.Button3
-                        elif (self.outputs['Button 2'].ww_enum_prop == 'Button4'):
+                            self.outputs['Button 2'].bool = self.outputs["Stick"].default_value.Button3
+                        elif (self.outputs['Button 2'].enum_prop == 'Button4'):
                             o.to_socket.node.inputs[o.to_socket.name].default_value = self.outputs["Button 2"].default_value.Button4
-                            self.outputs['Button 2'].ww_out = self.outputs["Stick"].default_value.Button4
-                        elif (self.outputs['Button 2'].ww_enum_prop == 'Button5'):
+                            self.outputs['Button 2'].bool = self.outputs["Stick"].default_value.Button4
+                        elif (self.outputs['Button 2'].enum_prop == 'Button5'):
                             o.to_socket.node.inputs[o.to_socket.name].default_value = self.outputs["Button 2"].default_value.Button5
-                            self.outputs['Button 2'].ww_out = self.outputs["Stick"].default_value.Button5
-                        elif (self.outputs['Button 2'].ww_enum_prop == 'Button6'):
+                            self.outputs['Button 2'].bool = self.outputs["Stick"].default_value.Button5
+                        elif (self.outputs['Button 2'].enum_prop == 'Button6'):
                             o.to_socket.node.inputs[o.to_socket.name].default_value = self.outputs["Button 2"].default_value.Button6
-                            self.outputs['Button 2'].ww_out = self.outputs["Stick"].default_value.Button6
-                        elif (self.outputs['Button 2'].ww_enum_prop == 'Button7'):
+                            self.outputs['Button 2'].bool = self.outputs["Stick"].default_value.Button6
+                        elif (self.outputs['Button 2'].enum_prop == 'Button7'):
                             o.to_socket.node.inputs[o.to_socket.name].default_value = self.outputs["Button 2"].default_value.Button7
-                            self.outputs['Button 2'].ww_out = self.outputs["Stick"].default_value.Button7
-                        elif (self.outputs['Button 2'].ww_enum_prop == 'Button8'):
+                            self.outputs['Button 2'].bool = self.outputs["Stick"].default_value.Button7
+                        elif (self.outputs['Button 2'].enum_prop == 'Button8'):
                             o.to_socket.node.inputs[o.to_socket.name].default_value = self.outputs["Button 2"].default_value.Button8
-                            self.outputs['Button 2'].ww_out = self.outputs["Stick"].default_value.Button8
-                        elif (self.outputs['Button 2'].ww_enum_prop == 'Button9'):
+                            self.outputs['Button 2'].bool = self.outputs["Stick"].default_value.Button8
+                        elif (self.outputs['Button 2'].enum_prop == 'Button9'):
                             o.to_socket.node.inputs[o.to_socket.name].default_value = self.outputs["Button 2"].default_value.Button9
-                            self.outputs['Button 2'].ww_out = self.outputs["Stick"].default_value.Button9
-                        elif (self.outputs['Button 2'].ww_enum_prop == 'Button10'):
+                            self.outputs['Button 2'].bool = self.outputs["Stick"].default_value.Button9
+                        elif (self.outputs['Button 2'].enum_prop == 'Button10'):
                             o.to_socket.node.inputs[o.to_socket.name].default_value = self.outputs["Button 2"].default_value.Button10
-                            self.outputs['Button 2'].ww_out = self.outputs["Stick"].default_value.Button10
-                        elif (self.outputs['Button 2'].ww_enum_prop == 'Button11'):
+                            self.outputs['Button 2'].bool = self.outputs["Stick"].default_value.Button10
+                        elif (self.outputs['Button 2'].enum_prop == 'Button11'):
                             o.to_socket.node.inputs[o.to_socket.name].default_value = self.outputs["Button 2"].default_value.Button11
-                            self.outputs['Button 2'].ww_out = self.outputs["Stick"].default_value.Button11
-                        elif (self.outputs['Button 2'].ww_enum_prop == 'Button12'):
+                            self.outputs['Button 2'].bool = self.outputs["Stick"].default_value.Button11
+                        elif (self.outputs['Button 2'].enum_prop == 'Button12'):
                             o.to_socket.node.inputs[o.to_socket.name].default_value = self.outputs["Button 2"].default_value.Button12
-                            self.outputs['Button 2'].ww_out = self.outputs["Stick"].default_value.Button12
+                            self.outputs['Button 2'].bool = self.outputs["Stick"].default_value.Button12
                         else:
                             o.to_socket.node.inputs[o.to_socket.name].default_value = False
 

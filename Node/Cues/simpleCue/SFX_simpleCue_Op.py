@@ -368,10 +368,22 @@ class SFX_simpleCue_Op(bpy.types.Operator):
 
     def ResetFcurves(self):
         if self.FcurvesInitialized:
-            self.action.fcurves.remove(self.VelInPos)
-            self.action.fcurves.remove(self.GrenzVel)
-            self.action.fcurves.remove(self.VelInTime1)
-            self.action.fcurves.remove(self.AccInTime)
+            try:
+                self.action.fcurves.remove(self.VelInPos)
+            except ReferenceError:
+                pass
+            try:
+                self.action.fcurves.remove(self.GrenzVel)
+            except ReferenceError:
+                pass
+            try:
+                self.action.fcurves.remove(self.VelInTime1)
+            except ReferenceError:
+                pass
+            try:
+                self.action.fcurves.remove(self.AccInTime)
+            except ReferenceError:
+                pass
             self.FcurvesInitialized = False
             self.VelInPosInitialized = False
             self.CalcGrenzVelCalculated = False

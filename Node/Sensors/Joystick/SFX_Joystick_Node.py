@@ -25,7 +25,7 @@ class SFX_Joystick_Node(bpy.types.Node):
     def init(self, context):
         self.init_sfxData()
 
-        self.outputs.new('SFX_Joy',name= 'Joy Values')
+        self.outputs.new('SFX_Socket_JoyData',name= 'Joy Values')
         self.outputs["Joy Values"].default_value_set = sfx.sensors[self.name].Joystick_props
 
     def copy(self, node):

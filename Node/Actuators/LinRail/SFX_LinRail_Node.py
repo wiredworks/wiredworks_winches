@@ -29,23 +29,23 @@ class SFX_LinRail_Node(bpy.types.Node):
     def init(self, context):
         self.init_sfxData()
 
-        self.inputs.new('SFX_act_in_set_Vel', "Set Vel")
-        self.inputs["Set Vel"].set_vel = 0.0
+        self.inputs.new('SFX_Socket_Float', "Set Vel")
+        self.inputs["Set Vel"].float = 0.0
 
-        self.inputs.new('SFX_Act_in_select', "select_Act")
-        self.inputs["select_Act"].select = False
+        self.inputs.new('SFX_Socket_Bool', "select")
+        self.inputs["select"].bool = False
 
-        self.inputs.new('SFX_Act_in_enable', "enable_Act")
-        self.inputs["enable_Act"].enable = False
+        self.inputs.new('SFX_Socket_Bool', "enable")
+        self.inputs["enable"].bool = False
 
-        self.outputs.new('SFX_act_out_ist_Pos',name= 'Ist Pos')
-        self.outputs["Ist Pos"].default_value = 0.0
+        self.outputs.new('SFX_Socket_Float',name= 'Ist Pos')
+        self.outputs["Ist Pos"].float = 0.0
         
-        self.outputs.new('SFX_act_out_ist_Vel',name= 'Ist Vel')
-        self.outputs["Ist Vel"].default_value = 0.0
+        self.outputs.new('SFX_Socket_Float',name= 'Ist Vel')
+        self.outputs["Ist Vel"].float = 0.0
         
-        self.outputs.new('SFX_act_out_ist_Force',name= 'Ist Force')
-        self.outputs["Ist Force"].default_value = 0.0
+        self.outputs.new('SFX_Socket_Float',name= 'Ist Force')
+        self.outputs["Ist Force"].float = 0.0
 
         sfx.actuators[self.name].Actuator_basic_props.DigTwin_basic_props.Mother_name = self.name
 
@@ -132,8 +132,8 @@ class SFX_LinRail_Node(bpy.types.Node):
             out2 = self.outputs["Ist Vel"]
             out3 = self.outputs["Ist Force"]
             inp1 = self.inputs['Set Vel']
-            inp2 = self.inputs['enable_Act']
-            inp3 = self.inputs['select_Act']
+            inp2 = self.inputs['enable']
+            inp3 = self.inputs['select']
             can_continue = True
         except:
             can_continue = False
@@ -141,36 +141,36 @@ class SFX_LinRail_Node(bpy.types.Node):
             if inp1.is_linked:
                 for i1 in inp1.links:
                     if i1.is_valid:
-                        self.inputs["Set Vel"].set_vel=i1.from_socket.node.outputs[i1.from_socket.name].ww_out_value
+                        self.inputs["Set Vel"].float=i1.from_socket.node.outputs[i1.from_socket.name].float
                         sfx.actuators[self.name].Actuator_basic_props.soll_Vel = \
-                           (self.inputs["Set Vel"].set_vel * sfx.actuators[self.name].Actuator_basic_props.Actuator_props.simple_actuator_VelMax_prop)/100.0
+                           (self.inputs["Set Vel"].float * sfx.actuators[self.name].Actuator_basic_props.Actuator_props.simple_actuator_VelMax_prop)/100.0
                         pass
             if inp2.is_linked:
                 for i1 in inp2.links:
                     if i1.is_valid:
-                        self.inputs["enable_Act"].enable=i1.from_socket.node.outputs[i1.from_socket.name].ww_out
-                        sfx.actuators[self.name].Actuator_basic_props.enable_Actuator = i1.from_socket.node.outputs[i1.from_socket.name].ww_out
+                        self.inputs["enable"].bool=i1.from_socket.node.outputs[i1.from_socket.name].bool
+                        sfx.actuators[self.name].Actuator_basic_props.enable_Actuator = i1.from_socket.node.outputs[i1.from_socket.name].bool
                         pass
             if inp3.is_linked:
                 for i1 in inp3.links:
                     if i1.is_valid:
-                        self.inputs["select_Act"].select=i1.from_socket.node.outputs[i1.from_socket.name].ww_out
-                        sfx.actuators[self.name].Actuator_basic_props.select_Actuator = i1.from_socket.node.outputs[i1.from_socket.name].ww_out
+                        self.inputs["select"].bool=i1.from_socket.node.outputs[i1.from_socket.name].bool
+                        sfx.actuators[self.name].Actuator_basic_props.select_Actuator = i1.from_socket.node.outputs[i1.from_socket.name].bool
                         pass
             if out1.is_linked:
                 for o in out1.links:
                     if o.is_valid:
-                        o.to_socket.node.inputs[o.to_socket.name].default_value_set = sfx.actuators[self.name].Actuator_basic_props.ist_Vel
+                        o.to_socket.node.inputs[o.to_socket.name].float = sfx.actuators[self.name].Actuator_basic_props.float
                         pass
             if out2.is_linked:
                 for o in out2.links:
                     if o.is_valid:
-                        o.to_socket.node.inputs[o.to_socket.name].default_value_set = sfx.actuators[self.name].Actuator_basic_props.ist_Pos
+                        o.to_socket.node.inputs[o.to_socket.name].float = sfx.actuators[self.name].Actuator_basic_props.float
                         pass
             if out3.is_linked:
                 for o in out3.links:
                     if o.is_valid:
-                        o.to_socket.node.inputs[o.to_socket.name].default_value_set = sfx.actuators[self.name].Actuator_basic_props.ist_Force
+                        o.to_socket.node.inputs[o.to_socket.name].float = sfx.actuators[self.name].Actuator_basic_props.float
                         pass
 
     def draw_model(self,name):

@@ -25,15 +25,14 @@ class SFX_Mixer_Node(bpy.types.Node):
     def init(self, context):
         self.init_sfxData()
 
-        self.outputs.new('SFX_Cue_Float', "Set Vel")
-        self.outputs["Set Vel"].default_value_set = SFX_Joystick_Inset
-        self.outputs["Set Vel"].ww_out_value = 0.0
+        self.outputs.new('SFX_Socket_Float', "Set Vel")
+        self.outputs["Set Vel"].float = 0.0
 
-        self.inputs.new('SFX_act_in_set_Vel',name= 'Channel 1')
-        self.inputs["Channel 1"].set_vel = 0.0
+        self.inputs.new('SFX_Socket_Float',name= 'Channel 1')
+        self.inputs["Channel 1"].float = 0.0
 
-        self.inputs.new('SFX_act_in_set_Vel',name= 'Channel 2')
-        self.inputs["Channel 2"].set_vel = 0.0
+        self.inputs.new('SFX_Socket_Float',name= 'Channel 2')
+        self.inputs["Channel 2"].float = 0.0
 
     def copy(self, node):
         print("copied node", node)
@@ -101,18 +100,18 @@ class SFX_Mixer_Node(bpy.types.Node):
             if inp1.is_linked:
                 for i1 in inp1.links:
                     if i1.is_valid:
-                        self.inputs["Channel 1"].set_vel=i1.from_socket.node.outputs[i1.from_socket.name].ww_out_value
+                        self.inputs["Channel 1"].float=i1.from_socket.node.outputs[i1.from_socket.name].float
                         pass
             if inp2.is_linked:
                 for i2 in inp2.links:
                     if i2.is_valid:
-                        self.inputs["Channel 2"].set_vel=i2.from_socket.node.outputs[i2.from_socket.name].ww_out_value
+                        self.inputs["Channel 2"].float=i2.from_socket.node.outputs[i2.from_socket.name].float
                         pass            
             if out1.is_linked:
                  for o in out1.links:
                     if o.is_valid:
-                        self.outputs["Set Vel"].ww_out_value = (self.inputs["Channel 1"].set_vel*(sfx.helpers[self.name].factor/100.0)+self.inputs["Channel 2"].set_vel*(1.0-sfx.helpers[self.name].factor/100.0))
-                        o.to_socket.node.inputs[o.to_socket.name].set_vel = self.outputs["Set Vel"].ww_out_value
+                        self.outputs["Set Vel"].float = (self.inputs["Channel 1"].float*(sfx.helpers[self.name].factor/100.0)+self.inputs["Channel 2"].float*(1.0-sfx.helpers[self.name].factor/100.0))
+                        o.to_socket.node.inputs[o.to_socket.name].float = self.outputs["Set Vel"].float
                         sfx.helpers[self.name].Actuator_basic_props.diff_Vel                                     = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.diff_Vel
                         sfx.helpers[self.name].Actuator_basic_props.soll_Vel                                     = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.soll_Vel
                         sfx.helpers[self.name].Actuator_basic_props.ist_Pos                                      = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.ist_Pos

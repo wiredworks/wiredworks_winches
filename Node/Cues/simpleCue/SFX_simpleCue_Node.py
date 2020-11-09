@@ -25,17 +25,16 @@ class SFX_simpleCue_Node(bpy.types.Node):
     def init(self, context):
         self.init_sfxData()
 
-        self.outputs.new('SFX_Cue_Float', "Set Vel")
-        self.outputs["Set Vel"].default_value_set = SFX_Joystick_Inset
-        self.outputs["Set Vel"].ww_out_value = 0.0
+        self.outputs.new('SFX_Socket_Float', "Set Vel")
+        self.outputs["Set Vel"].float = 0.0
 
-        self.inputs.new('SFX_Cue_bool','Forward')
+        self.inputs.new('SFX_Socket_Bool','Forward')
         self.inputs["Forward"].bool = False
 
-        self.inputs.new('SFX_Cue_bool',name= 'Reverse')
+        self.inputs.new('SFX_Socket_Bool',name= 'Reverse')
         self.inputs["Reverse"].bool = False
 
-        self.inputs.new('SFX_Cue_bool',name= 'Go To 1')
+        self.inputs.new('SFX_Socket_Bool',name= 'Go To 1')
         self.inputs["Reverse"].bool = False
 
         self.spawnDataobject()
@@ -169,22 +168,22 @@ class SFX_simpleCue_Node(bpy.types.Node):
             if inp1.is_linked:
                 for i1 in inp1.links:
                     if i1.is_valid:
-                        self.inputs["Forward"].bool=i1.from_socket.node.outputs[i1.from_socket.name].ww_out
+                        self.inputs["Forward"].bool=i1.from_socket.node.outputs[i1.from_socket.name].bool
                         pass
             if inp2.is_linked:
                 for i2 in inp2.links:
                     if i2.is_valid:
-                        self.inputs["Reverse"].bool=i2.from_socket.node.outputs[i2.from_socket.name].ww_out
+                        self.inputs["Reverse"].bool=i2.from_socket.node.outputs[i2.from_socket.name].bool
                         pass
             if inp3.is_linked:
                 for i3 in inp3.links:
                     if i3.is_valid:
-                        self.inputs["Go To 1"].bool=i3.from_socket.node.outputs[i3.from_socket.name].ww_out
+                        self.inputs["Go To 1"].bool=i3.from_socket.node.outputs[i3.from_socket.name].bool
                         pass
             if out1.is_linked:
                  for o in out1.links:
                     if o.is_valid:
-                        o.to_socket.node.inputs[o.to_socket.name].set_vel = self.outputs["Set Vel"].ww_out_value
+                        o.to_socket.node.inputs[o.to_socket.name].set_vel = self.outputs["Set Vel"].float
                         if o.to_socket.node.sfx_type =='Actuator':
                             sfx.cues[self.name].Actuator_props.simple_actuator_HardMax_prop  = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop
                             sfx.cues[self.name].Actuator_props.simple_actuator_HardMin_prop  = sfx.actuators[o.to_socket.node.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMin_prop

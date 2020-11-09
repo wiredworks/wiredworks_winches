@@ -1,17 +1,17 @@
 import bpy
 
-class SFX_Act_in_set_Vel(bpy.types.NodeSocket):
-    '''SFX Actuator Input set Vel'''
-    bl_idname = 'SFX_act_in_set_Vel'
-    bl_label = "SFX Actuator Input Set Vel"
+class SFX_Socket_Float(bpy.types.NodeSocket):
+    '''SFX Socket for Float'''
+    bl_idname = 'SFX_Socket_Float'
+    bl_label = "Float"
 
-    set_vel: bpy.props.FloatProperty(name = "Set Vel",
+    float: bpy.props.FloatProperty(name = "Set Vel",
                                         description = "Set Vel for Actuator",
                                         default = 0.0)
 
     def draw(self, context, layout, node, text):
         row = layout.split(factor=0.2)
-        row.prop(self, "set_vel")
+        row.prop(self, "float", text=text)
 
     # Socket color
     def draw_color(self, context, node):

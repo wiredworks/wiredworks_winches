@@ -1,15 +1,15 @@
 import bpy
 
-from .. exchange_data.sfx import SFX_Joystick_Inset 
+from .... exchange_data.sfx import SFX_Joystick_Inset 
 
-class SFX_Joy_bool(bpy.types.NodeSocket):
-    '''ww Joystick Socket'''
-    bl_idname = 'SFX_Joy_bool'
-    bl_label = "ww Joystick Bool Socket"
+class SFX_JoyDemux_Socket_Bool(bpy.types.NodeSocket):
+    '''Selects Joystick Buttons Data'''
+    bl_idname = 'SFX_JoyDemux_Socket_Bool'
+    bl_label = "Bool Out"
 
     default_value : bpy.props.PointerProperty(type = SFX_Joystick_Inset)
 
-    ww_Joy_items = (('Button1','Button 1','Button 1'),
+    Joy_items = (('Button1','Button 1','Button 1'),
                     ('Button2','Button 2','Button 2'),
                     ('Button3','Button 3','Button 3'), 
                     ('Button4','Button 4','Button 4'),
@@ -22,21 +22,21 @@ class SFX_Joy_bool(bpy.types.NodeSocket):
                     ('Button11','Button 11','Button 11'),
                     ('Button12','Button 12','Button 12'))
 
-    ww_enum_prop : bpy.props.EnumProperty(name='Joy Stick',
+    enum_prop : bpy.props.EnumProperty(name='Joy Stick',
                                         description = 'Joystick Input',
-                                        items = ww_Joy_items,
+                                        items = Joy_items,
                                         default = 'Button1')
 
-    ww_out : bpy.props.BoolProperty(name='Out',
+    bool : bpy.props.BoolProperty(name='Out',
                                     description = 'Output',
                                     default = False)
 
     # Optional function for drawing the socket input value
     def draw(self, context, layout, node, text):
         if self.is_linked:
-            layout.prop(self,'ww_out')
+            layout.prop(self,'bool')
         else:
-            layout.prop(self, "ww_enum_prop", text=text)
+            layout.prop(self, "enum_prop", text=text)
 
     # Socket color
     def draw_color(self, context, node):
