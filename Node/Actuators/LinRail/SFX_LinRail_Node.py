@@ -64,7 +64,6 @@ class SFX_LinRail_Node(bpy.types.Node):
         bpy.data.objects.remove(bpy.data.objects[self.name+'_Path'], do_unlink=True)
         bpy.data.objects.remove(bpy.data.objects[self.name+'_Connector'], do_unlink=True)
         bpy.data.collections.remove(bpy.data.collections.get(self.name))
-        print("Node removed",self)
 
     def draw_buttons(self, context, layout):
         try:
@@ -160,17 +159,17 @@ class SFX_LinRail_Node(bpy.types.Node):
             if out1.is_linked:
                 for o in out1.links:
                     if o.is_valid:
-                        o.to_socket.node.inputs[o.to_socket.name].float = sfx.actuators[self.name].Actuator_basic_props.float
+                        o.to_socket.node.inputs[o.to_socket.name].float = sfx.actuators[self.name].Actuator_basic_props.ist_Pos
                         pass
             if out2.is_linked:
                 for o in out2.links:
                     if o.is_valid:
-                        o.to_socket.node.inputs[o.to_socket.name].float = sfx.actuators[self.name].Actuator_basic_props.float
+                        o.to_socket.node.inputs[o.to_socket.name].float = sfx.actuators[self.name].Actuator_basic_props.ist_Vel
                         pass
             if out3.is_linked:
                 for o in out3.links:
                     if o.is_valid:
-                        o.to_socket.node.inputs[o.to_socket.name].float = sfx.actuators[self.name].Actuator_basic_props.float
+                        o.to_socket.node.inputs[o.to_socket.name].float = sfx.actuators[self.name].Actuator_basic_props.ist_Force
                         pass
 
     def draw_model(self,name):

@@ -27,7 +27,7 @@ class cue_simple(bpy.types.PropertyGroup,cue_base):
                                       default = 0.0)
     play_head_percent : bpy.props.FloatProperty(name='Play Head',
                                       description='Play Head',
-                                      default = 60.0,
+                                      default = 0.0,
                                       soft_max = 100.0,
                                       soft_min = -100.0)
     play_head : bpy.props.FloatProperty(name='Play Head',

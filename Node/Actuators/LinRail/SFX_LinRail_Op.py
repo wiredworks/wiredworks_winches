@@ -17,14 +17,14 @@ class SFX_OT_LinRail_Op(bpy.types.Operator):
                 sfx.actuators[self.MotherNode.name].TickTime_prop = (time.time_ns() - self.old_time)/100000.0
             except KeyError:
                 self.sfx_entry_exists = False
-                ret =self.End_Comm(context)
-                return ret
+                self.End_Comm(context)
+                return {'CANCELLED'}
             if self.sfx_entry_exists:
                 self.MotherNode.sfx_update()
                 if not(sfx.actuators[self.MotherNode.name].operator_started):
                     sfx.actuators[self.MotherNode.name].operator_running_modal = False
-                    ret =self.End_Comm(context)                                           # End_Comm
-                    return ret
+                    self.End_Comm(context)                                           # End_Comm
+                    return {'CANCELLED'}
                 else:
                     sfx.actuators[self.MotherNode.name].operator_running_modal = True 
 
@@ -180,11 +180,12 @@ class SFX_OT_LinRail_Op(bpy.types.Operator):
         except AttributeError:
             #print('You tried to disconnect without beeing connected')
             pass
-        sfx.actuators[self.MotherNode.name].actuator_connected_bit1 = False
-        sfx.actuators[self.MotherNode.name].actuator_connected_bit2 = False
-        sfx.actuators[self.MotherNode.name].Actuator_basic_props.online_Actuator = False
-        sfx.actuators[self.MotherNode.name].Actuator_basic_props.Actuator_props.simple_actuator_confirmed = False
-        sfx.actuators[self.MotherNode.name].Actuator_basic_props.Actuator_props.simple_actuator_confirm = False
+        if self.sfx_entry_exists:
+            sfx.actuators[self.MotherNode.name].actuator_connected_bit1 = False
+            sfx.actuators[self.MotherNode.name].actuator_connected_bit2 = False
+            sfx.actuators[self.MotherNode.name].Actuator_basic_props.online_Actuator = False
+            sfx.actuators[self.MotherNode.name].Actuator_basic_props.Actuator_props.simple_actuator_confirmed = False
+            sfx.actuators[self.MotherNode.name].Actuator_basic_props.Actuator_props.simple_actuator_confirm = False
         return {'CANCELLED'}
     
     def interact_with_3D_view(self):

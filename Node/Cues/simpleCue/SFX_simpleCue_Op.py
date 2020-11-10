@@ -19,7 +19,6 @@ class SFX_simpleCue_Op(bpy.types.Operator):
             try:
                 sfx.cues[self.MotherNode.name].TickTime_prop = (time.time_ns() - self.old_time)/100000.0
             except KeyError:
-                self.sfx_entry_exists = False
                 return {'CANCELLED'}
             self.MotherNode.sfx_update()
             if not(sfx.cues[self.MotherNode.name].operator_started):
@@ -37,6 +36,7 @@ class SFX_simpleCue_Op(bpy.types.Operator):
                         self.CalcTargetSpeed()                   
                         self.ReactToInputs()
                 else:
+                    #print('modal',self.FcurvesInitialized)
                     sfx.cues[self.MotherNode.name].toTime_executed = False
                     sfx.cues[self.MotherNode.name].confirm = False
                     sfx.cues[self.MotherNode.name].confirmed = False
@@ -44,6 +44,7 @@ class SFX_simpleCue_Op(bpy.types.Operator):
 
                 self.CalcKeypointsHash()
                 self.old_time = time.time_ns()
+                #return {'CANCELLED'}
                 return {'PASS_THROUGH'}
         return {'PASS_THROUGH'}
 
@@ -337,25 +338,29 @@ class SFX_simpleCue_Op(bpy.types.Operator):
                 sfx.cues[self.MotherNode.name].cue_diff_speed = self.target_speed - self.cue_act_speed
                 if (self.target_speed - self.cue_act_speed) > 0:
                     sfx.cues[self.MotherNode.name].play_state = 'SpeedUp'
-                    self.MotherNode.outputs["Set Vel"].ww_out_value = self.target_speed_percent
+                    self.MotherNode.outputs["Set Vel"].float = self.target_speed_percent
+                    sfx.cues[self.MotherNode.name].play_head_percent = self.target_speed_percent
                 else:
                     sfx.cues[self.MotherNode.name].play_state = 'Play'
-                    self.MotherNode.outputs["Set Vel"].ww_out_value = self.target_speed_percent                                
+                    self.MotherNode.outputs["Set Vel"].float = self.target_speed_percent
+                    sfx.cues[self.MotherNode.name].play_head_percent = self.target_speed_percent                                
             elif (self.MotherNode.inputs['Forward'].bool == False and
                     self.MotherNode.inputs['Reverse'].bool == True):
                 sfx.cues[self.MotherNode.name].cue_diff_speed = (-self.target_speed - self.cue_act_speed)
-                if (self.target_speed - self.cue_act_speed) < 0:
+                if (-self.target_speed - self.cue_act_speed) <0 :
                     sfx.cues[self.MotherNode.name].play_state = 'Slowing'
-                    self.MotherNode.outputs["Set Vel"].ww_out_value = -self.target_speed_percent
+                    self.MotherNode.outputs["Set Vel"].float = -self.target_speed_percent
+                    sfx.cues[self.MotherNode.name].play_head_percent = -self.target_speed_percent
                 else:  
                     sfx.cues[self.MotherNode.name].play_state = 'Reverse'
-                    self.MotherNode.outputs["Set Vel"].ww_out_value = -self.target_speed_percent
+                    self.MotherNode.outputs["Set Vel"].float = -self.target_speed_percent
+                    sfx.cues[self.MotherNode.name].play_head_percent = -self.target_speed_percent
             else:                                
                 sfx.cues[self.MotherNode.name].play_state = 'Pause'
-                self.MotherNode.outputs["Set Vel"].ww_out_value = 0.0
+                self.MotherNode.outputs["Set Vel"].float = 0.0
         else:
             sfx.cues[self.MotherNode.name].play_state = 'GoTo1'
-            self.MotherNode.outputs["Set Vel"].ww_out_value = 0.0
+            self.MotherNode.outputs["Set Vel"].float = 0.0
 
     def CalcTargetSpeed(self):
         self.target_speed= self.VelInPos.evaluate(self.cue_act_pos*100.0)/100.0
@@ -368,22 +373,10 @@ class SFX_simpleCue_Op(bpy.types.Operator):
 
     def ResetFcurves(self):
         if self.FcurvesInitialized:
-            try:
-                self.action.fcurves.remove(self.VelInPos)
-            except ReferenceError:
-                pass
-            try:
-                self.action.fcurves.remove(self.GrenzVel)
-            except ReferenceError:
-                pass
-            try:
-                self.action.fcurves.remove(self.VelInTime1)
-            except ReferenceError:
-                pass
-            try:
-                self.action.fcurves.remove(self.AccInTime)
-            except ReferenceError:
-                pass
+            self.action.fcurves.remove(self.VelInPos)
+            self.action.fcurves.remove(self.GrenzVel)
+            self.action.fcurves.remove(self.VelInTime1)
+            self.action.fcurves.remove(self.AccInTime)
             self.FcurvesInitialized = False
             self.VelInPosInitialized = False
             self.CalcGrenzVelCalculated = False
