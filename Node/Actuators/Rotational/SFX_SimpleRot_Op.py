@@ -208,7 +208,8 @@ class SFX_OT_SimpleRot_Op(bpy.types.Operator):
 
         bpy.data.collections.get("ww SFX_Nodes").children[self.MotherNode.name].\
             objects[self.MotherNode.name+'_Connector'].\
-            rotation_euler.rotate_axis("Z", radians(sfx.actuators[self.MotherNode.name].Actuator_basic_props.ist_Pos))
+            rotation_euler.z = radians(sfx.actuators[self.MotherNode.name].Actuator_basic_props.ist_Pos)
+            #rotation_euler.rotate_axis("Z", radians(sfx.actuators[self.MotherNode.name].Actuator_basic_props.ist_Pos))
 
         DTwin_conLoc = bpy.data.collections.get("ww SFX_Nodes").children[self.MotherNode.name].\
             objects[self.MotherNode.name+'_Connector'].matrix_world.to_translation()
@@ -226,3 +227,6 @@ class SFX_OT_SimpleRot_Op(bpy.types.Operator):
 
         sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
             DigTwin_basic_props.con_Loc = DTwin_conLoc
+
+        sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
+            DigTwin_basic_props.con_Rot = sfx.actuators[self.MotherNode.name].Actuator_basic_props.ist_Pos
