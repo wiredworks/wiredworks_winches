@@ -6,7 +6,7 @@ from mathutils import Vector
 
 from .SFX_LinRail_Model import SFX_LinRail_Model
 
-from .... exchange_data.sfx import sfx
+from ..... exchange_data.sfx import sfx
 from .SFX_LinRail_Data import actuator_linrail
 
 class SFX_LinRail_Node(bpy.types.Node):
@@ -18,6 +18,7 @@ class SFX_LinRail_Node(bpy.types.Node):
     bl_width_max = 580
 
     sfx_type = 'Actuator'
+    sfx_sub_type = 'Linear'
 
     @classmethod
     def poll(cls, ntree):
@@ -47,7 +48,9 @@ class SFX_LinRail_Node(bpy.types.Node):
         self.outputs.new('SFX_Socket_Float',name= 'Ist Force')
         self.outputs["Ist Force"].float = 0.0
 
-        sfx.actuators[self.name].Actuator_basic_props.DigTwin_basic_props.Mother_name = self.name
+        sfx.actuators[self.name].Actuator_basic_props.DigTwin_basic_props.Mother_name         = self.name
+        sfx.actuators[self.name].Actuator_basic_props.DigTwin_basic_props.Mother_sfx_type     = self.sfx_type
+        sfx.actuators[self.name].Actuator_basic_props.DigTwin_basic_props.Mother_sfx_sub_type = self.sfx_sub_type
 
         self.SFX_drawLinRail = SFX_LinRail_Model(self.name)
         self.draw_model(self.name)

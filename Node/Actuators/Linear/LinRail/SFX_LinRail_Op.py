@@ -3,7 +3,7 @@ import socket
 import time
 import json
 
-from .... exchange_data.sfx import sfx
+from ..... exchange_data.sfx import sfx
 from .SFX_LinRail_Data import actuator_linrail
 
 class SFX_OT_LinRail_Op(bpy.types.Operator):

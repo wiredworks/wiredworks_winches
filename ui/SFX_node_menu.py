@@ -52,7 +52,25 @@ class SFX_ActMenu(bpy.types.Menu):
 
     def draw(self,context):
         layout = self.layout
-        layout.operator('sfx.linrail_in',text = 'Rail', icon='ARROW_LEFTRIGHT')
+        layout.menu("SFX_MT_actuatorLin_menu", text= "Linear", icon = "EXPORT")
+        layout.menu("SFX_MT_actuatorRot_menu", text= "Rotational", icon = "EXPORT")
+
+class SFX_ActRotMenu(bpy.types.Menu):
+    bl_idname = "SFX_MT_actuatorRot_menu"
+    bl_label = "Rotatianal Menu"
+
+    def draw(self,context):
+        layout = self.layout
+        layout.operator('sfx.simplerot_in',text = 'Rotation', icon='MESH_CIRCLE')
+
+class SFX_ActRot(bpy.types.Menu):
+    bl_idname = "SFX_MT_actuatorLin_menu"
+    bl_label = "Linear Menu"
+
+    def draw(self,context):
+        layout = self.layout
+        layout.operator('sfx.linrail_in',text = 'Rail', icon='ARROW_LEFTRIGHT')        
+
 
 def insertNode(layout, type, text, settings = {}, icon = "NONE"):
     operator = layout.operator("node.add_node", text = text, icon = icon)
