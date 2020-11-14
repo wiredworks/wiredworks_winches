@@ -1,6 +1,6 @@
 import bpy
 
-from .... exchange_data.sfx import sfx
+from ..... exchange_data.sfx import sfx
 
 class SFX_OT_LinRail_IN(bpy.types.Operator):
     """ Insert a LinRail Node to the Node Tree and opens it"""

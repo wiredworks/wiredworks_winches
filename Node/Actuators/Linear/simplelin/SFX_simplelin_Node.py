@@ -4,29 +4,29 @@ import ctypes
 
 from mathutils import Vector
 
-from .SFX_LinRail_Model import SFX_LinRail_Model
+from .SFX_simplelin_Model import SFX_simplelin_Model
 
 from ..... exchange_data.sfx import sfx
-from .SFX_LinRail_Data import actuator_linrail
+from .SFX_simplelin_Data import actuator_simplelin
 
-class SFX_LinRail_Node(bpy.types.Node):
-    '''simple Linear Rail Actuator'''
-    bl_idname = 'SFX_LinRail_Node'
-    bl_label = 'linrail'
+class SFX_simplelin_Node(bpy.types.Node):
+    '''simple Linear Actuator'''
+    bl_idname = 'SFX_SimpleLin_Node'
+    bl_label = 'simplelin'
     bl_icon = 'ARROW_LEFTRIGHT'
     bl_width_min = 580 # 920 to draw ww_Actuator_Props properly
     bl_width_max = 580
 
     sfx_type     = 'Actuator'
     sfx_sub_type = 'Linear'
-    sfx_id       = 'linrail'
+    sfx_id       = 'simplelin'
 
     @classmethod
     def poll(cls, ntree):
         return ntree.bl_idname == 'SFX_NodeTree'
 
     sfx          : bpy.props.PointerProperty(type = sfx)
-    sfx_actuator : bpy.props.PointerProperty(type = actuator_linrail)
+    sfx_actuator : bpy.props.PointerProperty(type = actuator_simplelin)
 
     def init(self, context):
         self.init_sfxData()
@@ -53,7 +53,7 @@ class SFX_LinRail_Node(bpy.types.Node):
         sfx.actuators[self.name].Actuator_basic_props.DigTwin_basic_props.Mother_sfx_type     = self.sfx_type
         sfx.actuators[self.name].Actuator_basic_props.DigTwin_basic_props.Mother_sfx_sub_type = self.sfx_sub_type
 
-        self.SFX_drawLinRail = SFX_LinRail_Model(self.name)
+        self.SFX_Model = SFX_simplelin_Model(self.name)
         self.draw_model(self.name)
 
     def copy(self, node):
@@ -62,10 +62,9 @@ class SFX_LinRail_Node(bpy.types.Node):
     def free(self):
         sfx.actuators[self.name].operator_opened = False
         sfx.actuators.pop(self.name)
-        bpy.data.objects.remove(bpy.data.objects[self.name+'_extr'], do_unlink=True)
+        bpy.data.meshes.remove(bpy.data.meshes[self.name], do_unlink = True)
         bpy.data.objects.remove(bpy.data.objects[self.name+'_In'],   do_unlink=True)
         bpy.data.objects.remove(bpy.data.objects[self.name+'_Out'],  do_unlink=True)
-        bpy.data.objects.remove(bpy.data.objects[self.name+'_Path'], do_unlink=True)
         bpy.data.objects.remove(bpy.data.objects[self.name+'_Connector'], do_unlink=True)
         bpy.data.collections.remove(bpy.data.collections.get(self.name))
 
@@ -177,6 +176,6 @@ class SFX_LinRail_Node(bpy.types.Node):
                         pass
 
     def draw_model(self,name):
-        self.SFX_drawLinRail.draw_model(name)
+        self.SFX_Model.draw_model(name)
 
    

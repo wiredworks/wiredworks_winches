@@ -3,21 +3,16 @@ import socket
 import time
 import json
 
-from math import radians
+from ..... exchange_data.sfx import sfx
+from .SFX_simplelin_Data import actuator_simplelin
 
-from .... exchange_data.sfx import sfx
-from .SFX_SimpleRot_Data import actuator_simplerot
-
-class SFX_OT_SimpleRot_Op(bpy.types.Operator):
+class SFX_OT_simplelin_Op(bpy.types.Operator):
     """ This operator is the interface between the pysical world, the 3D_View and the Node"""
-    bl_idname = "sfx.simplerot_op"
+    bl_idname = "sfx.simplelin_op"
     bl_label = "Actuator Register"
-
-    i = 0
 
     def modal(self, context, event):
         if event.type == 'TIMER':
-            self.i = self.i+1
             try:
                 sfx.actuators[self.MotherNode.name].TickTime_prop = (time.time_ns() - self.old_time)/100000.0
             except KeyError:
@@ -155,12 +150,14 @@ class SFX_OT_SimpleRot_Op(bpy.types.Operator):
         
         sfx.actuators[self.MotherNode.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop = \
             min(sfx.actuators[self.MotherNode.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop, \
-            sfx.actuators[self.MotherNode.name].Actuator_basic_props.DigTwin_basic_props.end_Rot)
+            sfx.actuators[self.MotherNode.name].Actuator_basic_props.DigTwin_basic_props.length)
 
         sfx.actuators[self.MotherNode.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMin_prop = \
             max(sfx.actuators[self.MotherNode.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMin_prop, \
-            sfx.actuators[self.MotherNode.name].Actuator_basic_props.DigTwin_basic_props.start_Rot)
-        
+            0)        
+
+
+
         return {'PASS_THROUGH'}
 
     def dis_connect(self, context):
@@ -200,7 +197,6 @@ class SFX_OT_SimpleRot_Op(bpy.types.Operator):
     
     def interact_with_3D_view(self):
         # update DigTwin Props when object is moved in View_3D
-        pass
         DTwin_startLoc = bpy.data.collections.get("ww SFX_Nodes").children[self.MotherNode.name].\
             objects[self.MotherNode.name+'_In'].matrix_world.to_translation()
         DTwin_endLoc = bpy.data.collections.get("ww SFX_Nodes").children[self.MotherNode.name].\
@@ -208,16 +204,13 @@ class SFX_OT_SimpleRot_Op(bpy.types.Operator):
 
         bpy.data.collections.get("ww SFX_Nodes").children[self.MotherNode.name].\
             objects[self.MotherNode.name+'_Connector'].\
-            rotation_euler.z = radians(sfx.actuators[self.MotherNode.name].Actuator_basic_props.ist_Pos)
-            #rotation_euler.rotate_axis("Z", radians(sfx.actuators[self.MotherNode.name].Actuator_basic_props.ist_Pos))
+            location.x = sfx.actuators[self.MotherNode.name].Actuator_basic_props.ist_Pos
 
         DTwin_conLoc = bpy.data.collections.get("ww SFX_Nodes").children[self.MotherNode.name].\
             objects[self.MotherNode.name+'_Connector'].matrix_world.to_translation()
 
-        sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
-            DigTwin_basic_props.length =  sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
-            DigTwin_basic_props.end_Rot - sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
-            DigTwin_basic_props.start_Rot
+        # sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
+        #     DigTwin_basic_props.length = (DTwin_endLoc-DTwin_startLoc).length
 
         sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
             DigTwin_basic_props.start_Loc = DTwin_startLoc
@@ -227,6 +220,3 @@ class SFX_OT_SimpleRot_Op(bpy.types.Operator):
 
         sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
             DigTwin_basic_props.con_Loc = DTwin_conLoc
-
-        sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
-            DigTwin_basic_props.con_Rot = sfx.actuators[self.MotherNode.name].Actuator_basic_props.ist_Pos

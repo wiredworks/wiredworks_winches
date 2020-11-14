@@ -13,7 +13,9 @@ class SFX_Adder_Node(bpy.types.Node):
     bl_width_min = 580
     bl_width_max = 580
 
-    sfx_type = 'Helper'
+    sfx_type     = 'Helper'
+    sfx_sub_type = 'Mix'
+    sfx_id       = 'adder'
 
     @classmethod
     def poll(cls, ntree):

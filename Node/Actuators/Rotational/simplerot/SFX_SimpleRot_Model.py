@@ -13,25 +13,18 @@ class SFX_SimpleRot_Model():
         if 'ww SFX_Nodes' in bpy.context.scene.collection.children.keys():            
             Actcollection = bpy.data.collections.new(name)
             bpy.data.collections.get("ww SFX_Nodes").children.link(Actcollection)
-            radius   = 0.5
+            radius   = 0.05
             height   = 0.05
             segments = 32
             Cylinder = self.create_cylinder(name, radius, height, segments)
             Actcollection.objects.link(Cylinder)
-            VertexGroupLower = Cylinder.vertex_groups.new(name='Lower')
-            for i in range(segments):
-                VertexGroupLower.add([i],1,"ADD")
-            
-            VertexGroupUpper = Cylinder.vertex_groups.new(name='Upper')
-            for i in range(segments):
-                VertexGroupUpper.add([segments+i],1,"ADD")
 
             In = bpy.data.objects.new(name+"_In", None )
             In.empty_display_size = 0.1
             In.empty_display_type = 'ARROWS'
             In.parent = Cylinder
-            In.location = (0,0,-height/2)
-            In.rotation_euler[0] = 3.1415926
+            In.location = ( 0, 0,0,)
+            In.rotation_euler[2] = 3.1415926
             In.lock_location[0] = True
             In.lock_location[1] = True
             In.lock_location[2] = True
@@ -44,7 +37,7 @@ class SFX_SimpleRot_Model():
             Out.empty_display_size = 0.1
             Out.empty_display_type = 'ARROWS'
             Out.parent = Cylinder
-            Out.location = (0,0,height/2)
+            Out.location = (height/2.0, 0,0,)
             Out.lock_location[0] = True
             Out.lock_location[1] = True
             Out.lock_location[2] = True
@@ -57,7 +50,7 @@ class SFX_SimpleRot_Model():
             Connector.empty_display_size = 0.5
             Connector.empty_display_type = 'PLAIN_AXES'
             Connector.parent = Cylinder
-            Connector.location = (0,0,height/2)
+            Connector.location = (height/2.0, 0,0,)
             Connector.lock_location[0] = True
             Connector.lock_location[1] = True
             Connector.lock_location[2] = True
@@ -79,7 +72,7 @@ class SFX_SimpleRot_Model():
         verts = []
         for i in range(segments):
             angle = (math.pi*2) * i / segments 
-            verts.append((radius*math.cos(angle), radius*math.sin(angle), z)) 
+            verts.append((z, radius*math.cos(angle), radius*math.sin(angle))) 
         return verts
 
     def create_cylinder(self, name, radius, height, segments):
@@ -91,20 +84,20 @@ class SFX_SimpleRot_Model():
                 'faces' : [],
                 }
                 
-        data['verts'].extend(self.vertex_circle(radius, segments, z = -height/2))
+        data['verts'].extend(self.vertex_circle(radius, segments, z = 0))
         data['verts'].extend(self.vertex_circle(radius, segments, z = height/2))
         
         for i in range(segments -1):
             data['faces'].append((i ,i+1, segments+i+1, segments+i))
         data['faces'].append((segments-1 ,0, segments, 2*segments-1))
         
-        data['verts'].append((0, 0, -height/2))        
+        data['verts'].append(( 0, 0, 0, ))        
         center_vert = len(data['verts'])-1        
         for i in range(segments-1):
             data['faces'].append((i,i+1,center_vert))            
         data['faces'].append((segments-1,0,center_vert))
         
-        data['verts'].append((0, 0, height/2))        
+        data['verts'].append(( height/2.0, 0, 0,))        
         center_vert = len(data['verts'])-1                         
         for i in range(segments-1):
             data['faces'].append((segments + i, segments + i+1, center_vert))            

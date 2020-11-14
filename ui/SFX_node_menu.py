@@ -63,12 +63,13 @@ class SFX_ActRotMenu(bpy.types.Menu):
         layout = self.layout
         layout.operator('sfx.simplerot_in',text = 'Rotation', icon='MESH_CIRCLE')
 
-class SFX_ActRot(bpy.types.Menu):
+class SFX_ActLinMenu(bpy.types.Menu):
     bl_idname = "SFX_MT_actuatorLin_menu"
     bl_label = "Linear Menu"
 
     def draw(self,context):
         layout = self.layout
+        layout.operator('sfx.simplelin_in',text = 'Linear', icon='ARROW_LEFTRIGHT')     
         layout.operator('sfx.linrail_in',text = 'Rail', icon='ARROW_LEFTRIGHT')        
 
 

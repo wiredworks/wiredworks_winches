@@ -1,7 +1,7 @@
 import bpy
 
-from ..SFX_Actuators_Base_Data import actuator_base
-from ..SFX_Actuators_Basic_Inset import SFX_Actuators_Basic_Inset
+from ...SFX_Actuators_Base_Data import actuator_base
+from ...SFX_Actuators_Basic_Inset import SFX_Actuators_Basic_Inset
 
 
 class actuator_simplerot(bpy.types.PropertyGroup,actuator_base):

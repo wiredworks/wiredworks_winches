@@ -13,7 +13,9 @@ class SFX_JoyDemux_Node(bpy.types.Node):
     bl_width_min = 220
     bl_width_max = 500
 
-    sfx_type = 'Helper'
+    sfx_type     = 'Helper'
+    sfx_sub_type = 'Demuxer'
+    sfx_id       = 'joydemux'
 
     @classmethod
     def poll(cls, ntree):

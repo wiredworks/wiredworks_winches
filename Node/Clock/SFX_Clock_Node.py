@@ -11,7 +11,9 @@ class SFX_Clock_Node(bpy.types.Node):
     bl_width_min = 350
     bl_width_max = 350
 
-    sfx_type = 'Clock'
+    sfx_type     = 'Clock'
+    sfx_sub_type = 'Clock'
+    sfx_id       = 'clock'
 
     @classmethod
     def poll(cls, ntree):

@@ -13,7 +13,9 @@ class SFX_simpleCue_Node(bpy.types.Node):
     bl_width_min = 580
     bl_width_max = 580
 
-    sfx_type ='Cue'
+    sfx_type     ='Cue'
+    sfx_sub_type = 'Velocity_Cue'
+    sfx_id       = 'simplecue'
 
     @classmethod
     def poll(cls, ntree):

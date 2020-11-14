@@ -6,7 +6,7 @@ from mathutils import Vector
 
 from .SFX_SimpleRot_Model import SFX_SimpleRot_Model
 
-from .... exchange_data.sfx import sfx
+from ..... exchange_data.sfx import sfx
 from .SFX_SimpleRot_Data import actuator_simplerot
 
 class SFX_SimpleRot_Node(bpy.types.Node):
@@ -17,8 +17,9 @@ class SFX_SimpleRot_Node(bpy.types.Node):
     bl_width_min = 580 # 920 to draw ww_Actuator_Props properly
     bl_width_max = 580
 
-    sfx_type = 'Actuator'
+    sfx_type     = 'Actuator'
     sfx_sub_type = 'Rotational'
+    sfx_id       = 'simplerot'
 
     @classmethod
     def poll(cls, ntree):
@@ -61,10 +62,9 @@ class SFX_SimpleRot_Node(bpy.types.Node):
     def free(self):
         sfx.actuators[self.name].operator_opened = False
         sfx.actuators.pop(self.name)
-        bpy.data.objects.remove(bpy.data.objects[self.name+'_extr'], do_unlink=True)
+        bpy.data.meshes.remove(bpy.data.meshes[self.name], do_unlink = True)
         bpy.data.objects.remove(bpy.data.objects[self.name+'_In'],   do_unlink=True)
         bpy.data.objects.remove(bpy.data.objects[self.name+'_Out'],  do_unlink=True)
-        bpy.data.objects.remove(bpy.data.objects[self.name+'_Path'], do_unlink=True)
         bpy.data.objects.remove(bpy.data.objects[self.name+'_Connector'], do_unlink=True)
         bpy.data.collections.remove(bpy.data.collections.get(self.name))
 

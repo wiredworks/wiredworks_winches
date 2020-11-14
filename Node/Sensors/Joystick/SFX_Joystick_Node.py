@@ -13,7 +13,9 @@ class SFX_Joystick_Node(bpy.types.Node):
     bl_width_min = 580
     bl_width_max = 580
 
-    sfx_type = 'Sensor'
+    sfx_type     = 'Sensor'
+    sfx_sub_type = 'HID'
+    sfx_id       = 'joystick'
 
     @classmethod
     def poll(cls, ntree):
