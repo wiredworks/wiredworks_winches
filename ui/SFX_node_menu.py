@@ -69,6 +69,7 @@ class SFX_ActLinMenu(bpy.types.Menu):
 
     def draw(self,context):
         layout = self.layout
+        layout.operator('sfx.telescope_in',text = 'Telescope', icon='ARROW_LEFTRIGHT')
         layout.operator('sfx.simplelin_in',text = 'Linear', icon='ARROW_LEFTRIGHT')     
         layout.operator('sfx.linrail_in',text = 'Rail', icon='ARROW_LEFTRIGHT')        
 

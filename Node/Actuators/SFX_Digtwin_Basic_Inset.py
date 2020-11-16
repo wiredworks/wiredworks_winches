@@ -199,7 +199,7 @@ class SFX_Digtwin_Basic_Inset(bpy.types.PropertyGroup):
                     objects[self.Mother_name+'_Out'].location = in_loc+self.length*normalized
                 self.con_Loc =bpy.data.collections.get("ww SFX_Nodes").children[self.Mother_name].\
                     objects[self.Mother_name+'_Connector'].matrix_world.to_translation()
-            else:
+            elif self.Mother_sfx_id == 'simplelin':
                 bpy.data.collections.get("ww SFX_Nodes").children[self.Mother_name].\
                 objects[self.Mother_name+'_Out'].location.x = self.length
                 bpy.data.meshes[self.Mother_name].vertices[0].co.x = self.length
@@ -207,6 +207,7 @@ class SFX_Digtwin_Basic_Inset(bpy.types.PropertyGroup):
                 bpy.data.meshes[self.Mother_name].vertices[4].co.x = self.length
                 bpy.data.meshes[self.Mother_name].vertices[3].co.x = self.length
                 pass
+
         elif self.Mother_sfx_sub_type == 'Rotational':
             bpy.data.collections.get("ww SFX_Nodes").children[self.Mother_name].\
             objects[self.Mother_name+'_Out'].location.x = self.length
