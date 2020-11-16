@@ -52,6 +52,7 @@ class SFX_SimpleRot_Node(bpy.types.Node):
         sfx.actuators[self.name].Actuator_basic_props.DigTwin_basic_props.Mother_name         = self.name
         sfx.actuators[self.name].Actuator_basic_props.DigTwin_basic_props.Mother_sfx_type     = self.sfx_type
         sfx.actuators[self.name].Actuator_basic_props.DigTwin_basic_props.Mother_sfx_sub_type = self.sfx_sub_type
+        sfx.actuators[self.name].Actuator_basic_props.DigTwin_basic_props.Mother_sfx_id       = self.sfx_id
 
         self.SFX_drawModel = SFX_SimpleRot_Model(self.name)
         self.draw_model(self.name)
