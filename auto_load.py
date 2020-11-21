@@ -16,6 +16,11 @@ __all__ = (
 modules = None
 ordered_classes = None
 
+class SFX_ListProps(bpy.types.PropertyGroup):
+    id :   bpy.props.IntProperty()
+    name : bpy.props.StringProperty()
+    path : bpy.props.StringProperty()
+
 def init():
     global modules
     global ordered_classes
@@ -35,6 +40,9 @@ def register():
             print(module)
             module.register()
 
+    bpy.types.Scene.SFX       = bpy.props.CollectionProperty(type=SFX_ListProps)
+    bpy.types.Scene.SFX_index = bpy.props.IntProperty()
+
 def unregister():
     for cls in reversed(ordered_classes):
         print(cls)
@@ -46,6 +54,9 @@ def unregister():
         if hasattr(module, "unregister"):
             print(module)
             module.unregister()
+
+    bpy.types.Scene.SFX       = bpy.props.CollectionProperty(type=SFX_ListProps)
+    bpy.types.Scene.SFX_index = bpy.props.IntProperty()
 
 
 # Import modules

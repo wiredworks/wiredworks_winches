@@ -50,8 +50,8 @@ class SFX_Actuators_Basic_Inset(bpy.types.PropertyGroup):
     expand_DigTwin_basic : bpy.props.BoolProperty(name = "Expand Digital Twin Basic",
                                     description = " Expand Digital Twin Basic",
                                     default = False)
-    expand_Actuator_setup : bpy.props.BoolProperty(name = "Expand Physical Actuator Setup",
-                                    description = "Expand Physical Actuator Setup",
+    expand_Actuator_setup : bpy.props.BoolProperty(name = "Expand Action Setup",
+                                    description = "Expand Action Setup",
                                     default = False)
 
     def draw_Actuator_basic_props(self, context, layout):
