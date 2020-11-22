@@ -14,9 +14,35 @@ Having such a solution designed, built, gotten the TÜV approval, it has been us
 ## Installation:
 Download Blender add-on from: https://github.com/wiredworks/wiredworks_winches
 After getting the .zip remove '-master' from the filename and unzip it to the Blender scripts/add-ons folder. Take the modified Node Editor (/UClients_and_helpers/space-node.py and overwrite the standard Node Editor (/Programs/Blender Foundation/Blender 2.83/2.83/scripts/startup/bl_ui/space_node.py). Start Blender and activate the addon (Blender-> Edit-> Preferences-> Add-ons).
-Open /Uclients_and_Helpers/example.blend
 
-### Example of the basic Nodes.
+## New Example with Dana Dolly
+
+
+![Joystick](https://github.com/wiredworks/wiredworks_winches/blob/master/Pictures/Dana_Dolly.png)
+
+This Example shows a connection from the Joystick to Blender and from Blender to three Simulated Axes.
+
+1.In UClients_and_helpers Start: 
+
+-Dana_Dolly_Joystick.bat
+
+-Dana_Dolly_Pan.bat
+
+-Dana_Dolly_Tilt.bat
+
+-Dana_Dolly_Track.bat
+
+
+2.Start Blender install and activate addon
+
+-Load danadolly.blend
+
+-activate the checkboxes in the indicated sequence
+
+3.Press Button6 on Gamepad and wiggle the Joystick to see the Dolly Tracking and the Head Pan- and Tilting 
+
+
+### Example of all the basic Nodes.
 
 To experiment with the example you have to have a Joystick/Gamepad and run Uclients_and_helpers/Joystick17.py this app takes Joystick-input displays it and sends it via UDP to the SFX-Nodes in Blender.
 
@@ -25,6 +51,7 @@ To experiment with the example you have to have a Joystick/Gamepad and run Uclie
 The simple_AxisSimulation.py script, once started will take UDP packages the SFX-Nodes emit and simulate a simple Axis/Actuator/Motor.
 
 ![simple](https://github.com/wiredworks/wiredworks_winches/blob/master/Pictures/simple_AxisSimulation.png)
+
 
 ## Run the example
 
