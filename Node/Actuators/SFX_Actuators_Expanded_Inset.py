@@ -1,6 +1,6 @@
 import bpy
 
-from . SFX_Actuators_ListProps import SFX_Actuators_ListProps 
+from .. SFX_Action_Props import SFX_Action_Props 
 
 class SFX_Actuators_Expanded_Inset(bpy.types.PropertyGroup):
     '''Defines Physical Props of an Actuator'''
@@ -30,7 +30,7 @@ class SFX_Actuators_Expanded_Inset(bpy.types.PropertyGroup):
                                                                 precision=3,
                                                                 update = update_conf)
 
-    SFX_actions                 : bpy.props.CollectionProperty(type=SFX_Actuators_ListProps)
+    SFX_actions                 : bpy.props.CollectionProperty(type=SFX_Action_Props)
     SFX_actions_index           : bpy.props.IntProperty(name = "Index",
                                                                 description ="Action Index",
                                                                 default=0,

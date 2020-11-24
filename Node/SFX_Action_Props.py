@@ -1,9 +1,9 @@
 import bpy
 
-class SFX_Actuators_ListProps(bpy.types.PropertyGroup):
-    id :   bpy.props.IntProperty(name = 'ID',
+class SFX_Action_Props(bpy.types.PropertyGroup):
+    id :   bpy.props.StringProperty(name = 'ID',
                                  description = 'ID',
-                                 default = 0)
+                                 default = '')
     name : bpy.props.StringProperty(name = 'Name',
                                  description = 'Name',
                                  default = 'Name')
