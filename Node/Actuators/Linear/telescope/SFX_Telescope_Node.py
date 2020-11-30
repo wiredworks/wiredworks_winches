@@ -2,8 +2,10 @@ import bpy
 import time
 import ctypes
 import math
+import json
 import numpy as np
 from scipy.integrate import simps
+from scipy.integrate import quad
 
 from mathutils import Vector
 
@@ -11,6 +13,8 @@ from .SFX_Telescope_Model import SFX_Telescope_Model
 
 from ..... exchange_data.sfx import sfx
 from .SFX_Telescope_Data import actuator_telescope
+
+from ..... SFX_Helpers.SFX_Calc_Default_Move import SFX_Calc_Default_Move
 
 class SFX_LinRail_Node(bpy.types.Node):
     '''Telescope Actuator'''
@@ -60,11 +64,12 @@ class SFX_LinRail_Node(bpy.types.Node):
         self.SFX_drawTelescope = SFX_Telescope_Model(self.name)
         self.draw_model(self.name)
 
-        self.default_action(context, self.name)        
-
         action0 = sfx.actuators[self.name].Actuator_basic_props.Actuator_props.SFX_actions.add()
-        action0.id = 'default'
-        action0.name = self.name+'.sfxact'
+        action0.id = 0
+        action0.name = self.name+'_default.sfxact'
+
+        self.default_action(context, self.name, action0)        
+
         bpy.ops.sfx.save_action('INVOKE_DEFAULT')
 
     def copy(self, node):
@@ -189,85 +194,40 @@ class SFX_LinRail_Node(bpy.types.Node):
     def draw_model(self,name):
         self.SFX_drawTelescope.draw_model(name)
 
-    def default_action(self, context, name):
+    def default_action(self, context, name, action0):
 
         Dataobject = bpy.data.objects[name+'_Connector']
-        Dataobject['Pos'] = 0
-        Dataobject['Vel'] = 0
-        Dataobject['Acc'] = 0
-        fcurve = Dataobject.driver_add('["Pos"]')
-        # THX to Philipp Oeser (lichtwerk)
-        # to edit the driver fcurve with keyframes, you'll have to remove the fmodifier
-        fcurve.modifiers.remove(fcurve.modifiers[0])
+        action0.minPos = sfx.actuators[name].Actuator_basic_props.Actuator_props.simple_actuator_HardMin_prop
+        action0.maxPos = sfx.actuators[name].Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop
+        action0.length = action0.maxPos - action0.minPos
+        action0.maxAcc = sfx.actuators[name].Actuator_basic_props.Actuator_props.simple_actuator_AccMax_prop
+        action0.maxVel = sfx.actuators[name].Actuator_basic_props.Actuator_props.simple_actuator_VelMax_prop
 
-        vel = sfx.actuators[name].Actuator_basic_props.Actuator_props.simple_actuator_VelMax_prop
-        acc = sfx.actuators[name].Actuator_basic_props.Actuator_props.simple_actuator_AccMax_prop
+        self.DefaultMove = SFX_Calc_Default_Move(Dataobject, action0.length, action0.maxAcc, action0.maxVel )
 
-        start_pos  = sfx.actuators[name].Actuator_basic_props.Actuator_props.simple_actuator_HardMin_prop
-        start_time = 0
-        end_pos    = sfx.actuators[name].Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop
-        if end_pos - start_pos < vel*vel/acc :
-            end_time = start_time + 2 * math.sqrt( (end_pos - start_pos) / acc )
-        else:
-            end_time = start_time + (2 * vel / acc) + ((end_pos - start_pos)- 2 * (vel*vel)/( 2 * acc)) / vel
+        Jrk_Data =[]
+        for i in range(0,len(bpy.data.objects['telescope_Connector'].animation_data.drivers[0].keyframe_points)):
+            Jrk_Data.append((bpy.data.objects['telescope_Connector'].animation_data.drivers[0].keyframe_points[i].co[0],
+            bpy.data.objects['telescope_Connector'].animation_data.drivers[0].keyframe_points[i].co[1]))
+        Acc_Data =[]
+        for i in range(0,len(bpy.data.objects['telescope_Connector'].animation_data.drivers[1].keyframe_points)):
+            Acc_Data.append((bpy.data.objects['telescope_Connector'].animation_data.drivers[1].keyframe_points[i].co[0],
+            bpy.data.objects['telescope_Connector'].animation_data.drivers[1].keyframe_points[i].co[1]))
+        Vel_Data =[]
+        for i in range(0,len(bpy.data.objects['telescope_Connector'].animation_data.drivers[2].keyframe_points)):
+            Vel_Data.append((bpy.data.objects['telescope_Connector'].animation_data.drivers[2].keyframe_points[i].co[0],
+            bpy.data.objects['telescope_Connector'].animation_data.drivers[2].keyframe_points[i].co[1]))
+        Pos_Data =[]
+        for i in range(0,len(bpy.data.objects['telescope_Connector'].animation_data.drivers[3].keyframe_points)):
+            Pos_Data.append((bpy.data.objects['telescope_Connector'].animation_data.drivers[3].keyframe_points[i].co[0],
+            bpy.data.objects['telescope_Connector'].animation_data.drivers[3].keyframe_points[i].co[1]))
 
-        fcurve.keyframe_points.insert(start_time,start_pos)
-        fcurve.keyframe_points.insert(end_time,end_pos)
+        action0.Jrk = json.dumps(Jrk_Data)
+        action0.Acc = json.dumps(Acc_Data)
+        action0.Vel = json.dumps(Vel_Data)
+        action0.Pos = json.dumps(Pos_Data)
 
-        X  = np.linspace(0, end_time, num = 10000, retstep = False, dtype = np.double)
-        dX = X[1] - X[0]
-        Y  = np.zeros(10000, dtype = np.double)
-        for i in range(0, 10000):
-            Y[i] = fcurve.evaluate(X[i])
-        Velcurve = Dataobject.driver_add('["Vel"]')
-        Velcurve.modifiers.remove(Velcurve.modifiers[0])
-        Vel = np.gradient(Y,dX)
-        Velcurve.keyframe_points.insert(start_time,start_pos)
-        for i in range(50,len(Vel),10):
-            Velcurve.keyframe_points.insert( X[i],Vel[i])
-        Velcurve.keyframe_points.insert( X[-1],Vel[-1])
-        # Sanity Check
-        print('Distance before simplifying ',simps(Y,X))
-
-        mode   = 'DISTANCE'
-        k_thresch = 0
-        pointsNr = 5
-        error     = 0.05
-        degreeOut = 5
-        dis_error = 0.0
-        options = [ mode, mode, k_thresch, pointsNr, error, degreeOut, dis_error]
-
-        fcurve=[]
-        fcVerts = [vcVert.co.to_3d() for vcVert in Velcurve.keyframe_points.values()]
-        fcurve.append(fcVerts)
-        fcurve_sel = []
-        fcurve_sel.append(Velcurve)
-
-        self.fcurves_simplify(context, fcurve_sel, options, fcurve)
-
-        X1  = np.linspace(0, end_time, num = 10000, retstep = False, dtype = np.double)
-        dX1 = X1[1] - X1[0]
-        Y1  = np.zeros(10000, dtype = np.double)
-        for i in range(0, 10000):
-            Y1[i] = Velcurve.evaluate(X1[i])
-        # Sanity Check
-        print('Distance after simplifying ',simps(Y1,X1))
-
-        Acccurve = Dataobject.driver_add('["Acc"]')
-        Acccurve.modifiers.remove(Acccurve.modifiers[0])
-        Acc = np.gradient(Y1,dX1)
-        Acccurve.keyframe_points.insert(start_time,start_pos)
-        for i in range(50,len(Acc),10):
-            Acccurve.keyframe_points.insert( X1[i],Acc[i])
-        Acccurve.keyframe_points.insert( X1[-1],Acc[-1])
-
-        fcurves=[]
-        fcVerts = [vcVert.co.to_3d() for vcVert in Acccurve.keyframe_points.values()]
-        fcurves.append(fcVerts)
-        fcurves_sel = []
-        fcurves_sel.append( Acccurve)
-
-        self.fcurves_simplify(context, fcurves_sel, options, fcurves)
+        # self.fcurves_simplify(context, fcurves_sel, options, fcurves)
 
     def fcurves_simplify(self, context, fcurve_sel, options, fcurves):
         # main vars
