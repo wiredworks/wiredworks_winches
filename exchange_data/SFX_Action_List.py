@@ -32,6 +32,7 @@ class SFX_OT_list_actions(bpy.types.Operator):
 
     action : bpy.props.EnumProperty(
         items=(
+            ('NIX', 'Nix', ""),
             ('UP', "Up", ""),
             ('DOWN', "Down", ""),
             ('REMOVE', "Remove", ""),
@@ -40,37 +41,40 @@ class SFX_OT_list_actions(bpy.types.Operator):
         )
     )
     def invoke(self, context, event):
-        print('sfx.list_action.invoke')
 
         MotherNode = context.active_node
         sfx_actions   = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions
 
+        if self.action == 'NIX':
+            index = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index
+            self.update_fcurves(context, sfx_actions, index)
+            return {'PASS_THROUGH'}
         try:
             item = sfx_actions[sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index]
         except IndexError:
             pass
-        if (self.action == 'DOWN' and \
-            sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index < len(sfx_actions)-1):
-            sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index +=1
-            index = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index 
-            self.update_fcurves(context, sfx_actions, index) 
+        # if (self.action == 'DOWN' and \
+        #     sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index < len(sfx_actions)-1):
+        #     sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index +=1
+        #     index = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index 
+        #     #self.update_fcurves(context, sfx_actions, index) 
 
-        elif (self.action == 'UP' and \
-            sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index> 0):
-            sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index -= 1
-            index = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index
-            self.update_fcurves(context, sfx_actions, index)
+        # elif (self.action == 'UP' and \
+        #     sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index> 0):
+        #     sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index -= 1
+        #     index = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index
+        #     #self.update_fcurves(context, sfx_actions, index)
 
         elif self.action == 'REMOVE':
             if sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index > 0:
                 sfx_actions.remove(sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index)
                 sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index -= 1
                 index = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index
-                self.update_fcurves(context, sfx_actions, index)
+                #self.update_fcurves(context, sfx_actions, index)
 
         if self.action == 'ADD':
             bpy.ops.sfx.select_operator('INVOKE_DEFAULT')            
-            sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index = (len(sfx_actions))
+            sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index = (len(sfx_actions)-1)
 
         if self.action == 'SAVE':
             bpy.ops.sfx.save_list('INVOKE_DEFAULT')          
@@ -79,14 +83,15 @@ class SFX_OT_list_actions(bpy.types.Operator):
 
     def update_fcurves(self, context, sfx_actions, index):
         try:
-            print('Try',sfx_actions[index])
+            IndexTest = sfx_actions[index]
         except IndexError:
             sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.SFX_actions_index = 0
             index = 0
         try:
-            print('Try',sfx_actions[index])
+            IndexTest =sfx_actions[index]
         except:
-            print('Index Out of Range')
+            info ='Index Out of Range'
+            self.report({'INFO'}, info)
         else:
             Dataobject = bpy.data.objects[context.active_node.name+'_Connector']
             sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMin_prop = float(sfx_actions[index].minPos)
@@ -190,6 +195,7 @@ class SFX_UL_List(UIList):
         split.label(text="Index: %d" % (index))
 
     def invoke(self, context, event):
+        print('INVOKE')
         pass
 
 class SFX_OT_clear_List(bpy.types.Operator):

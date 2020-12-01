@@ -2,7 +2,6 @@ import bpy
 
 from .. SFX_Action_Props import SFX_Action_Props
 
-
 class SFX_Actuators_Expanded_Inset(bpy.types.PropertyGroup):
     '''Defines Physical Props of an Actuator'''
     bl_idname = "SFX_simple_Actuator_Inset"
@@ -67,8 +66,8 @@ class SFX_Actuators_Expanded_Inset(bpy.types.PropertyGroup):
         rows = 4        
         col.template_list("SFX_UL_List", "", self, "SFX_actions", self, "SFX_actions_index", rows=rows)
         col = col.column(align=True)
-        col.operator("sfx.list_action", icon='TRIA_UP', text="").action = 'UP'
-        col.operator("sfx.list_action", icon='TRIA_DOWN', text="").action = 'DOWN'
+        #col.operator("sfx.list_action", icon='TRIA_UP', text="").action = 'UP'
+        #col.operator("sfx.list_action", icon='TRIA_DOWN', text="").action = 'DOWN'
 
         row = col.row()        
         col = boxA.column(align=True)
@@ -105,4 +104,5 @@ class SFX_Actuators_Expanded_Inset(bpy.types.PropertyGroup):
         col.prop(self,'simple_actuator_confirmed', text='')
 
     def update_index_do(self,context):
-        pass
+        bpy.ops.sfx.list_action('INVOKE_DEFAULT')
+        return
