@@ -65,7 +65,7 @@ class SFX_OT_list_actions(bpy.types.Operator):
         #     index = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index
         #     #self.update_fcurves(context, sfx_actions, index)
 
-        elif self.action == 'REMOVE':
+        if self.action == 'REMOVE':
             if sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index > 0:
                 sfx_actions.remove(sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index)
                 sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index -= 1
