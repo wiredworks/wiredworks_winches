@@ -1,6 +1,7 @@
 import bpy
 
-from .. SFX_Action_Props import SFX_Action_Props 
+from .. SFX_Action_Props import SFX_Action_Props
+
 
 class SFX_Actuators_Expanded_Inset(bpy.types.PropertyGroup):
     '''Defines Physical Props of an Actuator'''
@@ -8,6 +9,9 @@ class SFX_Actuators_Expanded_Inset(bpy.types.PropertyGroup):
     
     def update_conf(self,context):
         pass
+
+    def update_index(self,context):
+        self.update_index_do(context)
 
     simple_actuator_HardMax_prop: bpy.props.FloatProperty(name = "Hard Max",
                                                                 description ="Maximum Position set in the PLC",
@@ -34,7 +38,7 @@ class SFX_Actuators_Expanded_Inset(bpy.types.PropertyGroup):
     SFX_actions_index           : bpy.props.IntProperty(name = "Index",
                                                                 description ="Action Index",
                                                                 default=0,
-                                                                update = update_conf)
+                                                                update = update_index)
     
     simple_actuator_confirm: bpy.props.BoolProperty(name = "Confirm Data",
                                     description = " Set to confirm Data",
@@ -62,7 +66,6 @@ class SFX_Actuators_Expanded_Inset(bpy.types.PropertyGroup):
         col = col.split(factor = 0.95)
         rows = 4        
         col.template_list("SFX_UL_List", "", self, "SFX_actions", self, "SFX_actions_index", rows=rows)
-        #col.label(text = 'mist')
         col = col.column(align=True)
         col.operator("sfx.list_action", icon='TRIA_UP', text="").action = 'UP'
         col.operator("sfx.list_action", icon='TRIA_DOWN', text="").action = 'DOWN'
@@ -100,3 +103,6 @@ class SFX_Actuators_Expanded_Inset(bpy.types.PropertyGroup):
         col.prop(self,'simple_actuator_confirm', text='')
         col = row.column()
         col.prop(self,'simple_actuator_confirmed', text='')
+
+    def update_index_do(self,context):
+        pass

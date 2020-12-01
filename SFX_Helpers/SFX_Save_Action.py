@@ -6,7 +6,6 @@ from .. exchange_data.sfx import sfx
 
 
 def write_some_data(context, filepath, action):
-    print("running write_some_data...")
     f = open(filepath, 'w', encoding='utf-8')
     Data = (str(action.id)+';'+
            action.name+';'+
@@ -55,10 +54,9 @@ class SFX_Save_Action(Operator, ExportHelper):
 
     sfx_action : bpy.props.PointerProperty(type = SFX_Action_Props)
 
-
-
     def execute(self, context):
         MotherNode = context.active_node
-        action = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions[self.action_index]
+        index = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index
+        action = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions[index]
         return write_some_data(context, self.filepath, action)
 
