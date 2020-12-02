@@ -1,6 +1,7 @@
 import bpy
 import time
 import ctypes
+import json
 
 from mathutils import Vector
 
@@ -8,6 +9,8 @@ from .SFX_simplelin_Model import SFX_simplelin_Model
 
 from ..... exchange_data.sfx import sfx
 from .SFX_simplelin_Data import actuator_simplelin
+
+from ..... SFX_Helpers.SFX_Calc_Default_Move import SFX_Calc_Default_Move
 
 class SFX_simplelin_Node(bpy.types.Node):
     '''simple Linear Actuator'''
@@ -56,6 +59,12 @@ class SFX_simplelin_Node(bpy.types.Node):
 
         self.SFX_Model = SFX_simplelin_Model(self.name)
         self.draw_model(self.name)
+
+        action0 = sfx.actuators[self.name].Actuator_basic_props.Actuator_props.SFX_actions.add()
+        action0.id = 0
+        action0.name = self.name+'_default.sfxact'
+
+        self.default_action(context, self.name, action0) 
 
     def copy(self, node):
         print("copied node", node)
@@ -178,5 +187,38 @@ class SFX_simplelin_Node(bpy.types.Node):
 
     def draw_model(self,name):
         self.SFX_Model.draw_model(name)
+
+    def default_action(self, context, name, action0):
+
+        Dataobject = bpy.data.objects[name+'_Connector']
+        action0.minPos = sfx.actuators[name].Actuator_basic_props.Actuator_props.simple_actuator_HardMin_prop
+        action0.maxPos = sfx.actuators[name].Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop
+        action0.length = action0.maxPos - action0.minPos
+        action0.maxAcc = sfx.actuators[name].Actuator_basic_props.Actuator_props.simple_actuator_AccMax_prop
+        action0.maxVel = sfx.actuators[name].Actuator_basic_props.Actuator_props.simple_actuator_VelMax_prop
+
+        SFX_Calc_Default_Move(Dataobject, action0.length, action0.maxAcc, action0.maxVel )
+
+        Jrk_Data =[]
+        for i in range(0,len(bpy.data.objects[name+'_Connector'].animation_data.drivers[0].keyframe_points)):
+            Jrk_Data.append((bpy.data.objects[name+'_Connector'].animation_data.drivers[0].keyframe_points[i].co[0],
+            bpy.data.objects[name+'_Connector'].animation_data.drivers[0].keyframe_points[i].co[1]))
+        Acc_Data =[]
+        for i in range(0,len(bpy.data.objects[name+'_Connector'].animation_data.drivers[1].keyframe_points)):
+            Acc_Data.append((bpy.data.objects[name+'_Connector'].animation_data.drivers[1].keyframe_points[i].co[0],
+            bpy.data.objects[name+'_Connector'].animation_data.drivers[1].keyframe_points[i].co[1]))
+        Vel_Data =[]
+        for i in range(0,len(bpy.data.objects[name+'_Connector'].animation_data.drivers[2].keyframe_points)):
+            Vel_Data.append((bpy.data.objects[name+'_Connector'].animation_data.drivers[2].keyframe_points[i].co[0],
+            bpy.data.objects[name+'_Connector'].animation_data.drivers[2].keyframe_points[i].co[1]))
+        Pos_Data =[]
+        for i in range(0,len(bpy.data.objects[name+'_Connector'].animation_data.drivers[3].keyframe_points)):
+            Pos_Data.append((bpy.data.objects[name+'_Connector'].animation_data.drivers[3].keyframe_points[i].co[0],
+            bpy.data.objects[name+'_Connector'].animation_data.drivers[3].keyframe_points[i].co[1]))
+
+        action0.Jrk = json.dumps(Jrk_Data)
+        action0.Acc = json.dumps(Acc_Data)
+        action0.Vel = json.dumps(Vel_Data)
+        action0.Pos = json.dumps(Pos_Data)
 
    

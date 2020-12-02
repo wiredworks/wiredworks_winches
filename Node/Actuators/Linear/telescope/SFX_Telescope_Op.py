@@ -147,7 +147,7 @@ class SFX_OT_Telescope_Op(bpy.types.Operator):
         if data != "NO DATA":
             sfx.actuators[self.MotherNode.name].Actuator_basic_props.online_Actuator = True
             sfx.actuators[self.MotherNode.name].Actuator_basic_props.unpackRecStringfromAxis(data.decode('utf-8'))
-       
+
         return {'PASS_THROUGH'}
 
     def dis_connect(self, context):
@@ -191,7 +191,7 @@ class SFX_OT_Telescope_Op(bpy.types.Operator):
             objects[self.MotherNode.name+'_In'].matrix_world.to_translation()
         DTwin_endLoc = bpy.data.collections.get("ww SFX_Nodes").children[self.MotherNode.name].\
             objects[self.MotherNode.name+'_Out'].matrix_world.to_translation()
-            
+
         # update View_3d when axis is moving specific for each type of actuator
         bpy.data.collections.get("ww SFX_Nodes").children[self.MotherNode.name].\
             objects[self.MotherNode.name+'_Connector'].\

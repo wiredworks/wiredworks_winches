@@ -13,11 +13,8 @@ class SFX_OT_SimpleRot_Op(bpy.types.Operator):
     bl_idname = "sfx.simplerot_op"
     bl_label = "Actuator Register"
 
-    i = 0
-
     def modal(self, context, event):
         if event.type == 'TIMER':
-            self.i = self.i+1
             try:
                 sfx.actuators[self.MotherNode.name].TickTime_prop = (time.time_ns() - self.old_time)/100000.0
             except KeyError:
@@ -152,7 +149,7 @@ class SFX_OT_SimpleRot_Op(bpy.types.Operator):
         if data != "NO DATA":
             sfx.actuators[self.MotherNode.name].Actuator_basic_props.online_Actuator = True
             sfx.actuators[self.MotherNode.name].Actuator_basic_props.unpackRecStringfromAxis(data.decode('utf-8'))
-        
+
         return {'PASS_THROUGH'}
 
     def dis_connect(self, context):
@@ -192,12 +189,12 @@ class SFX_OT_SimpleRot_Op(bpy.types.Operator):
     
     def interact_with_3D_view(self):
         # update DigTwin Props when object is moved in View_3D
-        pass
         DTwin_startLoc = bpy.data.collections.get("ww SFX_Nodes").children[self.MotherNode.name].\
             objects[self.MotherNode.name+'_In'].matrix_world.to_translation()
         DTwin_endLoc = bpy.data.collections.get("ww SFX_Nodes").children[self.MotherNode.name].\
             objects[self.MotherNode.name+'_Out'].matrix_world.to_translation()
 
+        # update View_3d when axis is moving specific for each type of actuator
         bpy.data.collections.get("ww SFX_Nodes").children[self.MotherNode.name].\
             objects[self.MotherNode.name+'_Connector'].\
             rotation_euler.x = radians(sfx.actuators[self.MotherNode.name].Actuator_basic_props.ist_Pos)
@@ -227,7 +224,7 @@ class SFX_OT_SimpleRot_Op(bpy.types.Operator):
                     DigTwin_basic_props.end_Loc[2] != DTwin_endLoc[2]):
             sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
             DigTwin_basic_props.end_Loc = DTwin_endLoc
-        
+
         if (sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
                     DigTwin_basic_props.con_Loc[0] != DTwin_conLoc[0] or
                 sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
@@ -236,6 +233,3 @@ class SFX_OT_SimpleRot_Op(bpy.types.Operator):
                     DigTwin_basic_props.con_Loc[2] != DTwin_conLoc[2]):
             sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
             DigTwin_basic_props.con_Loc = DTwin_conLoc
-
-        sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
-            DigTwin_basic_props.con_Rot = sfx.actuators[self.MotherNode.name].Actuator_basic_props.ist_Pos

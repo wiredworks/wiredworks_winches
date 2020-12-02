@@ -1,11 +1,7 @@
 import bpy
 import time
 import ctypes
-import math
 import json
-import numpy as np
-from scipy.integrate import simps
-from scipy.integrate import quad
 
 from mathutils import Vector
 

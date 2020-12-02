@@ -147,7 +147,7 @@ class SFX_OT_LinRail_Op(bpy.types.Operator):
         if data != "NO DATA":
             sfx.actuators[self.MotherNode.name].Actuator_basic_props.online_Actuator = True
             sfx.actuators[self.MotherNode.name].Actuator_basic_props.unpackRecStringfromAxis(data.decode('utf-8'))
-        
+
         return {'PASS_THROUGH'}
 
     def dis_connect(self, context):
@@ -188,9 +188,9 @@ class SFX_OT_LinRail_Op(bpy.types.Operator):
     def interact_with_3D_view(self):
         # update DigTwin Props when object is moved in View_3D
         DTwin_startLoc = bpy.data.collections.get("ww SFX_Nodes").children[self.MotherNode.name].\
-            objects[self.MotherNode.name+'_In'].location
+            objects[self.MotherNode.name+'_In'].matrix_world.to_translation()
         DTwin_endLoc = bpy.data.collections.get("ww SFX_Nodes").children[self.MotherNode.name].\
-            objects[self.MotherNode.name+'_Out'].location
+            objects[self.MotherNode.name+'_Out'].matrix_world.to_translation()
 
         # update View_3d when axis is moving specific for each type of actuator
         bpy.data.collections.get("ww SFX_Nodes").children[self.MotherNode.name].\
@@ -201,12 +201,10 @@ class SFX_OT_LinRail_Op(bpy.types.Operator):
 
         DTwin_conLoc = bpy.data.collections.get("ww SFX_Nodes").children[self.MotherNode.name].\
             objects[self.MotherNode.name+'_Connector'].matrix_world.to_translation()
-        
-        if (sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
-                    DigTwin_basic_props.length != (DTwin_endLoc-DTwin_startLoc).length):
-            sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
-            DigTwin_basic_props.length = (DTwin_endLoc-DTwin_startLoc).length
-        
+
+        # sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
+        #     DigTwin_basic_props.length = (DTwin_endLoc-DTwin_startLoc).length
+
         if (sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
                     DigTwin_basic_props.start_Loc[0] != DTwin_startLoc[0] or
                 sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
@@ -215,7 +213,7 @@ class SFX_OT_LinRail_Op(bpy.types.Operator):
                     DigTwin_basic_props.start_Loc[2] != DTwin_startLoc[2]):
             sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
             DigTwin_basic_props.start_Loc = DTwin_startLoc
-        
+
         if (sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
                     DigTwin_basic_props.end_Loc[0] != DTwin_endLoc[0] or
                 sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
