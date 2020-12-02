@@ -127,29 +127,28 @@ class SFX_Digtwin_Basic_Inset(bpy.types.PropertyGroup):
         row = box.row()        
         split = row.split(factor = 1)
         col1 = split.column()
-        if self.Mother_sfx_sub_type == 'Rotational':# or self.Mother_sfx_id != 'linrail':
-            col1.enabled = False
-        else:
-            col1.enabled = True       
-        col1.label(text='Start Loc')        
-        col1.prop(self, 'start_Loc' , text = '')
+        col1.label(text='Start Loc')
         split = row.split(factor = 1)
         col2 = split.column()
         col2.enabled = False
         col2.label(text='POS')
-        col2.prop(self, 'con_Loc' , text = '')
         split = row.split(factor = 1)
         col3 = split.column()
-        if self.Mother_sfx_sub_type == 'Rotational' or self.Mother_sfx_id != 'linrail':
-            col3.enabled = False
-        else:
-            col3.enabled = True  
-        col3.label(text='End Loc')
-        col3.prop(self, 'end_Loc' , text = '')
-
         split = row.split(factor = 1)
-        col4 = split.column()
- 
+        col3 = split.column()
+        col3.label(text='End Loc')        
+        if self.Mother_sfx_sub_type == 'Rotational':
+            col1.prop(self, 'start_Rot' , text = '')
+            col2.prop(self, 'con_Rot' , text = '')
+            col3.prop(self, 'end_Rot' , text = '')
+        else:
+            col1.prop(self, 'start_Loc' , text = '')
+            col2.prop(self, 'con_Loc' , text = '')
+            col3.prop(self, 'end_Loc' , text = '')
+        if self.Mother_sfx_id == 'telescope':
+            col3.enabled = False
+        split = row.split(factor = 1)
+        col4 = split.column() 
         col4.label(text='Lenght')
         col4.prop(self, 'length' , text = '')
         col4.label(text ='Y-Z Scale')
@@ -164,28 +163,8 @@ class SFX_Digtwin_Basic_Inset(bpy.types.PropertyGroup):
         col42.prop(self, 'mass_column2' , text = '')
         col43 =split.column()
         col43.prop(self, 'mass_column3' , text = '')
-
         row = box.row()
-        col6 = row.column(align = True)
-        col7 = col6.split( factor = 0.43)
-        col8 = col7.split( factor = 0.68)
-        col9 = col8.split( factor = 0.5)
-        col10 = col9.split( factor = 1)
-        if self.Mother_sfx_sub_type == 'Linear':
-            col8.enabled = False
-            col9.enabled = False
-            col10.enabled = False
-        else:
-            col8.enabled = True
-            col9.enabled = True
-            col10.enabled = True  
-        col10.prop(self, 'start_Rot' , text = '')
-        col9.prop(self, 'con_Rot' , text = '')
-        col8.prop(self, 'end_Rot' , text = '')
-
-        row = box.row()
-        row.prop(self,'expand_DigTwin_setup')            
-
+        row.prop(self,'expand_DigTwin_setup')
 
         if self.expand_DigTwin_setup:
             self.DigTwin_props.draw_ww_DigTwin_props(context, box)
