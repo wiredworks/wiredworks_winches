@@ -18,7 +18,6 @@ class SFX_OT_MaxPos_update(bpy.types.Operator):
         LengthOld   = Actions[ActionIndex].length
         HardMaxOld  = Actions[ActionIndex].maxPos 
         if HardMax != HardMaxOld and Length != LengthOld:
-            print('Recalc Action with maxPos')
             action0 = sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.SFX_actions.add()
             action0.id = len(sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.SFX_actions)
             action0.name = context.active_node.name+'_'+str(action0.id)+'_mod.sfxact'

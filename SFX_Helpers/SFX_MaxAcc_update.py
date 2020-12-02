@@ -33,7 +33,7 @@ class SFX_OT_MaxAcc_update(bpy.types.Operator):
         action0.maxAcc = sfx.actuators[name].Actuator_basic_props.Actuator_props.simple_actuator_AccMax_prop
         action0.maxVel = sfx.actuators[name].Actuator_basic_props.Actuator_props.simple_actuator_VelMax_prop
 
-        ret = self.DefaultMove = SFX_Calc_Default_Move(Dataobject, action0.length, action0.maxAcc, action0.maxVel )
+        self.DefaultMove = SFX_Calc_Default_Move(Dataobject, action0.length, action0.maxAcc, action0.maxVel )
 
         Jrk_Data =[]
         for i in range(0,len(bpy.data.objects[name+'_Connector'].animation_data.drivers[0].keyframe_points)):

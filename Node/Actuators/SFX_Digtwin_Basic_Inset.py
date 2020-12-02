@@ -28,6 +28,9 @@ class SFX_Digtwin_Basic_Inset(bpy.types.PropertyGroup):
             if self.Mother_sfx_id == 'linrail': 
                 bpy.data.collections.get("ww SFX_Nodes").children[self.Mother_name].\
                     objects[self.Mother_name+'_In'].location=self.start_Loc
+            elif self.Mother_sfx_id == 'telescope':
+                bpy.data.collections.get("ww SFX_Nodes").children[self.Mother_name].\
+                    objects[self.Mother_name].location=self.start_Loc                
             else:
                 pass
         self.update_length(context)

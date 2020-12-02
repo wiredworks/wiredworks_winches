@@ -14,8 +14,8 @@ class SFX_OT_MinPos_update(bpy.types.Operator):
         HardMax     = sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop
         ActionIndex = sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.SFX_actions_index
         Actions     = sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.SFX_actions
-        HardMinOld  = Actions[ActionIndex].minPos 
-        if HardMin!= HardMinOld and HardMin+0.01 >= HardMax:
+        HardMinOld  = Actions[ActionIndex].minPos
+        if (HardMin!= HardMinOld and (HardMin+0.01) <= HardMax):
             action0 = sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.SFX_actions.add()
             action0.id = len(sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.SFX_actions)
             action0.name = context.active_node.name+'_'+str(action0.id)+'_mod.sfxact'
@@ -34,7 +34,7 @@ class SFX_OT_MinPos_update(bpy.types.Operator):
         action0.maxAcc = sfx.actuators[name].Actuator_basic_props.Actuator_props.simple_actuator_AccMax_prop
         action0.maxVel = sfx.actuators[name].Actuator_basic_props.Actuator_props.simple_actuator_VelMax_prop
 
-        ret = self.DefaultMove = SFX_Calc_Default_Move(Dataobject, action0.length, action0.maxAcc, action0.maxVel )
+        self.DefaultMove = SFX_Calc_Default_Move(Dataobject, action0.length, action0.maxAcc, action0.maxVel )
 
         Jrk_Data =[]
         for i in range(0,len(bpy.data.objects[name+'_Connector'].animation_data.drivers[0].keyframe_points)):
