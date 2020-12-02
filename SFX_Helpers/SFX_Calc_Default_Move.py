@@ -11,21 +11,20 @@ class SFX_Calc_Default_Move:
 
         self.Dataobject = Dataobject
         self.Length     = length
-        self.acc        = maxAcc
+        self.accS        = maxAcc
         self.velS       = maxVel
         self.JH         = 10.0 
-        
-        self.Pulses = []
-       
-        (self.T, self.t1, self.JH, self.t2, self.t3) = self.CalcTimes( self.Length, self.JH, self.acc, self.velS)
-        
-        Puls = ( 0, self.t1, self.T, self.t1)
-        self.starttime = Puls[0]
-        self.endtime   = Puls[0] + Puls[1] +  Puls[2] +  Puls[3]
-        
-        self.InitCurves()
-        self.InitData()
-        self.func()        
+        if self.Length > 0  and self.accS >0 and self.velS > 0:
+            self.Pulses = []       
+            (self.T, self.t1, self.JH, self.t2, self.t3) = self.CalcTimes( self.Length, self.JH, self.accS, self.velS)        
+            Puls = ( 0, self.t1, self.T, self.t1)
+            self.starttime = Puls[0]
+            self.endtime   = Puls[0] + Puls[1] +  Puls[2] +  Puls[3]
+            
+            self.InitCurves()
+            self.InitData()
+            self.func()
+     
                 
     def CalcTimes(self, LengthS, JerkHeightS, accS, velS):
         ''' T = 10t 
@@ -76,12 +75,14 @@ class SFX_Calc_Default_Move:
                     while t1 <= 0.02 :
                         JerkHeight = JerkHeight/2
                         T = math.pow((LengthS*125/(396.0 * JerkHeight)),(1/3.0))
-                        print(T)
                         t1 = T / 10.0
 
         if Length < LengthS:
-            t3 = (LengthS-Length)/vel    
-
+            try:
+                t3 = (LengthS-Length)/vel    
+            except ZeroDivisionError:
+                print('Zero Division Error')
+                t3 = 0
         acc = JerkHeight*(T+t1)                   
         vel = JerkHeight*(T*T + 3*T*t1 + 2*t1*t1 )+acc*t2
         Length = vel*(4*T + 8*t1 + 2*t2 + 2*t3 ) / 2.0#

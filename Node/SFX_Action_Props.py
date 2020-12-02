@@ -7,6 +7,12 @@ class SFX_Action_Props(bpy.types.PropertyGroup):
     name : bpy.props.StringProperty(name = 'Name',
                                  description = 'Name',
                                  default = 'Name')
+    saved : bpy.props.BoolProperty(name = 'Saved',
+                                 description = 'Saved',
+                                 default = False)
+    path : bpy.props.StringProperty(name = 'Path',
+                                 description = 'Path',
+                                 default ='')
     minPos : bpy.props.FloatProperty(name = 'Min Pos',
                                  description = 'Min Pos',
                                  default = 0)

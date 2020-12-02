@@ -12,17 +12,19 @@ def read_some_data(context, filepath, item):
     data = f.read()
     f.close()
     Data = data.split(';')
-    item.id = float(Data[0])
-    item.name = Data[1]
-    item.minPos = float(Data[2])
-    item.maxPos = float(Data[3])
-    item.maxAcc = float(Data[4])
-    item.maxVel = float(Data[5])
-    item.length = float(Data[6])
-    item.Jrk    = Data[7]
-    item.Acc    = Data[8]
-    item.Vel    = Data[9]
-    item.Pos    = Data[10]
+    item.id     = float(Data[0])
+    item.name   = Data[1]
+    item.saved  = Data[2]
+    item.path   = Data[3]
+    item.minPos = float(Data[4])
+    item.maxPos = float(Data[5])
+    item.maxAcc = float(Data[6])
+    item.maxVel = float(Data[7])
+    item.length = float(Data[8])
+    item.Jrk    = Data[9]
+    item.Acc    = Data[10]
+    item.Vel    = Data[11]
+    item.Pos    = Data[12]
 
     return {'FINISHED'}
 
@@ -38,10 +40,9 @@ class SFX_OT_list_actions(bpy.types.Operator):
             ('REMOVE', "Remove", ""),
             ('ADD', "Add", ""),
             ('SAVE', "Save", "")
+            )
         )
-    )
     def invoke(self, context, event):
-
         MotherNode = context.active_node
         sfx_actions   = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions
 
@@ -53,29 +54,15 @@ class SFX_OT_list_actions(bpy.types.Operator):
             item = sfx_actions[sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index]
         except IndexError:
             pass
-        # if (self.action == 'DOWN' and \
-        #     sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index < len(sfx_actions)-1):
-        #     sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index +=1
-        #     index = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index 
-        #     #self.update_fcurves(context, sfx_actions, index) 
-
-        # elif (self.action == 'UP' and \
-        #     sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index> 0):
-        #     sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index -= 1
-        #     index = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index
-        #     #self.update_fcurves(context, sfx_actions, index)
-
         if self.action == 'REMOVE':
-            if sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index > 0:
+            if len(sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions) > 1:
                 sfx_actions.remove(sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index)
-                sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index -= 1
+                if sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index > 0:
+                    sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index -= 1
                 index = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index
-                #self.update_fcurves(context, sfx_actions, index)
-
         if self.action == 'ADD':
             bpy.ops.sfx.select_operator('INVOKE_DEFAULT')            
             sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index = (len(sfx_actions)-1)
-
         if self.action == 'SAVE':
             bpy.ops.sfx.save_list('INVOKE_DEFAULT')          
 
@@ -137,7 +124,6 @@ class SFX_OT_list_actions(bpy.types.Operator):
             Velcurve.keyframe_points.insert( V[i][0] , V[i][1]) 
         for i in range(0, len(P)):
             Poscurve.keyframe_points.insert( P[i][0] , P[i][1])
-
         return
 
 class SFX_OT_save_List(bpy.types.Operator):
@@ -170,10 +156,8 @@ class SFX_OT_SelectOperator(bpy.types.Operator, ImportHelper):
     def execute(self, context):
         MotherNode = context.active_node
         sfx_actions       = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions
-        
         # get the folder
         folder = (os.path.dirname(self.filepath))
-
         # iterate through the selected files
         for i in self.files:
             # generate full path to file
@@ -181,8 +165,7 @@ class SFX_OT_SelectOperator(bpy.types.Operator, ImportHelper):
             item = sfx_actions.add()
             item.id = len(sfx_actions)
             item.name = i.name # assign name of selected object
-            read_some_data(context, path_to_file, item)
-        
+            read_some_data(context, path_to_file, item)        
         self.report({'INFO'}, "Files Added")
         return {'FINISHED'}
 
@@ -190,12 +173,15 @@ class SFX_OT_SelectOperator(bpy.types.Operator, ImportHelper):
 class SFX_UL_List(UIList):
 
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
-        split = layout.split(factor = 0.7)
+        split = layout.split(factor = 0.95)
         split.prop(item, "name", text="", emboss=False, translate=False, icon='DRIVER')
-        split.label(text="Index: %d" % (index))
+        if item.saved == False:
+            split.label(text='', icon ='CHECKBOX_DEHLT')
+        else:
+            split.label(text='', icon ='CHECKBOX_HLT')           
+            
 
     def invoke(self, context, event):
-        print('INVOKE')
         pass
 
 class SFX_OT_clear_List(bpy.types.Operator):
@@ -206,12 +192,11 @@ class SFX_OT_clear_List(bpy.types.Operator):
     def execute(self, context):
         MotherNode = context.active_node
         sfx_actions       = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions
-
         if len(sfx_actions) > 1:
              # reverse range to remove last item first but keep first
             for i in range(len(sfx_actions)-1,0,-1):
                 sfx_actions.remove(i)
+            sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index = 0
         else:
             pass
-
         return{'FINISHED'}

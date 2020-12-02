@@ -147,10 +147,7 @@ class SFX_OT_Telescope_Op(bpy.types.Operator):
         if data != "NO DATA":
             sfx.actuators[self.MotherNode.name].Actuator_basic_props.online_Actuator = True
             sfx.actuators[self.MotherNode.name].Actuator_basic_props.unpackRecStringfromAxis(data.decode('utf-8'))
-        
-        sfx.actuators[self.MotherNode.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop = \
-        sfx.actuators[self.MotherNode.name].Actuator_basic_props.DigTwin_basic_props.length
-        
+       
         return {'PASS_THROUGH'}
 
     def dis_connect(self, context):
@@ -194,7 +191,8 @@ class SFX_OT_Telescope_Op(bpy.types.Operator):
             objects[self.MotherNode.name+'_In'].matrix_world.to_translation()
         DTwin_endLoc = bpy.data.collections.get("ww SFX_Nodes").children[self.MotherNode.name].\
             objects[self.MotherNode.name+'_Out'].matrix_world.to_translation()
-
+            
+        # update View_3d when axis is moving specific for each type of actuator
         bpy.data.collections.get("ww SFX_Nodes").children[self.MotherNode.name].\
             objects[self.MotherNode.name+'_Connector'].\
             location.x = sfx.actuators[self.MotherNode.name].Actuator_basic_props.ist_Pos
@@ -212,11 +210,29 @@ class SFX_OT_Telescope_Op(bpy.types.Operator):
         # sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
         #     DigTwin_basic_props.length = (DTwin_endLoc-DTwin_startLoc).length
 
-        sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
+        if (sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
+                    DigTwin_basic_props.start_Loc[0] != DTwin_startLoc[0] or
+                sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
+                    DigTwin_basic_props.start_Loc[1] != DTwin_startLoc[1] or
+                sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
+                    DigTwin_basic_props.start_Loc[2] != DTwin_startLoc[2]):
+            sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
             DigTwin_basic_props.start_Loc = DTwin_startLoc
 
-        sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
+        if (sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
+                    DigTwin_basic_props.end_Loc[0] != DTwin_endLoc[0] or
+                sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
+                    DigTwin_basic_props.end_Loc[1] != DTwin_endLoc[1] or
+                sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
+                    DigTwin_basic_props.end_Loc[2] != DTwin_endLoc[2]):
+            sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
             DigTwin_basic_props.end_Loc = DTwin_endLoc
 
-        sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
+        if (sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
+                    DigTwin_basic_props.con_Loc[0] != DTwin_conLoc[0] or
+                sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
+                    DigTwin_basic_props.con_Loc[1] != DTwin_conLoc[1] or
+                sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
+                    DigTwin_basic_props.con_Loc[2] != DTwin_conLoc[2]):
+            sfx.actuators[self.MotherNode.name].Actuator_basic_props.\
             DigTwin_basic_props.con_Loc = DTwin_conLoc

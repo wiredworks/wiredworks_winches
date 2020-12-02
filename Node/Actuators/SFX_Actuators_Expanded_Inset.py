@@ -6,8 +6,17 @@ class SFX_Actuators_Expanded_Inset(bpy.types.PropertyGroup):
     '''Defines Physical Props of an Actuator'''
     bl_idname = "SFX_simple_Actuator_Inset"
     
-    def update_conf(self,context):
-        pass
+    def update_HardMax(self,context):
+        self.update_HardMax_do(context)
+
+    def update_HardMin(self,context):
+        self.update_HardMin_do(context)
+
+    def update_VelMax(self,context):
+        self.update_VelMax_do(context)
+        
+    def update_AccMax(self,context):
+        self.update_AccMax_do(context)
 
     def update_index(self,context):
         self.update_index_do(context)
@@ -16,22 +25,22 @@ class SFX_Actuators_Expanded_Inset(bpy.types.PropertyGroup):
                                                                 description ="Maximum Position set in the PLC",
                                                                 default=5.0,
                                                                 precision=3,
-                                                                update = update_conf)
+                                                                update = update_HardMax)
     simple_actuator_HardMin_prop: bpy.props.FloatProperty(name = "Hard Min",
                                                                 description ="Minimum Position set in the PLC",
                                                                 default=0.0,
                                                                 precision=3,
-                                                                update = update_conf)
+                                                                update = update_HardMin)
     simple_actuator_VelMax_prop: bpy.props.FloatProperty(name = "Vel Max",
                                                                 description ="Maximum Velocity set in Program",
                                                                 default=5.0,
                                                                 precision=3,
-                                                                update = update_conf)
+                                                                update = update_VelMax)
     simple_actuator_AccMax_prop: bpy.props.FloatProperty(name = "Acc Max",
                                                                 description ="Maximum Acceleration",
                                                                 default=5.0,
                                                                 precision=3,
-                                                                update = update_conf)
+                                                                update = update_AccMax)
 
     SFX_actions                 : bpy.props.CollectionProperty(type=SFX_Action_Props)
     SFX_actions_index           : bpy.props.IntProperty(name = "Index",
@@ -46,13 +55,7 @@ class SFX_Actuators_Expanded_Inset(bpy.types.PropertyGroup):
                                     description = " Set if Data is confirmed",
                                     default = False)
 
-    def update_confirm(self):
-       #self.simple_actuator_confirm = False 
-       self.simple_actuator_confirmed = False
-       pass
-
     def drawActuatorSetup(self, context, layout):
-
         boxA = layout.box()
         row = boxA.row()
         row.label(text='Action Setup') 
@@ -62,24 +65,20 @@ class SFX_Actuators_Expanded_Inset(bpy.types.PropertyGroup):
             current_item = (self.SFX_actions[self.SFX_actions_index].name)
         except IndexError:
             current_item = ""
-        col = col.split(factor = 0.95)
+        col = col.split(factor = 1)
         rows = 4        
         col.template_list("SFX_UL_List", "", self, "SFX_actions", self, "SFX_actions_index", rows=rows)
         col = col.column(align=True)
-        #col.operator("sfx.list_action", icon='TRIA_UP', text="").action = 'UP'
-        #col.operator("sfx.list_action", icon='TRIA_DOWN', text="").action = 'DOWN'
 
         row = col.row()        
         col = boxA.column(align=True)
         rowsub = col.row(align=True)
-        rowsub.operator("sfx.list_action", icon='ZOOM_IN', text="Add Action").action = 'ADD'
-        rowsub.operator("sfx.list_action", icon='ZOOM_OUT', text="Remove Action").action = 'REMOVE'
+        rowsub.operator("sfx.list_action", icon='ZOOM_IN', text="Load Action").action = 'ADD'
+        rowsub.operator("sfx.list_action", icon='ZOOM_OUT', text="Un-Load Action").action = 'REMOVE'
         rowsub.operator("sfx.list_action", icon='FILE_TICK', text="Save Action").action = 'SAVE'
         row = col.row()
         col = row.column(align=True)
         col.operator("sfx.clear_list", icon="X")        
-        # row = col.row(align = True)
-        # row.label(text ="Active Action: {}".format(current_item))
 
         col1= box1.column()
         row = col1.row() 
@@ -95,7 +94,7 @@ class SFX_Actuators_Expanded_Inset(bpy.types.PropertyGroup):
         row.label(text = 'Max Acc')
         row.prop(self,'simple_actuator_AccMax_prop', text='')
         row= col1.row()
-        row = row.split(factor = 0.7)
+        row = row.split(factor = 0.11)
         col= row.column()
         col.separator()
         col = row.column()
@@ -105,4 +104,17 @@ class SFX_Actuators_Expanded_Inset(bpy.types.PropertyGroup):
 
     def update_index_do(self,context):
         bpy.ops.sfx.list_action('INVOKE_DEFAULT')
+        return
+
+    def update_HardMax_do(self,context):
+        bpy.ops.sfx.maxpos_update('INVOKE_DEFAULT')
+        return
+    def update_HardMin_do(self,context):
+        bpy.ops.sfx.minpos_update('INVOKE_DEFAULT')
+        return
+    def update_VelMax_do(self,context):
+        bpy.ops.sfx.maxvel_update('INVOKE_DEFAULT')
+        return
+    def update_AccMax_do(self,context):
+        bpy.ops.sfx.maxacc_update('INVOKE_DEFAULT')
         return

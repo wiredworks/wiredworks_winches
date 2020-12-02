@@ -124,7 +124,7 @@ class SFX_Digtwin_Basic_Inset(bpy.types.PropertyGroup):
         row = box.row()        
         split = row.split(factor = 1)
         col1 = split.column()
-        if self.Mother_sfx_sub_type == 'Rotational' or self.Mother_sfx_id != 'linrail':
+        if self.Mother_sfx_sub_type == 'Rotational':# or self.Mother_sfx_id != 'linrail':
             col1.enabled = False
         else:
             col1.enabled = True       
@@ -188,6 +188,7 @@ class SFX_Digtwin_Basic_Inset(bpy.types.PropertyGroup):
             self.DigTwin_props.draw_ww_DigTwin_props(context, box)
 
     def update_length(self,context):
+        bpy.ops.sfx.length_update('INVOKE_DEFAULT')
         if self.Mother_sfx_sub_type == 'Linear':
             if self.Mother_sfx_id == 'linrail':
                 in_loc = bpy.data.collections.get("ww SFX_Nodes").children[self.Mother_name].\
@@ -219,7 +220,6 @@ class SFX_Digtwin_Basic_Inset(bpy.types.PropertyGroup):
         pass
 
     def update_y_z_Scale(self,context):
-        print('Scale')
         bpy.data.collections.get("ww SFX_Nodes").children[self.Mother_name].\
             objects[self.Mother_name].scale.y  = self.y_z_scale
         bpy.data.collections.get("ww SFX_Nodes").children[self.Mother_name].\

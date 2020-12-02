@@ -9,6 +9,8 @@ def write_some_data(context, filepath, action):
     f = open(filepath, 'w', encoding='utf-8')
     Data = (str(action.id)+';'+
            action.name+';'+
+           str(action.saved)+';'+
+           action.path+';'+
            str(action.minPos)+';'+
            str(action.maxPos)+';'+
            str(action.maxAcc)+';'+
@@ -58,5 +60,6 @@ class SFX_Save_Action(Operator, ExportHelper):
         MotherNode = context.active_node
         index = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index
         action = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions[index]
+        action.saved = True
         return write_some_data(context, self.filepath, action)
 
