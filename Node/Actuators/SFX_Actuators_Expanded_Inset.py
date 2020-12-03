@@ -41,6 +41,10 @@ class SFX_Actuators_Expanded_Inset(bpy.types.PropertyGroup):
                                                                 default=5.0,
                                                                 precision=3,
                                                                 update = update_AccMax)
+    simple_actuator_Time_prop: bpy.props.FloatProperty(name = "Time",
+                                                                description ="Time",
+                                                                default=0.0,
+                                                                precision=3)
 
     SFX_actions                 : bpy.props.CollectionProperty(type=SFX_Action_Props)
     SFX_actions_index           : bpy.props.IntProperty(name = "Index",
@@ -93,6 +97,10 @@ class SFX_Actuators_Expanded_Inset(bpy.types.PropertyGroup):
         row= col1.row()
         row.label(text = 'Max Acc')
         row.prop(self,'simple_actuator_AccMax_prop', text='')
+        row1= col1.row()
+        row1.label(text = 'Time')
+        row1.prop(self,'simple_actuator_Time_prop', text='')
+        row1.enabled = False
         row= col1.row()
         row = row.split(factor = 0.11)
         col= row.column()
