@@ -52,8 +52,13 @@ class SFX_OT_MaxVel_update(bpy.types.Operator):
         for i in range(0,len(bpy.data.objects[name+'_Connector'].animation_data.drivers[3].keyframe_points)):
             Pos_Data.append((bpy.data.objects[name+'_Connector'].animation_data.drivers[3].keyframe_points[i].co[0],
             bpy.data.objects[name+'_Connector'].animation_data.drivers[3].keyframe_points[i].co[1]))
+        Vel_Time_Data =[]
+        for i in range(0,len(bpy.data.objects[name+'_Connector'].animation_data.drivers[4].keyframe_points)):
+            Vel_Time_Data.append((bpy.data.objects[name+'_Connector'].animation_data.drivers[4].keyframe_points[i].co[0],
+            bpy.data.objects[name+'_Connector'].animation_data.drivers[4].keyframe_points[i].co[1]))
 
         action0.Jrk = json.dumps(Jrk_Data)
         action0.Acc = json.dumps(Acc_Data)
         action0.Vel = json.dumps(Vel_Data)
         action0.Pos = json.dumps(Pos_Data)
+        action0.Pos = json.dumps(Vel_Time_Data)

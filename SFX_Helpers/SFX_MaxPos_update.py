@@ -16,7 +16,9 @@ class SFX_OT_MaxPos_update(bpy.types.Operator):
         Length      = sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop-\
                       sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMin_prop
         LengthOld   = Actions[ActionIndex].length
-        HardMaxOld  = Actions[ActionIndex].maxPos 
+        HardMaxOld  = Actions[ActionIndex].maxPos
+        # would cause a loop and stackoverflow
+        #sfx.actuators[context.active_node.name].Actuator_basic_props.DigTwin_basic_props.length = Length
         if HardMax != HardMaxOld and Length != LengthOld:
             action0 = sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.SFX_actions.add()
             action0.id = len(sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.SFX_actions)
@@ -36,7 +38,7 @@ class SFX_OT_MaxPos_update(bpy.types.Operator):
         action0.maxAcc = sfx.actuators[name].Actuator_basic_props.Actuator_props.simple_actuator_AccMax_prop
         action0.maxVel = sfx.actuators[name].Actuator_basic_props.Actuator_props.simple_actuator_VelMax_prop
 
-        ret = self.DefaultMove = SFX_Calc_Default_Move(Dataobject, action0.length, action0.maxAcc, action0.maxVel )
+        self.DefaultMove = SFX_Calc_Default_Move(Dataobject, action0.length, action0.maxAcc, action0.maxVel )
 
         Jrk_Data =[]
         for i in range(0,len(bpy.data.objects[name+'_Connector'].animation_data.drivers[0].keyframe_points)):
@@ -54,8 +56,13 @@ class SFX_OT_MaxPos_update(bpy.types.Operator):
         for i in range(0,len(bpy.data.objects[name+'_Connector'].animation_data.drivers[3].keyframe_points)):
             Pos_Data.append((bpy.data.objects[name+'_Connector'].animation_data.drivers[3].keyframe_points[i].co[0],
             bpy.data.objects[name+'_Connector'].animation_data.drivers[3].keyframe_points[i].co[1]))
+        Vel_Time_Data =[]
+        for i in range(0,len(bpy.data.objects[name+'_Connector'].animation_data.drivers[4].keyframe_points)):
+            Vel_Time_Data.append((bpy.data.objects[name+'_Connector'].animation_data.drivers[4].keyframe_points[i].co[0],
+            bpy.data.objects[name+'_Connector'].animation_data.drivers[4].keyframe_points[i].co[1]))
 
         action0.Jrk = json.dumps(Jrk_Data)
         action0.Acc = json.dumps(Acc_Data)
         action0.Vel = json.dumps(Vel_Data)
         action0.Pos = json.dumps(Pos_Data)
+        action0.Pos = json.dumps(Vel_Time_Data) 

@@ -63,14 +63,15 @@ class SFX_Actuators_Expanded_Inset(bpy.types.PropertyGroup):
         boxA = layout.box()
         row = boxA.row()
         row.label(text='Action Setup') 
-        box1 = boxA.split(factor = 0.8)
+        box1 = boxA.split(factor = 0.5)
         col = box1.column(align = True)
+        #col = col.split(factor = 0.5)
+
         try:
             current_item = (self.SFX_actions[self.SFX_actions_index].name)
         except IndexError:
             current_item = ""
-        col = col.split(factor = 1)
-        rows = 4        
+        rows = 3        
         col.template_list("SFX_UL_List", "", self, "SFX_actions", self, "SFX_actions_index", rows=rows)
         col = col.column(align=True)
 
@@ -84,24 +85,29 @@ class SFX_Actuators_Expanded_Inset(bpy.types.PropertyGroup):
         col = row.column(align=True)
         col.operator("sfx.clear_list", icon="X")        
 
-        col1= box1.column()
-        row = col1.row() 
+
+        col1= box1.column(align = True)
+        col1 = col1.split(factor = 0.5)
+        colA = col1.column()
+        row = colA.row() 
         row.label(text = 'Min Pos')
         row.prop(self,'simple_actuator_HardMin_prop', text='')
-        row = col1.row()
+        row = colA.row()
         row.label(text = 'Max Pos')
         row.prop(self,'simple_actuator_HardMax_prop', text='')
-        row = col1.row()
+
+        col2 = col1.column()
+        row = col2.row()
         row.label(text = 'Max Vel')
         row.prop(self,'simple_actuator_VelMax_prop', text='')
-        row= col1.row()
+        row= col2.row()
         row.label(text = 'Max Acc')
         row.prop(self,'simple_actuator_AccMax_prop', text='')
-        row1= col1.row()
+        row1= col2.row()
         row1.label(text = 'Time')
         row1.prop(self,'simple_actuator_Time_prop', text='')
         row1.enabled = False
-        row= col1.row()
+        row= col2.row()
         row = row.split(factor = 0.11)
         col= row.column()
         col.separator()
