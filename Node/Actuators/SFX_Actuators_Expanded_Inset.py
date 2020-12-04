@@ -96,7 +96,11 @@ class SFX_Actuators_Expanded_Inset(bpy.types.PropertyGroup):
         row.prop(self,'simple_actuator_HardMax_prop', text='')
 
         row = colA.row()
-        row.operator('sfx.simplify', icon ='NONE', text = 'Simplyfy')
+        row.separator()
+        row = colA.row()
+        row.separator()
+        row = colA.row()
+        row.operator('sfx.simplify', icon ='NONE', text = 'Simplify')
 
         col2 = col1.column()
         row = col2.row()
