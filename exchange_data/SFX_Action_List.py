@@ -14,7 +14,7 @@ def read_some_data(context, filepath, item):
     Data = data.split(';')
     item.id     = float(Data[0])
     item.name   = Data[1]
-    item.saved  = Data[2]
+    item.saved  = bool(Data[2])
     item.path   = Data[3]
     item.minPos = float(Data[4])
     item.maxPos = float(Data[5])
@@ -25,6 +25,7 @@ def read_some_data(context, filepath, item):
     item.Acc    = Data[10]
     item.Vel    = Data[11]
     item.Pos    = Data[12]
+    item.VT     = Data[13]
 
     return {'FINISHED'}
 
@@ -90,6 +91,8 @@ class SFX_OT_list_actions(bpy.types.Operator):
             Dataobject.driver_remove('["Acc"]')
             Dataobject.driver_remove('["Vel"]')
             Dataobject.driver_remove('["Pos"]')
+            Dataobject.driver_remove('["Pos"]')
+            Dataobject.driver_remove('["Vel-Time"]')
         except:
              pass
         Jrkcurve = Dataobject.driver_add('["Jrk"]')
@@ -112,10 +115,16 @@ class SFX_OT_list_actions(bpy.types.Operator):
             Poscurve.modifiers.remove(Poscurve.modifiers[0])
         except IndexError:
             pass
-        J = json.loads(sfx_actions[index].Jrk)
-        A = json.loads(sfx_actions[index].Acc)
-        V = json.loads(sfx_actions[index].Vel)
-        P = json.loads(sfx_actions[index].Pos)
+        VTcurve = Dataobject.driver_add('["Vel-Time"]')
+        try:
+            VTcurve.modifiers.remove(VTcurve.modifiers[0])
+        except IndexError:
+            pass
+        J  = json.loads(sfx_actions[index].Jrk)
+        A  = json.loads(sfx_actions[index].Acc)
+        V  = json.loads(sfx_actions[index].Vel)
+        P  = json.loads(sfx_actions[index].Pos)
+        VT = json.loads(sfx_actions[index].VT)
         for i in range(0, len(J)):
             Jrkcurve.keyframe_points.insert( J[i][0] , J[i][1])
         for i in range(0, len(A)):
@@ -124,6 +133,8 @@ class SFX_OT_list_actions(bpy.types.Operator):
             Velcurve.keyframe_points.insert( V[i][0] , V[i][1]) 
         for i in range(0, len(P)):
             Poscurve.keyframe_points.insert( P[i][0] , P[i][1])
+        for i in range(0, len(VT)):
+            VTcurve.keyframe_points.insert( VT[i][0] , VT[i][1])
         return
 
 class SFX_OT_save_List(bpy.types.Operator):

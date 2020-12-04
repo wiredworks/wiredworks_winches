@@ -224,4 +224,4 @@ class SFX_LinRail_Node(bpy.types.Node):
         action0.Acc = json.dumps(Acc_Data)
         action0.Vel = json.dumps(Vel_Data)
         action0.Pos = json.dumps(Pos_Data)
-        action0.Pos = json.dumps(Vel_Time_Data)  
+        action0.VT  = json.dumps(Vel_Time_Data)  

@@ -25,20 +25,8 @@ class SFX_Calc_Default_Move:
             self.InitCurves()
             self.InitData()
             self.func()
-            #options = mode, TBD, k_thresh, order, error, TBD, dis_error)
-            options = ('DISTANCE', 0, 1, 3, 0.01, 0, 0.02)
-            fcurve_sel = [self.Jrkcurve, self.Acccurve, self.Velcurve, self.Poscurve, self.VTcurve]
-            fcurves=[]
-            for i in range(0,len(fcurve_sel)):
-                points = []
-                for j in range(0, len(fcurve_sel[i].keyframe_points)):
-                    x = fcurve_sel[i].keyframe_points[j].co.x
-                    y = fcurve_sel[i].keyframe_points[j].co.y
-                    points.append(mathutils.Vector((x, y)))
-                fcurves.append(points)
 
-            self.SFX_fcurves_simplify(fcurve_sel,options,fcurves)     
-                
+
     def CalcTimes(self, LengthS, JerkHeightS, accS, velS):
         ''' T = 10t 
             acc = (T+t)*JerkHeight
@@ -154,10 +142,9 @@ class SFX_Calc_Default_Move:
         self.JrkC = np.append(self.JrkC, np.zeros(Teilung, dtype = np.double))
         self.AccC = np.append(self.AccC, np.zeros(Teilung, dtype = np.double))
         self.VelC = np.append(self.VelC, np.zeros(Teilung, dtype = np.double))
-        self.PosC = np.append(self.PosC, np.zeros(Teilung, dtype = np.double))
-                
-            
+        self.PosC = np.append(self.PosC, np.zeros(Teilung, dtype = np.double)) 
         #return [self.maxRuck-self.maxJrk , self.maxGesch-self.maxVel]
+
     def InitData(self):            
         Teilung = 101
         self.X     = np.linspace(self.starttime , self.endtime, num = Teilung, retstep = False, dtype = np.double)
@@ -167,8 +154,7 @@ class SFX_Calc_Default_Move:
         self.VelC  = np.zeros(Teilung, dtype = np.double)
         self.PosC  = np.zeros(Teilung, dtype = np.double)
         
-    def InitCurves(self):
-                
+    def InitCurves(self):                
         self.Dataobject['Pos'] = 0
         self.Dataobject['Vel'] = 0
         self.Dataobject['Acc'] = 0

@@ -83,9 +83,8 @@ class SFX_Actuators_Expanded_Inset(bpy.types.PropertyGroup):
         rowsub.operator("sfx.list_action", icon='FILE_TICK', text="Save Action").action = 'SAVE'
         row = col.row()
         col = row.column(align=True)
-        col.operator("sfx.clear_list", icon="X")        
-
-
+        col.operator("sfx.clear_list", icon="X")
+        
         col1= box1.column(align = True)
         col1 = col1.split(factor = 0.5)
         colA = col1.column()
@@ -95,6 +94,9 @@ class SFX_Actuators_Expanded_Inset(bpy.types.PropertyGroup):
         row = colA.row()
         row.label(text = 'Max Pos')
         row.prop(self,'simple_actuator_HardMax_prop', text='')
+
+        row = colA.row()
+        row.operator('sfx.simplify', icon ='NONE', text = 'Simplyfy')
 
         col2 = col1.column()
         row = col2.row()
