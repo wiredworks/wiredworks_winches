@@ -71,7 +71,7 @@ class SFX_OT_Simplyfy(bpy.types.Operator):
                 self.degreeOut,  # 6
                 self.dis_error   # 7
         ]
-        options = ('DISTANCE', 0, 1, 3, 0.021, 0, 0.52)
+        options = ('DISTANCE', 0, 1, 3, 0.015, 0, 0.52)
         self.fcurves_simplify(self.fcurve_sel, options, self.fcurves)
 
         index      = sfx.actuators[self.mothernode.name].Actuator_basic_props.Actuator_props.SFX_actions_index
@@ -105,9 +105,18 @@ class SFX_OT_Simplyfy(bpy.types.Operator):
         action0.Pos = json.dumps(Pos_Data)
         action0.VT  = json.dumps(Vel_Time_Data) 
 
-        bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
+        #bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
+        self.tag_redraw(context, space_type = 'GRAPH_EDITOR', region_type ='WINDOW')
 
         return {'FINISHED'}
+
+    def tag_redraw(self, context, space_type="PROPERTIES", region_type="WINDOW"):
+            for window in context.window_manager.windows:
+                for area in window.screen.areas:
+                    if area.spaces[0].type == space_type:
+                        for region in area.regions:
+                            if region.type == region_type:
+                                region.tag_redraw()
 
     def invoke(self, context, event):
         self.mothernode = bpy.context.active_node 

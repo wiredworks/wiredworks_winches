@@ -34,7 +34,7 @@ class SFX_OT_MaxVel_update(bpy.types.Operator):
         action0.maxAcc = sfx.actuators[name].Actuator_basic_props.Actuator_props.simple_actuator_AccMax_prop
         action0.maxVel = sfx.actuators[name].Actuator_basic_props.Actuator_props.simple_actuator_VelMax_prop
 
-        ret = self.DefaultMove = SFX_Calc_Default_Move(Dataobject, action0.length, action0.maxAcc, action0.maxVel )
+        SFX_Calc_Default_Move(Dataobject, action0.length, action0.maxAcc, action0.maxVel )
 
         Jrk_Data =[]
         for i in range(0,len(bpy.data.objects[name+'_Connector'].animation_data.drivers[0].keyframe_points)):
@@ -56,6 +56,8 @@ class SFX_OT_MaxVel_update(bpy.types.Operator):
         for i in range(0,len(bpy.data.objects[name+'_Connector'].animation_data.drivers[4].keyframe_points)):
             Vel_Time_Data.append((bpy.data.objects[name+'_Connector'].animation_data.drivers[4].keyframe_points[i].co[0],
             bpy.data.objects[name+'_Connector'].animation_data.drivers[4].keyframe_points[i].co[1]))
+
+        sfx.actuators[name].Actuator_basic_props.Actuator_props.simple_actuator_Time_prop = Jrk_Data[-1][0]
 
         action0.Jrk = json.dumps(Jrk_Data)
         action0.Acc = json.dumps(Acc_Data)
