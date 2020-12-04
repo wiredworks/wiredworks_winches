@@ -5,7 +5,7 @@ from .. Node.SFX_Action_Props import SFX_Action_Props
 from .. exchange_data.sfx import sfx
 
 
-def write_some_data(context, filepath, action):
+def write_some_data(context, filepath, action, description):
     f = open(filepath, 'w', encoding='utf-8')
     Data = (str(action.id)+';'+
            action.name+';'+
@@ -20,7 +20,8 @@ def write_some_data(context, filepath, action):
            action.Acc+';'+
            action.Vel+';'+
            action.Pos+';'+
-           action.VT)   
+           action.VT+';'+
+           description)   
     f.write(Data)
     f.close()
 
@@ -51,16 +52,22 @@ class SFX_Save_Action(Operator, ExportHelper):
     # List of operator properties, the attributes will be assigned
     # to the class instance from the operator settings before calling.
 
-    action_index: bpy.props.IntProperty(name = 'Action Index',
-                                            description = 'Action Index',
-                                            default = 0)
+    #action_index: bpy.props.IntProperty(name = 'Action Index',
+    #                                        description = 'Action Index',
+    #                                        default = 0)
 
-    sfx_action : bpy.props.PointerProperty(type = SFX_Action_Props)
+    description : bpy.props.StringProperty(name = 'Description',
+                                            description = 'Describe the Charactristics of that Action',
+                                            default = 'Default Description')
+
+    #sfx_action : bpy.props.PointerProperty(type = SFX_Action_Props)
 
     def execute(self, context):
         MotherNode = context.active_node
         index = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index
         action = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions[index]
+        #self.description = action.name
         action.saved = True
-        return write_some_data(context, self.filepath, action)
+        action.description = self.description
+        return write_some_data(context, self.filepath, action, self.description)
 

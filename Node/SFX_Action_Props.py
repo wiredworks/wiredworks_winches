@@ -43,3 +43,6 @@ class SFX_Action_Props(bpy.types.PropertyGroup):
     VT  : bpy.props.StringProperty(name = 'VT',
                                  description = 'VT',
                                  default = '')
+    description : bpy.props.StringProperty(name = 'Description',
+                                 description = 'Describe the Charactristics of that Action',
+                                 default = 'Default Description')

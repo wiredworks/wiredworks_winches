@@ -12,20 +12,21 @@ def read_some_data(context, filepath, item):
     data = f.read()
     f.close()
     Data = data.split(';')
-    item.id     = float(Data[0])
-    item.name   = Data[1]
-    item.saved  = bool(Data[2])
-    item.path   = Data[3]
-    item.minPos = float(Data[4])
-    item.maxPos = float(Data[5])
-    item.maxAcc = float(Data[6])
-    item.maxVel = float(Data[7])
-    item.length = float(Data[8])
-    item.Jrk    = Data[9]
-    item.Acc    = Data[10]
-    item.Vel    = Data[11]
-    item.Pos    = Data[12]
-    item.VT     = Data[13]
+    item.id          = float(Data[0])
+    item.name        = Data[1]
+    item.saved       = bool(Data[2])
+    item.path        = Data[3]
+    item.minPos      = float(Data[4])
+    item.maxPos      = float(Data[5])
+    item.maxAcc      = float(Data[6])
+    item.maxVel      = float(Data[7])
+    item.length      = float(Data[8])
+    item.Jrk         = Data[9]
+    item.Acc         = Data[10]
+    item.Vel         = Data[11]
+    item.Pos         = Data[12]
+    item.VT          = Data[13]
+    item.description = Data[14]
 
     return {'FINISHED'}
 
@@ -142,7 +143,11 @@ class SFX_OT_save_List(bpy.types.Operator):
     bl_label = "Save Action"
     bl_description = "Save Action"
 
-    def execute(self, context):        
+    description : bpy.props.StringProperty(name = 'Description',
+                                 description = 'Describe the Charactristics of that Action',
+                                 default = 'Default Description')
+
+    def execute(self, context):
         bpy.ops.sfx.save_action('INVOKE_DEFAULT')        
         return{'FINISHED'}
 
@@ -161,8 +166,15 @@ class SFX_OT_SelectOperator(bpy.types.Operator, ImportHelper):
             options={'HIDDEN'},
             )
 
+    description : bpy.props.StringProperty(name = 'Description',
+                                            description = 'Describe the Charactristics of that Action',
+                                            default = 'Default Description')
+
+    def update(self, context):
+        print('###')
     # Selected files
-    files : bpy.props.CollectionProperty(type=bpy.types.PropertyGroup)
+    files : bpy.props.CollectionProperty(type=bpy.types.PropertyGroup,
+                                         update = update)
 
     def execute(self, context):
         MotherNode = context.active_node
@@ -185,7 +197,7 @@ class SFX_UL_List(UIList):
 
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         split = layout.split(factor = 0.95)
-        split.prop(item, "name", text="", emboss=False, translate=False, icon='DRIVER')
+        split.prop(item, "description", text="", emboss=False, translate=False, icon='DRIVER')
         if item.saved == False:
             split.label(text='', icon ='CHECKBOX_DEHLT')
         else:
