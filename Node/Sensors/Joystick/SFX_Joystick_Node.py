@@ -27,44 +27,44 @@ class SFX_Joystick_Node(bpy.types.Node):
     def init(self, context):
         self.init_sfxData()
 
-        self.outputs.new('SFX_JoyDemux_Socket_Float', "Float-1").hide
+        self.outputs.new('SFX_Joy_Socket_Float', "Float-1").hide
         self.outputs["Float-1"].default_value_set = SFX_Joystick_Inset
-        self.outputs.new('SFX_JoyDemux_Socket_Float', "Float-2").hide = True
+        self.outputs.new('SFX_Joy_Socket_Float', "Float-2").hide = True
         self.outputs["Float-2"].default_value_set = SFX_Joystick_Inset
-        self.outputs.new('SFX_JoyDemux_Socket_Float', "Float-3").hide = True
+        self.outputs.new('SFX_Joy_Socket_Float', "Float-3").hide = True
         self.outputs["Float-3"].default_value_set = SFX_Joystick_Inset
-        self.outputs.new('SFX_JoyDemux_Socket_Float', "Float-4").hide = True
+        self.outputs.new('SFX_Joy_Socket_Float', "Float-4").hide = True
         self.outputs["Float-4"].default_value_set = SFX_Joystick_Inset
-        self.outputs.new('SFX_JoyDemux_Socket_Float', "Float-5").hide = True
+        self.outputs.new('SFX_Joy_Socket_Float', "Float-5").hide = True
         self.outputs["Float-5"].default_value_set = SFX_Joystick_Inset
-        self.outputs.new('SFX_JoyDemux_Socket_Float', "Float-6").hide = True
+        self.outputs.new('SFX_Joy_Socket_Float', "Float-6").hide = True
         self.outputs["Float-6"].default_value_set = SFX_Joystick_Inset
-        self.outputs.new('SFX_JoyDemux_Socket_Float', "Float-7").hide = True
+        self.outputs.new('SFX_Joy_Socket_Float', "Float-7").hide = True
         self.outputs["Float-7"].default_value_set = SFX_Joystick_Inset
 
-        self.outputs.new('SFX_JoyDemux_Socket_Bool', "Button 1")
+        self.outputs.new('SFX_Joy_Socket_Bool', "Button 1")
         self.outputs["Button 1"].default_value_set = SFX_Joystick_Inset
-        self.outputs.new('SFX_JoyDemux_Socket_Bool', "Button 2").hide = True
+        self.outputs.new('SFX_Joy_Socket_Bool', "Button 2").hide = True
         self.outputs["Button 2"].default_value_set = SFX_Joystick_Inset
-        self.outputs.new('SFX_JoyDemux_Socket_Bool', "Button 3").hide = True
+        self.outputs.new('SFX_Joy_Socket_Bool', "Button 3").hide = True
         self.outputs["Button 3"].default_value_set = SFX_Joystick_Inset
-        self.outputs.new('SFX_JoyDemux_Socket_Bool', "Button 4").hide = True
+        self.outputs.new('SFX_Joy_Socket_Bool', "Button 4").hide = True
         self.outputs["Button 4"].default_value_set = SFX_Joystick_Inset
-        self.outputs.new('SFX_JoyDemux_Socket_Bool', "Button 5").hide = True
+        self.outputs.new('SFX_Joy_Socket_Bool', "Button 5").hide = True
         self.outputs["Button 5"].default_value_set = SFX_Joystick_Inset
-        self.outputs.new('SFX_JoyDemux_Socket_Bool', "Button 6").hide = True
+        self.outputs.new('SFX_Joy_Socket_Bool', "Button 6").hide = True
         self.outputs["Button 6"].default_value_set = SFX_Joystick_Inset
-        self.outputs.new('SFX_JoyDemux_Socket_Bool', "Button 7").hide = True
+        self.outputs.new('SFX_Joy_Socket_Bool', "Button 7").hide = True
         self.outputs["Button 7"].default_value_set = SFX_Joystick_Inset
-        self.outputs.new('SFX_JoyDemux_Socket_Bool', "Button 8").hide = True
+        self.outputs.new('SFX_Joy_Socket_Bool', "Button 8").hide = True
         self.outputs["Button 8"].default_value_set = SFX_Joystick_Inset
-        self.outputs.new('SFX_JoyDemux_Socket_Bool', "Button 9").hide = True
+        self.outputs.new('SFX_Joy_Socket_Bool', "Button 9").hide = True
         self.outputs["Button 9"].default_value_set = SFX_Joystick_Inset
-        self.outputs.new('SFX_JoyDemux_Socket_Bool', "Button 10").hide = True
+        self.outputs.new('SFX_Joy_Socket_Bool', "Button 10").hide = True
         self.outputs["Button 10"].default_value_set = SFX_Joystick_Inset
-        self.outputs.new('SFX_JoyDemux_Socket_Bool', "Button 11").hide = True
+        self.outputs.new('SFX_Joy_Socket_Bool', "Button 11").hide = True
         self.outputs["Button 11"].default_value_set = SFX_Joystick_Inset
-        self.outputs.new('SFX_JoyDemux_Socket_Bool', "Button 12").hide = True
+        self.outputs.new('SFX_Joy_Socket_Bool', "Button 12").hide = True
         self.outputs["Button 12"].default_value_set = SFX_Joystick_Inset
 
     def copy(self, node):
@@ -351,6 +351,7 @@ class SFX_Joystick_Node(bpy.types.Node):
                             o.to_socket.node.inputs[o.to_socket.name].default_value = 0.0
             else:
                 out7.hide = True
+            if out7.is_linked:
                 for o in out7.links:
                     if o.is_valid:
                         if (out7.enum_prop == 'X_Achse'):

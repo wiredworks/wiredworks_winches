@@ -2,9 +2,9 @@ import bpy
 
 from .... exchange_data.sfx import SFX_Joystick_Inset 
 
-class SFX_JoyDemux_Socket_Float(bpy.types.NodeSocket):
+class SFX_Joy_Socket_Float(bpy.types.NodeSocket):
     '''Selects Joystick Axis Data'''
-    bl_idname = 'SFX_JoyDemux_Socket_Float'
+    bl_idname = 'SFX_Joy_Socket_Float'
     bl_label = "Joystick Float Socket"
 
     default_value : bpy.props.PointerProperty(type = SFX_Joystick_Inset)
@@ -31,9 +31,10 @@ class SFX_JoyDemux_Socket_Float(bpy.types.NodeSocket):
     # Optional function for drawing the socket input value
     def draw(self, context, layout, node, text):
         if self.is_linked:
-            layout.prop(self,'float')
+            layout.label(text= self.enum_prop)
+            layout.prop(self,'float', text = '')
         else:
-            layout.prop(self, "enum_prop", text='')#text)
+            layout.prop(self, "enum_prop", text='')
 
     # Socket color
     def draw_color(self, context, node):
