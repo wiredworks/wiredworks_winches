@@ -14,7 +14,11 @@ class SFX_OT_MinPos_update(bpy.types.Operator):
         HardMax     = sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop
         ActionIndex = sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.SFX_actions_index
         Actions     = sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.SFX_actions
+        Length      = sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop-\
+                      sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMin_prop
         HardMinOld  = Actions[ActionIndex].minPos
+        sfx.actuators[context.active_node.name].Actuator_basic_props.DigTwin_basic_props.length = Length
+
         if (HardMin!= HardMinOld and (HardMin+0.01) <= HardMax):
             action0 = sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.SFX_actions.add()
             action0.id = len(sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.SFX_actions)

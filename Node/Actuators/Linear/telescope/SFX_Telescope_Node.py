@@ -34,8 +34,14 @@ class SFX_LinRail_Node(bpy.types.Node):
     def init(self, context):
         self.init_sfxData()
 
-        self.inputs.new('SFX_Socket_Float', "Set Vel")
-        self.inputs["Set Vel"].float = 0.0
+        self.inputs.new('SFX_Socket_Float', "Joy In")
+        self.inputs["Joy In"].float = 0.0
+
+        self.inputs.new('SFX_Socket_Float', "Cue In")
+        self.inputs["Cue In"].float = 0.0
+
+        self.inputs.new('SFX_Socket_Int', "Action Select")
+        self.inputs["Action Select"].int = 0
 
         self.inputs.new('SFX_Socket_Bool', "select")
         self.inputs["select"].bool = False
@@ -140,31 +146,45 @@ class SFX_LinRail_Node(bpy.types.Node):
         else:
             self.use_custom_color = False
         try:
-            out1 = self.outputs["Ist Pos"]
-            out2 = self.outputs["Ist Vel"]
-            out3 = self.outputs["Ist Force"]
-            inp1 = self.inputs['Set Vel']
-            inp2 = self.inputs['enable']
-            inp3 = self.inputs['select']
+            out1  = self.outputs["Ist Pos"]
+            out2  = self.outputs["Ist Vel"]
+            out3  = self.outputs["Ist Force"]
+            JoyIn = self.inputs['Joy In']
+            CueIn = self.inputs['Cue In']
+            ASel  = self.inputs['Action Select']
+            enab  = self.inputs['enable']
+            sele  = self.inputs['select']
             can_continue = True
         except:
             can_continue = False
         if can_continue:
-            if inp1.is_linked:
-                for i1 in inp1.links:
+            if JoyIn.is_linked:
+                for i1 in JoyIn.links:
                     if i1.is_valid:
-                        self.inputs["Set Vel"].float=i1.from_socket.node.outputs[i1.from_socket.name].float
+                        self.inputs["Joy In"].float=i1.from_socket.node.outputs[i1.from_socket.name].float
                         sfx.actuators[self.name].Actuator_basic_props.soll_Vel = \
                            (self.inputs["Set Vel"].float * sfx.actuators[self.name].Actuator_basic_props.Actuator_props.simple_actuator_VelMax_prop)/100.0
                         pass
-            if inp2.is_linked:
-                for i1 in inp2.links:
+            if CueIn.is_linked:
+                for i1 in CueIn.links:
+                    if i1.is_valid:
+                        self.inputs["Cue In"].float=i1.from_socket.node.outputs[i1.from_socket.name].float
+                        
+                        pass
+            if ASel.is_linked:
+                for i1 in ASel.links:
+                    if i1.is_valid:
+                        self.inputs["Action Select"].int=i1.from_socket.node.outputs[i1.from_socket.name].int
+ 
+                        pass
+            if enab.is_linked:
+                for i1 in enab.links:
                     if i1.is_valid:
                         self.inputs["enable"].bool=i1.from_socket.node.outputs[i1.from_socket.name].bool
                         sfx.actuators[self.name].Actuator_basic_props.enable_Actuator = i1.from_socket.node.outputs[i1.from_socket.name].bool
                         pass
-            if inp3.is_linked:
-                for i1 in inp3.links:
+            if sele.is_linked:
+                for i1 in sele.links:
                     if i1.is_valid:
                         self.inputs["select"].bool=i1.from_socket.node.outputs[i1.from_socket.name].bool
                         sfx.actuators[self.name].Actuator_basic_props.select_Actuator = i1.from_socket.node.outputs[i1.from_socket.name].bool

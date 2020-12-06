@@ -132,6 +132,7 @@ class SFX_Actuators_Expanded_Inset(bpy.types.PropertyGroup):
     def update_HardMin_do(self,context):
         if self.simple_actuator_HardMin_prop > self.simple_actuator_HardMax_prop:
             self.simple_actuator_HardMin_prop = self.simple_actuator_HardMax_prop - 0.01
+            print('--- WARNING --- MinPos set to MaxPos - 0.01')
         bpy.ops.sfx.minpos_update('INVOKE_DEFAULT')
         return
     def update_VelMax_do(self,context):

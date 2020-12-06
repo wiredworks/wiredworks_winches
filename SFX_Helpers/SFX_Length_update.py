@@ -8,6 +8,11 @@ class SFX_OT_Length_update(bpy.types.Operator):
     bl_label = "Update Max Pos based on Length"
 
     def invoke(self, context, event):
-        sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop = \
-        sfx.actuators[context.active_node.name].Actuator_basic_props.DigTwin_basic_props.length    
+        if (sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop - \
+            sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMin_prop != \
+            sfx.actuators[context.active_node.name].Actuator_basic_props.DigTwin_basic_props.length):
+
+            sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop = \
+            sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMin_prop + \
+            sfx.actuators[context.active_node.name].Actuator_basic_props.DigTwin_basic_props.length    
         return {"FINISHED"}
