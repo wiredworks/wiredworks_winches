@@ -189,9 +189,9 @@ class SFX_Calc_Default_Move:
             self.Poscurve.modifiers.remove(self.Poscurve.modifiers[0])
         except IndexError:
             pass
-        self.VTcurve = self.Dataobject.driver_add('["Vel-Time"]')
+        self.VPcurve = self.Dataobject.driver_add('["Vel-Time"]')
         try:
-            self.VTcurve.modifiers.remove(self.VTcurve.modifiers[0])
+            self.VPcurve.modifiers.remove(self.VPcurve.modifiers[0])
         except IndexError:
             pass
             
@@ -216,17 +216,17 @@ class SFX_Calc_Default_Move:
         for i in range(0,len(self.PosC)):
             self.Poscurve.keyframe_points.insert( self.X[i] , self.PosC[i], options ={'FAST'})
 
-        self.VTcurve.keyframe_points.insert( 0 , 0, options ={'FAST'})
+        self.VPcurve.keyframe_points.insert( 0 , 0, options ={'FAST'})
         for i in range(0,len(self.X)):
             v = self.Velcurve.evaluate(self.X[i])
             p = self.Poscurve.evaluate(self.X[i])
             if p > 0.015:
-                self.VTcurve.keyframe_points.insert( p , v, options ={'FAST'})
+                self.VPcurve.keyframe_points.insert( p , v, options ={'FAST'})
                         
         self.Acccurve.update()
         self.Velcurve.update()
         self.Poscurve.update()
-        self.VTcurve.update()        
+        self.VPcurve.update()        
         
         self.maxJrk = max(abs(self.JrkC))
         self.maxAcc = max(abs(self.AccC))

@@ -56,9 +56,9 @@ class SFX_OT_MinPos_update(bpy.types.Operator):
         for i in range(0,len(bpy.data.objects[name+'_Connector'].animation_data.drivers[3].keyframe_points)):
             Pos_Data.append((bpy.data.objects[name+'_Connector'].animation_data.drivers[3].keyframe_points[i].co[0],
             bpy.data.objects[name+'_Connector'].animation_data.drivers[3].keyframe_points[i].co[1]))
-        Vel_Time_Data =[]
+        Vel_Pos_Data =[]
         for i in range(0,len(bpy.data.objects[name+'_Connector'].animation_data.drivers[4].keyframe_points)):
-            Vel_Time_Data.append((bpy.data.objects[name+'_Connector'].animation_data.drivers[4].keyframe_points[i].co[0],
+            Vel_Pos_Data.append((bpy.data.objects[name+'_Connector'].animation_data.drivers[4].keyframe_points[i].co[0],
             bpy.data.objects[name+'_Connector'].animation_data.drivers[4].keyframe_points[i].co[1]))
 
         sfx.actuators[name].Actuator_basic_props.Actuator_props.simple_actuator_Time_prop = Jrk_Data[-1][0]
@@ -68,4 +68,4 @@ class SFX_OT_MinPos_update(bpy.types.Operator):
         action0.Acc = json.dumps(Acc_Data)
         action0.Vel = json.dumps(Vel_Data)
         action0.Pos = json.dumps(Pos_Data)
-        action0.VT  = json.dumps(Vel_Time_Data)
+        action0.VP  = json.dumps(Vel_Pos_Data)

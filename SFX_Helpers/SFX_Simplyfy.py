@@ -94,16 +94,16 @@ class SFX_OT_Simplyfy(bpy.types.Operator):
         for i in range(0,len(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[3].keyframe_points)):
             Pos_Data.append((bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[3].keyframe_points[i].co[0],
             bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[3].keyframe_points[i].co[1]))
-        Vel_Time_Data =[]
+        Vel_Pos_Data =[]
         for i in range(0,len(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[4].keyframe_points)):
-            Vel_Time_Data.append((bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[4].keyframe_points[i].co[0],
+            Vel_Pos_Data.append((bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[4].keyframe_points[i].co[0],
             bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[4].keyframe_points[i].co[1]))
 
         action0.Jrk = json.dumps(Jrk_Data)
         action0.Acc = json.dumps(Acc_Data)
         action0.Vel = json.dumps(Vel_Data)
         action0.Pos = json.dumps(Pos_Data)
-        action0.VT  = json.dumps(Vel_Time_Data) 
+        action0.VP  = json.dumps(Vel_Pos_Data) 
 
         #bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
         self.tag_redraw(context, space_type = 'GRAPH_EDITOR', region_type ='WINDOW')
@@ -125,9 +125,9 @@ class SFX_OT_Simplyfy(bpy.types.Operator):
         self.Acccurve = bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[1]
         self.Velcurve = bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[2]
         self.Poscurve = bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[3]
-        self.VTcurve  = bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[4]
+        self.VPcurve  = bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[4]
 
-        self.fcurve_sel = [self.Jrkcurve, self.Acccurve, self.Velcurve, self.Poscurve, self.VTcurve]
+        self.fcurve_sel = [self.Jrkcurve, self.Acccurve, self.Velcurve, self.Poscurve, self.VPcurve]
         self.fcurves=[]
         for i in range(0,len(self.fcurve_sel)):
             points = []

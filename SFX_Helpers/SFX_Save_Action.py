@@ -20,7 +20,7 @@ def write_some_data(context, filepath, action, description):
            action.Acc+';'+
            action.Vel+';'+
            action.Pos+';'+
-           action.VT+';'+
+           action.VP+';'+
            description)   
     f.write(Data)
     f.close()

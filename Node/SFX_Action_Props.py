@@ -40,8 +40,8 @@ class SFX_Action_Props(bpy.types.PropertyGroup):
     Pos : bpy.props.StringProperty(name = 'Pos',
                                  description = 'Pos',
                                  default = '')
-    VT  : bpy.props.StringProperty(name = 'VT',
-                                 description = 'VT',
+    VP  : bpy.props.StringProperty(name = 'VP',
+                                 description = 'VP',
                                  default = '')
     description : bpy.props.StringProperty(name = 'Description',
                                  description = 'Describe the Charactristics of that Action',

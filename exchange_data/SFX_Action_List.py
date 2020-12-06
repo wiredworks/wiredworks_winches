@@ -25,7 +25,7 @@ def read_some_data(context, filepath, item):
     item.Acc         = Data[10]
     item.Vel         = Data[11]
     item.Pos         = Data[12]
-    item.VT          = Data[13]
+    item.VP          = Data[13]
     item.description = Data[14]
 
     return {'FINISHED'}
@@ -47,7 +47,6 @@ class SFX_OT_list_actions(bpy.types.Operator):
     def invoke(self, context, event):
         MotherNode = context.active_node
         sfx_actions   = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions
-
         if self.action == 'NIX':
             index = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index
             self.update_fcurves(context, sfx_actions, index)
@@ -116,16 +115,16 @@ class SFX_OT_list_actions(bpy.types.Operator):
             Poscurve.modifiers.remove(Poscurve.modifiers[0])
         except IndexError:
             pass
-        VTcurve = Dataobject.driver_add('["Vel-Time"]')
+        VPcurve = Dataobject.driver_add('["Vel-Time"]')
         try:
-            VTcurve.modifiers.remove(VTcurve.modifiers[0])
+            VPcurve.modifiers.remove(VPcurve.modifiers[0])
         except IndexError:
             pass
         J  = json.loads(sfx_actions[index].Jrk)
         A  = json.loads(sfx_actions[index].Acc)
         V  = json.loads(sfx_actions[index].Vel)
         P  = json.loads(sfx_actions[index].Pos)
-        VT = json.loads(sfx_actions[index].VT)
+        VP = json.loads(sfx_actions[index].VP)
         for i in range(0, len(J)):
             Jrkcurve.keyframe_points.insert( J[i][0] , J[i][1])
         for i in range(0, len(A)):
@@ -134,8 +133,8 @@ class SFX_OT_list_actions(bpy.types.Operator):
             Velcurve.keyframe_points.insert( V[i][0] , V[i][1]) 
         for i in range(0, len(P)):
             Poscurve.keyframe_points.insert( P[i][0] , P[i][1])
-        for i in range(0, len(VT)):
-            VTcurve.keyframe_points.insert( VT[i][0] , VT[i][1])
+        for i in range(0, len(VP)):
+            VPcurve.keyframe_points.insert( VP[i][0] , VP[i][1])
         return
 
 class SFX_OT_save_List(bpy.types.Operator):
@@ -170,11 +169,9 @@ class SFX_OT_SelectOperator(bpy.types.Operator, ImportHelper):
                                             description = 'Describe the Charactristics of that Action',
                                             default = 'Default Description')
 
-    def update(self, context):
-        print('###')
+
     # Selected files
-    files : bpy.props.CollectionProperty(type=bpy.types.PropertyGroup,
-                                         update = update)
+    files : bpy.props.CollectionProperty(type=bpy.types.PropertyGroup)
 
     def execute(self, context):
         MotherNode = context.active_node

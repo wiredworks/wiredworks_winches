@@ -140,6 +140,9 @@ class SFX_LinRail_Node(bpy.types.Node):
         pass
 
     def sfx_update(self):
+
+        self.inputs["Action Select"].int= sfx.actuators[self.name].Actuator_basic_props.Actuator_props.SFX_actions_index
+
         if sfx.actuators[self.name].operator_running_modal:
             self.color = (0,0.4,0.1)
             self.use_custom_color = True
@@ -162,20 +165,18 @@ class SFX_LinRail_Node(bpy.types.Node):
                 for i1 in JoyIn.links:
                     if i1.is_valid:
                         self.inputs["Joy In"].float=i1.from_socket.node.outputs[i1.from_socket.name].float
-                        sfx.actuators[self.name].Actuator_basic_props.soll_Vel = \
-                           (self.inputs["Set Vel"].float * sfx.actuators[self.name].Actuator_basic_props.Actuator_props.simple_actuator_VelMax_prop)/100.0
-                        pass
             if CueIn.is_linked:
                 for i1 in CueIn.links:
                     if i1.is_valid:
                         self.inputs["Cue In"].float=i1.from_socket.node.outputs[i1.from_socket.name].float
-                        
-                        pass
+
+            if  JoyIn.is_linked or CueIn.is_linked :
+                self.Calc_soll_Vel()           
+
             if ASel.is_linked:
                 for i1 in ASel.links:
                     if i1.is_valid:
-                        self.inputs["Action Select"].int=i1.from_socket.node.outputs[i1.from_socket.name].int
- 
+                        sfx.actuators[self.name].Actuator_basic_props.Actuator_props.SFX_actions_index=i1.from_socket.node.outputs[i1.from_socket.name].int
                         pass
             if enab.is_linked:
                 for i1 in enab.links:
@@ -235,13 +236,22 @@ class SFX_LinRail_Node(bpy.types.Node):
         for i in range(0,len(bpy.data.objects[name+'_Connector'].animation_data.drivers[3].keyframe_points)):
             Pos_Data.append((bpy.data.objects[name+'_Connector'].animation_data.drivers[3].keyframe_points[i].co[0],
             bpy.data.objects[name+'_Connector'].animation_data.drivers[3].keyframe_points[i].co[1]))
-        Vel_Time_Data =[]
+        Vel_Pos_Data =[]
         for i in range(0,len(bpy.data.objects[name+'_Connector'].animation_data.drivers[4].keyframe_points)):
-            Vel_Time_Data.append((bpy.data.objects[name+'_Connector'].animation_data.drivers[4].keyframe_points[i].co[0],
+            Vel_Pos_Data.append((bpy.data.objects[name+'_Connector'].animation_data.drivers[4].keyframe_points[i].co[0],
             bpy.data.objects[name+'_Connector'].animation_data.drivers[4].keyframe_points[i].co[1]))
 
         action0.Jrk = json.dumps(Jrk_Data)
         action0.Acc = json.dumps(Acc_Data)
         action0.Vel = json.dumps(Vel_Data)
         action0.Pos = json.dumps(Pos_Data)
-        action0.VT  = json.dumps(Vel_Time_Data)  
+        action0.VP  = json.dumps(Vel_Pos_Data)
+
+    def Calc_soll_Vel(self):
+        J = self.inputs["Joy In"].float
+        C = (self.inputs["Cue In"].float)
+        Vel_Pos_Limit =bpy.data.objects[self.name+'_Connector'].animation_data.drivers[4]
+        V = max(min(J,100),-100)
+        sfx.actuators[self.name].Actuator_basic_props.soll_Vel = V * Vel_Pos_Limit.evaluate(sfx.actuators[self.name].Actuator_basic_props.ist_Pos)/100.0
+        print(Vel_Pos_Limit.evaluate(sfx.actuators[self.name].Actuator_basic_props.ist_Pos)) 
+        pass
