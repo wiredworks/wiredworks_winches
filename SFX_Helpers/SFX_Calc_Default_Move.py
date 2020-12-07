@@ -216,12 +216,16 @@ class SFX_Calc_Default_Move:
         for i in range(0,len(self.PosC)):
             self.Poscurve.keyframe_points.insert( self.X[i] , self.PosC[i], options ={'FAST'})
 
-        self.VPcurve.keyframe_points.insert( 0 , 0, options ={'FAST'})
+        self.VPcurve.keyframe_points.insert( 0 , 0)
+        self.VPcurve.keyframe_points[0].handle_left   = (self.VPcurve.keyframe_points[0].co[0],-10)
+        self.VPcurve.keyframe_points[0].handle_right  = (self.VPcurve.keyframe_points[0].co[0],10)
         for i in range(0,len(self.X)):
             v = self.Velcurve.evaluate(self.X[i])
             p = self.Poscurve.evaluate(self.X[i])
             if p > 0.015:
-                self.VPcurve.keyframe_points.insert( p , v, options ={'FAST'})
+                self.VPcurve.keyframe_points.insert( p , v)
+        self.VPcurve.keyframe_points[-1].handle_left   = (self.VPcurve.keyframe_points[-1].co[0],10)
+        self.VPcurve.keyframe_points[-1].handle_right  = (self.VPcurve.keyframe_points[-1].co[0],-10)
                         
         self.Acccurve.update()
         self.Velcurve.update()

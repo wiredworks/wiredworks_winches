@@ -251,7 +251,24 @@ class SFX_LinRail_Node(bpy.types.Node):
         J = self.inputs["Joy In"].float
         C = (self.inputs["Cue In"].float)
         Vel_Pos_Limit =bpy.data.objects[self.name+'_Connector'].animation_data.drivers[4]
-        V = max(min(J,100),-100)
-        sfx.actuators[self.name].Actuator_basic_props.soll_Vel = V * Vel_Pos_Limit.evaluate(sfx.actuators[self.name].Actuator_basic_props.ist_Pos)/100.0
-        print(Vel_Pos_Limit.evaluate(sfx.actuators[self.name].Actuator_basic_props.ist_Pos)) 
-        pass
+        VIn    = max(min(J+C,100),-100)
+        IstPos = sfx.actuators[self.name].Actuator_basic_props.ist_Pos
+        MinPos = sfx.actuators[self.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMin_prop
+        MaxPos = sfx.actuators[self.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop
+        MaxVel = sfx.actuators[self.name].Actuator_basic_props.Actuator_props.simple_actuator_VelMax_prop
+
+        if IstPos < MinPos and VIn > 0 and IstPos < MaxPos:
+            print('Moving from minus into Valid Intervall')
+            LimitVel = MaxVel / 3.0
+        elif MinPos <= IstPos  and VIn > 0 and LimitVel < 0.01 and IstPos <= MaxPos :                   
+            LimitVel = 0.01
+        elif MinPos <= IstPos and VIn < 0 and LimitVel < 0.01 and IstPos <= MaxPos :
+            LimitVel = 0.01
+        elif IstPos > MaxPos and VIn < 0 and IstPos > MinPos:
+            print('Moving from plus into Valid Intervall')
+            LimitVel = MaxVel / 3.0
+        else:
+            LimitVel = Vel_Pos_Limit.evaluate(sfx.actuators[self.name].Actuator_basic_props.ist_Pos -\
+                sfx.actuators[self.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMin_prop)
+
+        sfx.actuators[self.name].Actuator_basic_props.soll_Vel = VIn * LimitVel/100.0
