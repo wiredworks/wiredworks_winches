@@ -258,14 +258,14 @@ class SFX_LinRail_Node(bpy.types.Node):
         MaxVel = sfx.actuators[self.name].Actuator_basic_props.Actuator_props.simple_actuator_VelMax_prop
 
         if IstPos < MinPos and VIn > 0 and IstPos < MaxPos:
-            print('Moving from minus into Valid Intervall')
+            #print('Moving from minus into Valid Intervall')
             LimitVel = MaxVel / 3.0
         elif MinPos <= IstPos  and VIn > 0 and LimitVel < 0.01 and IstPos <= MaxPos :                   
             LimitVel = 0.01
         elif MinPos <= IstPos and VIn < 0 and LimitVel < 0.01 and IstPos <= MaxPos :
             LimitVel = 0.01
         elif IstPos > MaxPos and VIn < 0 and IstPos > MinPos:
-            print('Moving from plus into Valid Intervall')
+            #print('Moving from plus into Valid Intervall')
             LimitVel = MaxVel / 3.0
         else:
             LimitVel = Vel_Pos_Limit.evaluate(sfx.actuators[self.name].Actuator_basic_props.ist_Pos -\
