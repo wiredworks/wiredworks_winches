@@ -62,42 +62,45 @@ class SFX_OT_Simplyfy(bpy.types.Operator):
         col.prop(self, "error", expand=True)
 
     def execute(self, context):
-        options = [
-            self.mode,       # 0
-                self.mode,       # 1
-                self.k_thresh,   # 2
-                self.pointsNr,   # 3
-                self.error,      # 4
-                self.degreeOut,  # 6
-                self.dis_error   # 7
-        ]
+        options = [ self.mode,       # 0
+                    self.mode,       # 1
+                    self.k_thresh,   # 2
+                    self.pointsNr,   # 3
+                    self.error,      # 4
+                    self.degreeOut,  # 6
+                    self.dis_error ] # 7
+        
         options = ('DISTANCE', 0, 1, 3, 0.015, 0, 0.52)
         self.fcurves_simplify(self.fcurve_sel, options, self.fcurves)
+        self.Save_Simplified_Curve()
 
+        self.tag_redraw(context, space_type = 'GRAPH_EDITOR', region_type ='WINDOW')
+
+    def Save_Simplified_Curve(self):
         index      = sfx.actuators[self.mothernode.name].Actuator_basic_props.Actuator_props.SFX_actions_index
         action0    = sfx.actuators[self.mothernode.name].Actuator_basic_props.Actuator_props.SFX_actions[index]
         action0.id = index
 
-        Jrk_Data =[]
+        Jrk_Data =[[],[]]
         for i in range(0,len(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[0].keyframe_points)):
-            Jrk_Data.append((bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[0].keyframe_points[i].co[0],
-            bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[0].keyframe_points[i].co[1]))
-        Acc_Data =[]
+            Jrk_Data[0].append(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[0].keyframe_points[i].co[0])
+            Jrk_Data[1].append(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[0].keyframe_points[i].co[1])
+        Acc_Data =[[],[]]
         for i in range(0,len(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[1].keyframe_points)):
-            Acc_Data.append((bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[1].keyframe_points[i].co[0],
-            bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[1].keyframe_points[i].co[1]))
-        Vel_Data =[]
+            Acc_Data[0].append(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[1].keyframe_points[i].co[0])
+            Acc_Data[1].append(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[1].keyframe_points[i].co[1])
+        Vel_Data =[[],[]]
         for i in range(0,len(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[2].keyframe_points)):
-            Vel_Data.append((bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[2].keyframe_points[i].co[0],
-            bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[2].keyframe_points[i].co[1]))
-        Pos_Data =[]
+            Vel_Data[0].append(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[2].keyframe_points[i].co[0])
+            Vel_Data[1].append(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[2].keyframe_points[i].co[1])
+        Pos_Data =[[],[]]
         for i in range(0,len(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[3].keyframe_points)):
-            Pos_Data.append((bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[3].keyframe_points[i].co[0],
-            bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[3].keyframe_points[i].co[1]))
-        Vel_Pos_Data =[]
+            Pos_Data[0].append(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[3].keyframe_points[i].co[0])
+            Pos_Data[1].append(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[3].keyframe_points[i].co[1])
+        Vel_Pos_Data =[[],[]]
         for i in range(0,len(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[4].keyframe_points)):
-            Vel_Pos_Data.append((bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[4].keyframe_points[i].co[0],
-            bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[4].keyframe_points[i].co[1]))
+            Vel_Pos_Data[0].append(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[4].keyframe_points[i].co[0])
+            Vel_Pos_Data[1].append(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[4].keyframe_points[i].co[1])
 
         action0.Jrk = json.dumps(Jrk_Data)
         action0.Acc = json.dumps(Acc_Data)
@@ -106,7 +109,7 @@ class SFX_OT_Simplyfy(bpy.types.Operator):
         action0.VP  = json.dumps(Vel_Pos_Data) 
 
         #bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
-        self.tag_redraw(context, space_type = 'GRAPH_EDITOR', region_type ='WINDOW')
+
 
         return {'FINISHED'}
 
