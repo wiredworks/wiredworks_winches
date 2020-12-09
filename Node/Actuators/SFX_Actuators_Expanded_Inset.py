@@ -43,7 +43,7 @@ class SFX_Actuators_Expanded_Inset(bpy.types.PropertyGroup):
                                                                 update = update_AccMax)
     simple_actuator_Time_prop: bpy.props.FloatProperty(name = "Time",
                                                                 description ="Time",
-                                                                default=0.0,
+                                                                default=5.0,
                                                                 precision=3)
 
     SFX_actions                 : bpy.props.CollectionProperty(type=SFX_Action_Props)

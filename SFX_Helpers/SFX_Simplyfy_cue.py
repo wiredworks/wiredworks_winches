@@ -1,29 +1,136 @@
+import bpy
 import mathutils
 import math
+import time
+import json
 
-class SFX_Simplyfy_fcurves():
-    def SFX_fcurves_simplify(self, fcurve_sel, options, fcurves):
+from ..exchange_data.sfx import sfx
+
+class SFX_OT_Simplyfy_cue(bpy.types.Operator):
+    bl_idname = "sfx.simplify_cue"
+    bl_label = "Simplyify"
+    # Properties
+
+    opModes = [
+        ('DISTANCE', 'Distance', 'Distance-based simplification (Poly)'),
+            ('CURVATURE', 'Curvature', 'Curvature-based simplification (RDP)')]
+    mode: bpy.props.EnumProperty(
+        name="Mode",
+            description="Choose algorithm to use",
+            items=opModes
+    )
+    k_thresh: bpy.props.FloatProperty(
+        name="k",
+            min=0, soft_min=0,
+            default=0, precision=5,
+            description="Threshold"
+    )
+    pointsNr: bpy.props.IntProperty(
+        name="n",
+            min=5, soft_min=5,
+            max=16, soft_max=9,
+            default=5,
+            description="Degree of curve to get averaged curvatures"
+    )
+    error: bpy.props.FloatProperty(
+        name="Error",
+            description="Maximum allowed distance error",
+            min=0.0, soft_min=0.0,
+            default=0.1, precision=5,
+            step = 0.1
+    )
+    degreeOut: bpy.props.IntProperty(
+        name="Degree",
+            min=3, soft_min=3,
+            max=7, soft_max=7,
+            default=5,
+            description="Degree of new curve"
+    )
+    dis_error: bpy.props.FloatProperty(
+        name="Distance error",
+            description="Maximum allowed distance error in Blender Units",
+            min=0, soft_min=0,
+            default=0.02, precision=5
+    )
+    fcurves = []
+
+    def draw(self, context):
+        layout = self.layout
+        col = layout.column()
+
+        col.label(text="Distance Error:")
+        col.prop(self, "error", expand=True)
+
+    def execute(self, context):
+        options = [
+            self.mode,       # 0
+                self.mode,       # 1
+                self.k_thresh,   # 2
+                self.pointsNr,   # 3
+                self.error,      # 4
+                self.degreeOut,  # 6
+                self.dis_error   # 7
+        ]
+        options = ('DISTANCE', 0, 1, 3, 0.1, 0, 0.1)
+        self.fcurves_simplify(self.fcurve_sel, options, self.fcurves)
+
+        self.tag_redraw(context, space_type = 'GRAPH_EDITOR', region_type ='WINDOW')
+
+        return {'FINISHED'}
+
+    def tag_redraw(self, context, space_type="PROPERTIES", region_type="WINDOW"):
+            for window in context.window_manager.windows:
+                for area in window.screen.areas:
+                    if area.spaces[0].type == space_type:
+                        for region in area.regions:
+                            if region.type == region_type:
+                                region.tag_redraw()
+
+    def invoke(self, context, event):
+        self.mothernode = bpy.context.active_node 
+
+        self.Jrkcurve = bpy.data.objects[self.mothernode.name+'_Data'].animation_data.action.fcurves[0]
+        self.Acccurve = bpy.data.objects[self.mothernode.name+'_Data'].animation_data.action.fcurves[1]
+        self.Velcurve = bpy.data.objects[self.mothernode.name+'_Data'].animation_data.action.fcurves[2]
+        self.Poscurve = bpy.data.objects[self.mothernode.name+'_Data'].animation_data.action.fcurves[3]
+        self.VPcurve  = bpy.data.objects[self.mothernode.name+'_Data'].animation_data.action.fcurves[4]
+
+        self.fcurve_sel = [self.Jrkcurve, self.Acccurve, self.Velcurve, self.Poscurve]
+        self.fcurves=[]
+        for i in range(0,len(self.fcurve_sel)):
+            points = []
+            for j in range(0, len(self.fcurve_sel[i].keyframe_points)):
+                x = self.fcurve_sel[i].keyframe_points[j].co.x
+                y = self.fcurve_sel[i].keyframe_points[j].co.y
+                points.append(mathutils.Vector((x, y)))
+            self.fcurves.append(points)
+        self.execute(context)
+
+        return {"FINISHED"}
+
+    def fcurves_simplify(self, fcurve_sel, options, fcurves):
         # main vars
         mode = options[0]
-        for fcurve_i, fcurve in enumerate(fcurves):
+        #for fcurve_i, fcurve in enumerate(fcurves):
+        for i in range(0, len(fcurves)):
             # test if fcurve is long enough
-            if len(fcurve) >= 3:
+            if len(fcurves[i]) >= 3:
                 # simplify spline according to mode
                 if mode == 'DISTANCE':
-                    newVerts = self.simplify_RDP(fcurve, options)
+                    newVerts = self.simplify_RDP(fcurves[i], options)
                 if mode == 'CURVATURE':
-                    newVerts = self.simplypoly(fcurve, options)
+                    newVerts = self.simplypoly(fcurves[i], options)
                 # convert indices into vectors3D
                 newPoints = []
                 # this is different from the main() function for normal curves, different api...
                 for v in newVerts:
-                    newPoints.append(fcurve[v])
+                    newPoints.append(fcurves[i][v])
                 # remove all points from curve first
-                for i in range(len(fcurve) - 1, 0, -1):
-                    fcurve_sel[fcurve_i].keyframe_points.remove(fcurve_sel[fcurve_i].keyframe_points[i])
+                for j in range(len(fcurves[i]) - 1, 0, -1):
+                    fcurve_sel[i].keyframe_points.remove(fcurve_sel[i].keyframe_points[j])
                 # put newPoints into fcurve
                 for v in newPoints:
-                    fcurve_sel[fcurve_i].keyframe_points.insert(frame=v[0], value=v[1], options = 'FAST')
+                    fcurve_sel[i].keyframe_points.insert(frame=v[0], value=v[1], options ='FAST')
         return
 
     def getDerivative(self,verts, t, nth):
@@ -148,3 +255,5 @@ class SFX_Simplyfy_fcurves():
         if new == []:
             return False
         return new
+
+ 

@@ -66,11 +66,9 @@ class SFX_LinRail_Node(bpy.types.Node):
         self.SFX_drawTelescope = SFX_Telescope_Model(self.name)
         self.draw_model(self.name)
 
-        action0 = sfx.actuators[self.name].Actuator_basic_props.Actuator_props.SFX_actions.add()
-        action0.id = 0
-        action0.name = self.name+'_default.sfxact'
-
-        self.default_action(context, self.name, action0)        
+        self.Init_Driver_Curves()
+        action = self.Calc_Default_Action()
+        self.Plot_Driver_Curves(action)        
 
     def copy(self, node):
         print("copied node", node)
@@ -209,43 +207,106 @@ class SFX_LinRail_Node(bpy.types.Node):
     def draw_model(self,name):
         self.SFX_drawTelescope.draw_model(name)
 
-    def default_action(self, context, name, action0):
-
-        Dataobject = bpy.data.objects[name+'_Connector']
-        action0.minPos = sfx.actuators[name].Actuator_basic_props.Actuator_props.simple_actuator_HardMin_prop
-        action0.maxPos = sfx.actuators[name].Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop
+    def Calc_Default_Action(self):
+        action0 = sfx.actuators[self.name].Actuator_basic_props.Actuator_props.SFX_actions.add()
+        action0.id = 0
+        action0.name = self.name+'_default.sfxact'
+        action0.minPos = sfx.actuators[self.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMin_prop
+        action0.maxPos = sfx.actuators[self.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop
         action0.length = action0.maxPos - action0.minPos
-        action0.maxAcc = sfx.actuators[name].Actuator_basic_props.Actuator_props.simple_actuator_AccMax_prop
-        action0.maxVel = sfx.actuators[name].Actuator_basic_props.Actuator_props.simple_actuator_VelMax_prop
+        action0.maxAcc = sfx.actuators[self.name].Actuator_basic_props.Actuator_props.simple_actuator_AccMax_prop
+        action0.maxVel = sfx.actuators[self.name].Actuator_basic_props.Actuator_props.simple_actuator_VelMax_prop
 
-        SFX_Calc_Default_Move(Dataobject, action0.length, action0.maxAcc, action0.maxVel )
-
-        Jrk_Data =[]
-        for i in range(0,len(bpy.data.objects[name+'_Connector'].animation_data.drivers[0].keyframe_points)):
-            Jrk_Data.append((bpy.data.objects[name+'_Connector'].animation_data.drivers[0].keyframe_points[i].co[0],
-            bpy.data.objects[name+'_Connector'].animation_data.drivers[0].keyframe_points[i].co[1]))
-        Acc_Data =[]
-        for i in range(0,len(bpy.data.objects[name+'_Connector'].animation_data.drivers[1].keyframe_points)):
-            Acc_Data.append((bpy.data.objects[name+'_Connector'].animation_data.drivers[1].keyframe_points[i].co[0],
-            bpy.data.objects[name+'_Connector'].animation_data.drivers[1].keyframe_points[i].co[1]))
-        Vel_Data =[]
-        for i in range(0,len(bpy.data.objects[name+'_Connector'].animation_data.drivers[2].keyframe_points)):
-            Vel_Data.append((bpy.data.objects[name+'_Connector'].animation_data.drivers[2].keyframe_points[i].co[0],
-            bpy.data.objects[name+'_Connector'].animation_data.drivers[2].keyframe_points[i].co[1]))
-        Pos_Data =[]
-        for i in range(0,len(bpy.data.objects[name+'_Connector'].animation_data.drivers[3].keyframe_points)):
-            Pos_Data.append((bpy.data.objects[name+'_Connector'].animation_data.drivers[3].keyframe_points[i].co[0],
-            bpy.data.objects[name+'_Connector'].animation_data.drivers[3].keyframe_points[i].co[1]))
-        Vel_Pos_Data =[]
-        for i in range(0,len(bpy.data.objects[name+'_Connector'].animation_data.drivers[4].keyframe_points)):
-            Vel_Pos_Data.append((bpy.data.objects[name+'_Connector'].animation_data.drivers[4].keyframe_points[i].co[0],
-            bpy.data.objects[name+'_Connector'].animation_data.drivers[4].keyframe_points[i].co[1]))
+        A = SFX_Calc_Default_Move(action0.length, action0.maxAcc, action0.maxVel )
+        Jrk_Data,Acc_Data,Vel_Data,Pos_Data,Vel_Pos_Data = SFX_Calc_Default_Move.out(A)
 
         action0.Jrk = json.dumps(Jrk_Data)
         action0.Acc = json.dumps(Acc_Data)
         action0.Vel = json.dumps(Vel_Data)
         action0.Pos = json.dumps(Pos_Data)
         action0.VP  = json.dumps(Vel_Pos_Data)
+
+        return action0
+
+        # self.maxJrk = max(abs(self.JrkC))
+        # self.maxAcc = max(abs(self.AccC))
+        # self.maxVel = max((self.VelC))
+        # self.maxPos = max(abs(self.PosC))
+        # self.maxTime = self.X[-1]
+
+    def Init_Driver_Curves(self):               
+        bpy.data.objects[self.name+'_Connector']['Pos'] = 0
+        bpy.data.objects[self.name+'_Connector']['Vel'] = 0
+        bpy.data.objects[self.name+'_Connector']['Acc'] = 0
+        bpy.data.objects[self.name+'_Connector']['Jrk'] = 0 
+        bpy.data.objects[self.name+'_Connector']['Vel-Time'] = 0
+        try:
+            bpy.data.objects[self.name+'_Connector'].driver_remove('["Jrk"]')
+            bpy.data.objects[self.name+'_Connector'].driver_remove('["Acc"]')
+            bpy.data.objects[self.name+'_Connector'].driver_remove('["Vel"]')
+            bpy.data.objects[self.name+'_Connector'].driver_remove('["Pos"]')
+            bpy.data.objects[self.name+'_Connector'].driver_remove('["Vel-Time"]')
+        except:
+             pass
+        self.Jrkcurve = bpy.data.objects[self.name+'_Connector'].driver_add('["Jrk"]')
+        # THX to Philipp Oeser (lichtwerk)
+        # to edit the driver fcurve with keyframes, you'll have to remove the fmodifier
+        try:
+            self.Jrkcurve.modifiers.remove(self.Jrkcurve.modifiers[0])
+        except IndexError:
+            pass
+        self.Acccurve = bpy.data.objects[self.name+'_Connector'].driver_add('["Acc"]')
+        try:
+            self.Acccurve.modifiers.remove(self.Acccurve.modifiers[0])
+        except IndexError:
+            pass
+        self.Velcurve = bpy.data.objects[self.name+'_Connector'].driver_add('["Vel"]')
+        try:
+            self.Velcurve.modifiers.remove(self.Velcurve.modifiers[0])
+        except IndexError:
+            pass
+        self.Poscurve = bpy.data.objects[self.name+'_Connector'].driver_add('["Pos"]')
+        try:
+            self.Poscurve.modifiers.remove(self.Poscurve.modifiers[0])
+        except IndexError:
+            pass
+        self.VPcurve = bpy.data.objects[self.name+'_Connector'].driver_add('["Vel-Time"]')
+        try:
+            self.VPcurve.modifiers.remove(self.VPcurve.modifiers[0])
+        except IndexError:
+            pass
+
+    def Plot_Driver_Curves(self, action):
+        Jrk = json.loads(action.Jrk)
+        Acc = json.loads(action.Acc)
+        Vel = json.loads(action.Vel)
+        Pos = json.loads(action.Pos)
+        VP  = json.loads(action.VP)
+        self.Jrkcurve.keyframe_points.insert(0,0) 
+        for i in range(0,len(Jrk[0])):
+            if Jrk[0][i]>0.01:
+                A=self.Jrkcurve.keyframe_points.insert(Jrk[0][i],Jrk[1][i], options =  {'FAST'}) 
+                A.interpolation = 'LINEAR'
+        self.Acccurve.keyframe_points.insert(0,0)
+        for i in range(0,len(Acc[0])):
+            if Acc[0][i]>0.01:
+                A=self.Acccurve.keyframe_points.insert(Acc[0][i],Acc[1][i], options =  {'FAST'}) 
+                A.interpolation = 'LINEAR'
+        self.Velcurve.keyframe_points.insert(0,0)
+        for i in range(0,len(Vel[0])):
+            if Vel[0][i]>0.01:
+                A=self.Velcurve.keyframe_points.insert(Vel[0][i],Vel[1][i], options =  {'FAST'}) 
+                A.interpolation = 'LINEAR'
+        self.Poscurve.keyframe_points.insert(0,0)
+        for i in range(0,len(Pos[0])):
+            if Pos[0][i]>0.01:
+                A=self.Poscurve.keyframe_points.insert(Pos[0][i],Pos[1][i], options =  {'FAST'}) 
+                A.interpolation = 'LINEAR'
+        self.VPcurve.keyframe_points.insert(0,0)         
+        for i in range(0,len(VP[0])):
+            if VP[0][i]>0.01:
+                A=self.VPcurve.keyframe_points.insert(VP[0][i],VP[1][i], options =  {'FAST'}) 
+                A.interpolation = 'LINEAR'        
 
     def Calc_soll_Vel(self):
         J = self.inputs["Joy In"].float
@@ -256,6 +317,9 @@ class SFX_LinRail_Node(bpy.types.Node):
         MinPos = sfx.actuators[self.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMin_prop
         MaxPos = sfx.actuators[self.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop
         MaxVel = sfx.actuators[self.name].Actuator_basic_props.Actuator_props.simple_actuator_VelMax_prop
+
+        LimitVel = Vel_Pos_Limit.evaluate(sfx.actuators[self.name].Actuator_basic_props.ist_Pos -\
+                sfx.actuators[self.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMin_prop)
 
         if IstPos < MinPos and VIn > 0 and IstPos < MaxPos:
             #print('Moving from minus into Valid Intervall')
@@ -270,5 +334,5 @@ class SFX_LinRail_Node(bpy.types.Node):
         else:
             LimitVel = Vel_Pos_Limit.evaluate(sfx.actuators[self.name].Actuator_basic_props.ist_Pos -\
                 sfx.actuators[self.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMin_prop)
-
+        print(LimitVel)
         sfx.actuators[self.name].Actuator_basic_props.soll_Vel = VIn * LimitVel/100.0

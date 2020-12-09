@@ -125,16 +125,16 @@ class SFX_OT_list_actions(bpy.types.Operator):
         V  = json.loads(sfx_actions[index].Vel)
         P  = json.loads(sfx_actions[index].Pos)
         VP = json.loads(sfx_actions[index].VP)
-        for i in range(0, len(J)):
-            Jrkcurve.keyframe_points.insert( J[i][0] , J[i][1])
-        for i in range(0, len(A)):
-            Acccurve.keyframe_points.insert( A[i][0] , A[i][1]) 
-        for i in range(0, len(V)):
-            Velcurve.keyframe_points.insert( V[i][0] , V[i][1]) 
-        for i in range(0, len(P)):
-            Poscurve.keyframe_points.insert( P[i][0] , P[i][1])
-        for i in range(0, len(VP)):
-            VPcurve.keyframe_points.insert( VP[i][0] , VP[i][1])
+        for i in range(0, len(J[0])):
+            Jrkcurve.keyframe_points.insert( J[0][i] , J[1][i], options =  {'FAST'})
+        for i in range(0, len(A[0])):
+            Acccurve.keyframe_points.insert( A[0][i] , A[1][i], options =  {'FAST'}) 
+        for i in range(0, len(V[0])):
+            Velcurve.keyframe_points.insert( V[0][i] , V[1][i], options =  {'FAST'}) 
+        for i in range(0, len(P[0])):
+            Poscurve.keyframe_points.insert(P[0][i] , P[1][i], options =  {'FAST'})
+        for i in range(0, len(VP[0])):
+            VPcurve.keyframe_points.insert( VP[0][i] , VP[1][i], options = {'FAST'})
         return
 
 class SFX_OT_save_List(bpy.types.Operator):

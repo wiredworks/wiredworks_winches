@@ -29,6 +29,7 @@ class SFX_CuesMenu(bpy.types.Menu):
     def draw(self,context):
         layout = self.layout
         layout.operator('sfx.simplecue_in',text = 'simple Cue', icon='ARROW_LEFTRIGHT')
+        layout.operator('sfx.secondcue_in',text = 'second Cue', icon='ARROW_LEFTRIGHT')
 
 class SFX_KinematicsMenu(bpy.types.Menu):
     bl_idname = "SFX_MT_kinematics_menu"
