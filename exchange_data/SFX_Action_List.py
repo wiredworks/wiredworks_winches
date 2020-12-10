@@ -46,34 +46,60 @@ class SFX_OT_list_actions(bpy.types.Operator):
         )
     def invoke(self, context, event):
         MotherNode = context.active_node
-        sfx_actions   = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions
-        if self.action == 'NIX':
-            index = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index
-            self.update_fcurves(context, sfx_actions, index)
-            return {'PASS_THROUGH'}
-        try:
-            item = sfx_actions[sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index]
-        except IndexError:
-            pass
-        if self.action == 'REMOVE':
-            if len(sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions) > 1:
-                sfx_actions.remove(sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index)
-                if sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index > 0:
-                    sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index -= 1
+        if MotherNode.sfx_type == 'Actuator':
+            sfx_actions   = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions
+            if self.action == 'NIX':
                 index = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index
-        if self.action == 'ADD':
-            bpy.ops.sfx.select_operator('INVOKE_DEFAULT')            
-            sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index = (len(sfx_actions)-1)
-        if self.action == 'SAVE':
-            bpy.ops.sfx.save_list('INVOKE_DEFAULT')          
+                self.update_fcurves(context, sfx_actions, index, MotherNode.sfx_type)
+                return {'PASS_THROUGH'}
+            try:
+                item = sfx_actions[sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index]
+            except IndexError:
+                pass
+            if self.action == 'REMOVE':
+                if len(sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions) > 1:
+                    sfx_actions.remove(sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index)
+                    if sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index > 0:
+                        sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index -= 1
+                    index = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index
+            if self.action == 'ADD':
+                bpy.ops.sfx.select_operator('INVOKE_DEFAULT')            
+                sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index = (len(sfx_actions)-1)
+            if self.action == 'SAVE':
+                bpy.ops.sfx.save_list('INVOKE_DEFAULT')
+
+        elif MotherNode.sfx_type == 'Cue':
+            sfx_actions   = sfx.cues[MotherNode.name].Actuator_props.SFX_actions
+            if self.action == 'NIX':
+                index = sfx.cues[MotherNode.name].Actuator_props.SFX_actions_index
+                self.update_fcurves(context, sfx_actions, index, MotherNode.sfx_type)
+                return {'PASS_THROUGH'}
+            try:
+                item = sfx_actions[sfx.cues[MotherNode.name].Actuator_props.SFX_actions_index]
+            except IndexError:
+                pass
+            if self.action == 'REMOVE':
+                if len(sfx.cues[MotherNode.name].Actuator_props.SFX_actions) > 1:
+                    sfx_actions.remove(sfx.cues[MotherNode.name].Actuator_props.SFX_actions_index)
+                    if sfx.cues[MotherNode.name].Actuator_props.SFX_actions_index > 0:
+                        sfx.cues[MotherNode.name].Actuator_props.SFX_actions_index -= 1
+                    index = sfx.cues[MotherNode.name].Actuator_props.SFX_actions_index
+            if self.action == 'ADD':
+                bpy.ops.sfx.select_operator('INVOKE_DEFAULT')            
+                sfx.cues[MotherNode.name].Actuator_props.SFX_actions_index = (len(sfx_actions)-1)
+            if self.action == 'SAVE':
+                bpy.ops.sfx.save_list('INVOKE_DEFAULT')                 
 
         return {"FINISHED"}
 
-    def update_fcurves(self, context, sfx_actions, index):
+    def update_fcurves(self, context, sfx_actions, index, Nodetype):
         try:
             IndexTest = sfx_actions[index]
         except IndexError:
-            sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.SFX_actions_index = 0
+            if Nodetype == 'Actuator':
+                sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.SFX_actions_index = 0
+            elif Nodetype == 'Cue':
+                sfx.cues[context.active_node.name].Actuator_basic_props.Actuator_props.SFX_actions_index = 0
             index = 0
         try:
             IndexTest =sfx_actions[index]
@@ -81,61 +107,159 @@ class SFX_OT_list_actions(bpy.types.Operator):
             info ='Index Out of Range'
             self.report({'INFO'}, info)
         else:
-            Dataobject = bpy.data.objects[context.active_node.name+'_Connector']
-            sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMin_prop = float(sfx_actions[index].minPos)
-            sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop = float(sfx_actions[index].maxPos)
-            sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.simple_actuator_AccMax_prop  = float(sfx_actions[index].maxAcc)
-            sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.simple_actuator_VelMax_prop  = float(sfx_actions[index].maxVel)        
-        try:
-            Dataobject.driver_remove('["Jrk"]')
-            Dataobject.driver_remove('["Acc"]')
-            Dataobject.driver_remove('["Vel"]')
-            Dataobject.driver_remove('["Pos"]')
-            Dataobject.driver_remove('["Pos"]')
-            Dataobject.driver_remove('["Vel-Time"]')
-        except:
-             pass
-        Jrkcurve = Dataobject.driver_add('["Jrk"]')
-        try:
-            Jrkcurve.modifiers.remove(Jrkcurve.modifiers[0])
-        except IndexError:
-            pass
-        Acccurve = Dataobject.driver_add('["Acc"]')
-        try:
-            Acccurve.modifiers.remove(Acccurve.modifiers[0])
-        except IndexError:
-            pass
-        Velcurve = Dataobject.driver_add('["Vel"]')
-        try:
-            Velcurve.modifiers.remove(Velcurve.modifiers[0])
-        except IndexError:
-            pass
-        Poscurve = Dataobject.driver_add('["Pos"]')
-        try:
-            Poscurve.modifiers.remove(Poscurve.modifiers[0])
-        except IndexError:
-            pass
-        VPcurve = Dataobject.driver_add('["Vel-Time"]')
-        try:
-            VPcurve.modifiers.remove(VPcurve.modifiers[0])
-        except IndexError:
-            pass
-        J  = json.loads(sfx_actions[index].Jrk)
-        A  = json.loads(sfx_actions[index].Acc)
-        V  = json.loads(sfx_actions[index].Vel)
-        P  = json.loads(sfx_actions[index].Pos)
-        VP = json.loads(sfx_actions[index].VP)
-        for i in range(0, len(J[0])):
-            Jrkcurve.keyframe_points.insert( J[0][i] , J[1][i], options =  {'FAST'})
-        for i in range(0, len(A[0])):
-            Acccurve.keyframe_points.insert( A[0][i] , A[1][i], options =  {'FAST'}) 
-        for i in range(0, len(V[0])):
-            Velcurve.keyframe_points.insert( V[0][i] , V[1][i], options =  {'FAST'}) 
-        for i in range(0, len(P[0])):
-            Poscurve.keyframe_points.insert(P[0][i] , P[1][i], options =  {'FAST'})
-        for i in range(0, len(VP[0])):
-            VPcurve.keyframe_points.insert( VP[0][i] , VP[1][i], options = {'FAST'})
-        return
+            if Nodetype == 'Actuator':
+                Dataobject = bpy.data.objects[context.active_node.name+'_Connector']
+                sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMin_prop = float(sfx_actions[index].minPos)
+                sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMax_prop = float(sfx_actions[index].maxPos)
+                sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.simple_actuator_AccMax_prop  = float(sfx_actions[index].maxAcc)
+                sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.simple_actuator_VelMax_prop  = float(sfx_actions[index].maxVel)
+                try:
+                    Dataobject.driver_remove('["Jrk"]')
+                    Dataobject.driver_remove('["Acc"]')
+                    Dataobject.driver_remove('["Vel"]')
+                    Dataobject.driver_remove('["Pos"]')
+                    Dataobject.driver_remove('["Pos"]')
+                    Dataobject.driver_remove('["Vel-Time"]')
+                except:
+                    pass
+                Jrkcurve = Dataobject.driver_add('["Jrk"]')
+                try:
+                    Jrkcurve.modifiers.remove(Jrkcurve.modifiers[0])
+                except IndexError:
+                    pass
+                Acccurve = Dataobject.driver_add('["Acc"]')
+                try:
+                    Acccurve.modifiers.remove(Acccurve.modifiers[0])
+                except IndexError:
+                    pass
+                Velcurve = Dataobject.driver_add('["Vel"]')
+                try:
+                    Velcurve.modifiers.remove(Velcurve.modifiers[0])
+                except IndexError:
+                    pass
+                Poscurve = Dataobject.driver_add('["Pos"]')
+                try:
+                    Poscurve.modifiers.remove(Poscurve.modifiers[0])
+                except IndexError:
+                    pass
+                VPcurve = Dataobject.driver_add('["Vel-Time"]')
+                try:
+                    VPcurve.modifiers.remove(VPcurve.modifiers[0])
+                except IndexError:
+                    pass
+                Jrk  = json.loads(sfx_actions[index].Jrk)
+                Acc  = json.loads(sfx_actions[index].Acc)
+                Vel  = json.loads(sfx_actions[index].Vel)
+                Pos  = json.loads(sfx_actions[index].Pos)
+                VP = json.loads(sfx_actions[index].VP)
+
+                sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.simple_actuator_Time_prop = Jrk[0][-1]
+
+                Jrkcurve.keyframe_points.insert(0,0) 
+                for i in range(0,len(Jrk[0])):
+                    if Jrk[0][i]>0.01:
+                        A=Jrkcurve.keyframe_points.insert(Jrk[0][i],Jrk[1][i], options =  {'FAST'}) 
+                        A.interpolation = 'LINEAR'
+                Acccurve.keyframe_points.insert(0,0)
+                for i in range(0,len(Acc[0])):
+                    if Acc[0][i]>0.01:
+                        A=Acccurve.keyframe_points.insert(Acc[0][i],Acc[1][i], options =  {'FAST'}) 
+                        A.interpolation = 'LINEAR'
+                Velcurve.keyframe_points.insert(0,0)
+                for i in range(0,len(Vel[0])):
+                    if Vel[0][i]>0.01:
+                        A=Velcurve.keyframe_points.insert(Vel[0][i],Vel[1][i], options =  {'FAST'}) 
+                        A.interpolation = 'LINEAR'
+                Poscurve.keyframe_points.insert(0,0)
+                for i in range(0,len(Pos[0])):
+                    if Pos[0][i]>0.01:
+                        A=Poscurve.keyframe_points.insert(Pos[0][i],Pos[1][i], options =  {'FAST'}) 
+                        A.interpolation = 'LINEAR'
+                VPcurve.keyframe_points.insert(0,0)         
+                for i in range(0,len(VP[0])):
+                    if VP[0][i]>0.01:
+                        A=VPcurve.keyframe_points.insert(VP[0][i],VP[1][i], options =  {'FAST'}) 
+                        A.interpolation = 'LINEAR'
+
+                # VPcurve.keyframe_points[-1].handle_right = (VPcurve.keyframe_points[-1].co[0],-5)
+                # VPcurve.keyframe_points[-1].handle_left  = (VPcurve.keyframe_points[-1].co[0],VPcurve.keyframe_points[-2].co[1]/3.0)
+                try:
+                    VPcurve.keyframe_points[0].handle_right = (VPcurve.keyframe_points[0].co[0],VPcurve.keyframe_points[1].co[1]/2.0)
+                    VPcurve.keyframe_points[0].handle_left  = (VPcurve.keyframe_points[0].co[0],-5)
+                except IndexError:
+                    pass
+                return
+            elif Nodetype == 'Cue':
+                Dataobject = bpy.data.objects[context.active_node.name+'_Data']
+                sfx.cues[context.active_node.name].Actuator_props.simple_actuator_HardMin_prop = float(sfx_actions[index].minPos)
+                sfx.cues[context.active_node.name].Actuator_props.simple_actuator_HardMax_prop = float(sfx_actions[index].maxPos)
+                sfx.cues[context.active_node.name].Actuator_props.simple_actuator_AccMax_prop  = float(sfx_actions[index].maxAcc)
+                sfx.cues[context.active_node.name].Actuator_props.simple_actuator_VelMax_prop  = float(sfx_actions[index].maxVel)
+                for i in range(0,len(Dataobject.animation_data.action.fcurves)):
+                    Dataobject.animation_data.action.fcurves.remove(Dataobject.animation_data.action.fcurves[0])
+                # Dataobject.animation_data.action.fcurves.remove(Dataobject.animation_data.action.fcurves[1])
+                # Dataobject.animation_data.action.fcurves.remove(Dataobject.animation_data.action.fcurves[2])
+                # Dataobject.animation_data.action.fcurves.remove(Dataobject.animation_data.action.fcurves[3])
+                # Dataobject.animation_data.action.fcurves.remove(Dataobject.animation_data.action.fcurves[4])
+                try:
+                    JrkInTime = Dataobject.animation_data.action.fcurves.new('Jrk')
+                    JrkInTime.lock = True
+                except RuntimeError:
+                    print('Runtime Error')
+                try:
+                    AccInTime = Dataobject.animation_data.action.fcurves.new('Acc')
+                    AccInTime.lock = True
+                except RuntimeError:
+                    print('Runtime Error')
+                try:
+                    VelInTime = Dataobject.animation_data.action.fcurves.new('Vel')
+                    VelInTime.lock = True
+                except RuntimeError:
+                    print('Runtime Error') 
+                try:
+                    PosInTime = Dataobject.animation_data.action.fcurves.new('Pos')
+                except RuntimeError:
+                    print('Runntime Error')
+                try:
+                    VelPos    = Dataobject.animation_data.action.fcurves.new('PosTime')
+                except RuntimeError:
+                    print('Runntime Error')
+
+                Jrk  = json.loads(sfx_actions[index].Jrk)
+                Acc  = json.loads(sfx_actions[index].Acc)
+                Vel  = json.loads(sfx_actions[index].Vel)
+                Pos  = json.loads(sfx_actions[index].Pos)
+                VP = json.loads(sfx_actions[index].VP)
+
+                sfx.cues[context.active_node.name].Actuator_props.simple_actuator_Time_prop = Jrk[0][-1]
+
+                JrkInTime.keyframe_points.insert(0,0) 
+                for i in range(0,len(Jrk[0])):
+                    if Jrk[0][i]>0.01:
+                        A=JrkInTime.keyframe_points.insert(Jrk[0][i],Jrk[1][i], options =  {'FAST'}) 
+                        A.interpolation = 'LINEAR'
+                AccInTime.keyframe_points.insert(0,0)
+                for i in range(0,len(Acc[0])):
+                    if Acc[0][i]>0.01:
+                        A=AccInTime.keyframe_points.insert(Acc[0][i],Acc[1][i], options =  {'FAST'}) 
+                        A.interpolation = 'LINEAR'
+                VelInTime.keyframe_points.insert(0,0)
+                for i in range(0,len(Vel[0])):
+                    if Vel[0][i]>0.01:
+                        A=VelInTime.keyframe_points.insert(Vel[0][i],Vel[1][i], options =  {'FAST'}) 
+                        A.interpolation = 'LINEAR'
+                PosInTime.keyframe_points.insert(0,0)
+                for i in range(0,len(Pos[0])):
+                    if Pos[0][i]>0.01:
+                        A=PosInTime.keyframe_points.insert(Pos[0][i],Pos[1][i], options =  {'FAST'}) 
+                        A.interpolation = 'LINEAR'
+                VelPos.keyframe_points.insert(0,0)         
+                for i in range(0,len(VP[0])):
+                    if VP[0][i]>0.01:
+                        A=VelPos.keyframe_points.insert(VP[0][i],VP[1][i], options =  {'FAST'}) 
+                        A.interpolation = 'LINEAR'
+
+
 
 class SFX_OT_save_List(bpy.types.Operator):
     bl_idname = "sfx.save_list"
@@ -175,7 +299,10 @@ class SFX_OT_SelectOperator(bpy.types.Operator, ImportHelper):
 
     def execute(self, context):
         MotherNode = context.active_node
-        sfx_actions       = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions
+        if MotherNode.sfx_type == 'Action':
+            sfx_actions       = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions
+        elif MotherNode.sfx_type == 'Cue':
+            sfx_actions       = sfx.cues[MotherNode.name].Actuator_props.SFX_actions
         # get the folder
         folder = (os.path.dirname(self.filepath))
         # iterate through the selected files

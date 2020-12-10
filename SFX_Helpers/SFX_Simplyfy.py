@@ -72,35 +72,73 @@ class SFX_OT_Simplyfy(bpy.types.Operator):
         
         options = ('DISTANCE', 0, 1, 3, 0.015, 0, 0.52)
         self.fcurves_simplify(self.fcurve_sel, options, self.fcurves)
+
+        for i in range(0,len(self.VPcurve.keyframe_points)):
+            self.VPcurve.keyframe_points[i].interpolation = 'BEZIER'
+
+        try:
+            self.VPcurve.keyframe_points[-1].handle_right = (self.VPcurve.keyframe_points[-1].co[0],-5)
+            self.VPcurve.keyframe_points[-1].handle_left  = (self.VPcurve.keyframe_points[-1].co[0],self.VPcurve.keyframe_points[-2].co[1]/3.0)
+            self.VPcurve.keyframe_points[0].handle_right = (self.VPcurve.keyframe_points[0].co[0],self.VPcurve.keyframe_points[1].co[1]/2.0)
+            self.VPcurve.keyframe_points[0].handle_left  = (self.VPcurve.keyframe_points[0].co[0],-5)
+        except IndexError:
+            pass      
+        
         self.Save_Simplified_Curve()
 
         self.tag_redraw(context, space_type = 'GRAPH_EDITOR', region_type ='WINDOW')
 
     def Save_Simplified_Curve(self):
-        index      = sfx.actuators[self.mothernode.name].Actuator_basic_props.Actuator_props.SFX_actions_index
-        action0    = sfx.actuators[self.mothernode.name].Actuator_basic_props.Actuator_props.SFX_actions[index]
-        action0.id = index
+        if self.type == 'Actuator': 
+            index      = sfx.actuators[self.mothernode.name].Actuator_basic_props.Actuator_props.SFX_actions_index
+            action0    = sfx.actuators[self.mothernode.name].Actuator_basic_props.Actuator_props.SFX_actions[index]
+            action0.id = index
 
-        Jrk_Data =[[],[]]
-        for i in range(0,len(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[0].keyframe_points)):
-            Jrk_Data[0].append(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[0].keyframe_points[i].co[0])
-            Jrk_Data[1].append(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[0].keyframe_points[i].co[1])
-        Acc_Data =[[],[]]
-        for i in range(0,len(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[1].keyframe_points)):
-            Acc_Data[0].append(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[1].keyframe_points[i].co[0])
-            Acc_Data[1].append(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[1].keyframe_points[i].co[1])
-        Vel_Data =[[],[]]
-        for i in range(0,len(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[2].keyframe_points)):
-            Vel_Data[0].append(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[2].keyframe_points[i].co[0])
-            Vel_Data[1].append(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[2].keyframe_points[i].co[1])
-        Pos_Data =[[],[]]
-        for i in range(0,len(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[3].keyframe_points)):
-            Pos_Data[0].append(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[3].keyframe_points[i].co[0])
-            Pos_Data[1].append(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[3].keyframe_points[i].co[1])
-        Vel_Pos_Data =[[],[]]
-        for i in range(0,len(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[4].keyframe_points)):
-            Vel_Pos_Data[0].append(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[4].keyframe_points[i].co[0])
-            Vel_Pos_Data[1].append(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[4].keyframe_points[i].co[1])
+            Jrk_Data =[[],[]]
+            for i in range(0,len(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[0].keyframe_points)):
+                Jrk_Data[0].append(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[0].keyframe_points[i].co[0])
+                Jrk_Data[1].append(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[0].keyframe_points[i].co[1])
+            Acc_Data =[[],[]]
+            for i in range(0,len(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[1].keyframe_points)):
+                Acc_Data[0].append(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[1].keyframe_points[i].co[0])
+                Acc_Data[1].append(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[1].keyframe_points[i].co[1])
+            Vel_Data =[[],[]]
+            for i in range(0,len(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[2].keyframe_points)):
+                Vel_Data[0].append(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[2].keyframe_points[i].co[0])
+                Vel_Data[1].append(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[2].keyframe_points[i].co[1])
+            Pos_Data =[[],[]]
+            for i in range(0,len(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[3].keyframe_points)):
+                Pos_Data[0].append(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[3].keyframe_points[i].co[0])
+                Pos_Data[1].append(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[3].keyframe_points[i].co[1])
+            Vel_Pos_Data =[[],[]]
+            for i in range(0,len(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[4].keyframe_points)):
+                Vel_Pos_Data[0].append(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[4].keyframe_points[i].co[0])
+                Vel_Pos_Data[1].append(bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[4].keyframe_points[i].co[1])
+        elif self.type =='Cue':
+            index      = sfx.cues[self.mothernode.name].Actuator_props.SFX_actions_index
+            action0    = sfx.cues[self.mothernode.name].Actuator_props.SFX_actions[index]
+            action0.id = index
+
+            Jrk_Data =[[],[]]
+            for i in range(0,len(bpy.data.objects[self.mothernode.name+'_Data'].animation_data.action.fcurves[0].keyframe_points)):
+                Jrk_Data[0].append(bpy.data.objects[self.mothernode.name+'_Data'].animation_data.action.fcurves[0].keyframe_points[i].co[0])
+                Jrk_Data[1].append(bpy.data.objects[self.mothernode.name+'_Data'].animation_data.action.fcurves[0].keyframe_points[i].co[1])
+            Acc_Data =[[],[]]
+            for i in range(0,len(bpy.data.objects[self.mothernode.name+'_Data'].animation_data.action.fcurves[1].keyframe_points)):
+                Acc_Data[0].append(bpy.data.objects[self.mothernode.name+'_Data'].animation_data.action.fcurves[1].keyframe_points[i].co[0])
+                Acc_Data[1].append(bpy.data.objects[self.mothernode.name+'_Data'].animation_data.action.fcurves[1].keyframe_points[i].co[1])
+            Vel_Data =[[],[]]
+            for i in range(0,len(bpy.data.objects[self.mothernode.name+'_Data'].animation_data.action.fcurves[2].keyframe_points)):
+                Vel_Data[0].append(bpy.data.objects[self.mothernode.name+'_Data'].animation_data.action.fcurves[2].keyframe_points[i].co[0])
+                Vel_Data[1].append(bpy.data.objects[self.mothernode.name+'_Data'].animation_data.action.fcurves[2].keyframe_points[i].co[1])
+            Pos_Data =[[],[]]
+            for i in range(0,len(bpy.data.objects[self.mothernode.name+'_Data'].animation_data.action.fcurves[3].keyframe_points)):
+                Pos_Data[0].append(bpy.data.objects[self.mothernode.name+'_Data'].animation_data.action.fcurves[3].keyframe_points[i].co[0])
+                Pos_Data[1].append(bpy.data.objects[self.mothernode.name+'_Data'].animation_data.action.fcurves[3].keyframe_points[i].co[1])
+            Vel_Pos_Data =[[],[]]
+            for i in range(0,len(bpy.data.objects[self.mothernode.name+'_Data'].animation_data.action.fcurves[4].keyframe_points)):
+                Vel_Pos_Data[0].append(bpy.data.objects[self.mothernode.name+'_Data'].animation_data.action.fcurves[4].keyframe_points[i].co[0])
+                Vel_Pos_Data[1].append(bpy.data.objects[self.mothernode.name+'_Data'].animation_data.action.fcurves[4].keyframe_points[i].co[1])            
 
         action0.Jrk = json.dumps(Jrk_Data)
         action0.Acc = json.dumps(Acc_Data)
@@ -122,15 +160,23 @@ class SFX_OT_Simplyfy(bpy.types.Operator):
                                 region.tag_redraw()
 
     def invoke(self, context, event):
-        self.mothernode = bpy.context.active_node 
+        self.mothernode = bpy.context.active_node
+        self.type =  self.mothernode.sfx_type
+        if self.type == 'Actuator':
+            self.Jrkcurve = bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[0]
+            self.Acccurve = bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[1]
+            self.Velcurve = bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[2]
+            self.Poscurve = bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[3]
+            self.VPcurve  = bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[4]
+            self.fcurve_sel = [self.Jrkcurve, self.Acccurve, self.Velcurve, self.Poscurve, self.VPcurve]
+        elif self.type =='Cue':
+            self.Jrkcurve = bpy.data.objects[self.mothernode.name+'_Data'].animation_data.action.fcurves[0]
+            self.Acccurve = bpy.data.objects[self.mothernode.name+'_Data'].animation_data.action.fcurves[1]
+            self.Velcurve = bpy.data.objects[self.mothernode.name+'_Data'].animation_data.action.fcurves[2]
+            self.Poscurve = bpy.data.objects[self.mothernode.name+'_Data'].animation_data.action.fcurves[3]
+            self.VPcurve  = bpy.data.objects[self.mothernode.name+'_Data'].animation_data.action.fcurves[4]
+            self.fcurve_sel = [self.Jrkcurve, self.Acccurve, self.Velcurve, self.Poscurve, self.VPcurve]
 
-        self.Jrkcurve = bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[0]
-        self.Acccurve = bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[1]
-        self.Velcurve = bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[2]
-        self.Poscurve = bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[3]
-        self.VPcurve  = bpy.data.objects[self.mothernode.name+'_Connector'].animation_data.drivers[4]
-
-        self.fcurve_sel = [self.Jrkcurve, self.Acccurve, self.Velcurve, self.Poscurve, self.VPcurve]
         self.fcurves=[]
         for i in range(0,len(self.fcurve_sel)):
             points = []

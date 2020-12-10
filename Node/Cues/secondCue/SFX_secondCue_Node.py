@@ -15,7 +15,7 @@ class SFX_secondCue_Node(bpy.types.Node):
 
     sfx_type     ='Cue'
     sfx_sub_type = 'Velocity_Cue'
-    sfx_id       = 'simplecue'
+    sfx_id       = 'secondcue'
 
     @classmethod
     def poll(cls, ntree):
@@ -229,3 +229,45 @@ class SFX_secondCue_Node(bpy.types.Node):
             self.Dataobject.empty_display_type = 'CIRCLE'
             self.Dataobject.location = (0,0,0)
             coll.objects.link(self.Dataobject)
+
+    def Init_Graph_Curves(self):               
+        bpy.data.objects[self.name+'_Connector']['Pos'] = 0
+        bpy.data.objects[self.name+'_Connector']['Vel'] = 0
+        bpy.data.objects[self.name+'_Connector']['Acc'] = 0
+        bpy.data.objects[self.name+'_Connector']['Jrk'] = 0 
+        bpy.data.objects[self.name+'_Connector']['Vel-Time'] = 0
+        try:
+            bpy.data.objects[self.name+'_Connector'].driver_remove('["Jrk"]')
+            bpy.data.objects[self.name+'_Connector'].driver_remove('["Acc"]')
+            bpy.data.objects[self.name+'_Connector'].driver_remove('["Vel"]')
+            bpy.data.objects[self.name+'_Connector'].driver_remove('["Pos"]')
+            bpy.data.objects[self.name+'_Connector'].driver_remove('["Vel-Time"]')
+        except:
+             pass
+        self.Jrkcurve = bpy.data.objects[self.name+'_Connector'].driver_add('["Jrk"]')
+        # THX to Philipp Oeser (lichtwerk)
+        # to edit the driver fcurve with keyframes, you'll have to remove the fmodifier
+        try:
+            self.Jrkcurve.modifiers.remove(self.Jrkcurve.modifiers[0])
+        except IndexError:
+            pass
+        self.Acccurve = bpy.data.objects[self.name+'_Connector'].driver_add('["Acc"]')
+        try:
+            self.Acccurve.modifiers.remove(self.Acccurve.modifiers[0])
+        except IndexError:
+            pass
+        self.Velcurve = bpy.data.objects[self.name+'_Connector'].driver_add('["Vel"]')
+        try:
+            self.Velcurve.modifiers.remove(self.Velcurve.modifiers[0])
+        except IndexError:
+            pass
+        self.Poscurve = bpy.data.objects[self.name+'_Connector'].driver_add('["Pos"]')
+        try:
+            self.Poscurve.modifiers.remove(self.Poscurve.modifiers[0])
+        except IndexError:
+            pass
+        self.VPcurve = bpy.data.objects[self.name+'_Connector'].driver_add('["Vel-Time"]')
+        try:
+            self.VPcurve.modifiers.remove(self.VPcurve.modifiers[0])
+        except IndexError:
+            pass

@@ -64,9 +64,13 @@ class SFX_Save_Action(Operator, ExportHelper):
 
     def execute(self, context):
         MotherNode = context.active_node
-        index = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index
-        action = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions[index]
-        #self.description = action.name
+        if MotherNode.sfx_type == 'Action':
+            index = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index
+            action = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions[index]
+            #self.description = action.name
+        elif MotherNode.sfx_type == 'Cue':
+            index = sfx.cues[MotherNode.name].Actuator_props.SFX_actions_index
+            action = sfx.cues[MotherNode.name].Actuator_props.SFX_actions[index]          
         action.saved = True
         action.description = self.description
         return write_some_data(context, self.filepath, action, self.description)

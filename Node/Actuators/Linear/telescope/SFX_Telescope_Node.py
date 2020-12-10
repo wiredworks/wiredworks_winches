@@ -334,5 +334,5 @@ class SFX_LinRail_Node(bpy.types.Node):
         else:
             LimitVel = Vel_Pos_Limit.evaluate(sfx.actuators[self.name].Actuator_basic_props.ist_Pos -\
                 sfx.actuators[self.name].Actuator_basic_props.Actuator_props.simple_actuator_HardMin_prop)
-        print(LimitVel)
+
         sfx.actuators[self.name].Actuator_basic_props.soll_Vel = VIn * LimitVel/100.0

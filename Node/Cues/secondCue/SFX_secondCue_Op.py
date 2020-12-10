@@ -6,10 +6,10 @@ from scipy.integrate import quad
 from scipy.integrate import simps
 from scipy.signal import savgol_filter
 
-
+import json
 import numpy as np
 
-from .... SFX_Helpers.SFX_Calc_Default_Cue import SFX_Calc_Default_Cue
+from .... SFX_Helpers.SFX_Calc_Default_Move import SFX_Calc_Default_Move
 
 from .... exchange_data.sfx import sfx
 from . SFX_secondCue_Data import cue_second
@@ -33,7 +33,7 @@ class SFX_secondCue_Op(bpy.types.Operator):
                 sfx.cues[self.MotherNode.name].operator_running_modal = True
 
                 #if self.CalcPos:
-                #self.FixEndsOfPosInTime()
+                self.FixEndsOfVelInPos()
                 #self.CalcVelAccInTime()
 
                 # self.cue_act_pos = sfx.cues[self.MotherNode.name].cue_act_pos
@@ -77,9 +77,11 @@ class SFX_secondCue_Op(bpy.types.Operator):
 
 
         if not(sfx.cues[self.MotherNode.name].operator_running_modal):
-            self.InitVars() 
-            self.InitDataobject()
-            self.InitGraph()
+            self.Init_Vars() 
+            self.Init_Dataobject()
+            self.Init_Graph_Curves()
+            action = self.Calc_Default_Action()
+            self.Plot_Graph_Curves(action) 
             return self.execute(context)
         else:
             return {'CANCELLED'}
@@ -87,7 +89,7 @@ class SFX_secondCue_Op(bpy.types.Operator):
     def draw(self,context):
         pass
 
-    def InitVars(self):
+    def Init_Vars(self):
         self.max_Pos = sfx.cues[self.MotherNode.name].Actuator_props.simple_actuator_HardMax_prop
         self.min_Pos = sfx.cues[self.MotherNode.name].Actuator_props.simple_actuator_HardMin_prop
         self.max_Vel = sfx.cues[self.MotherNode.name].Actuator_props.simple_actuator_VelMax_prop
@@ -108,7 +110,7 @@ class SFX_secondCue_Op(bpy.types.Operator):
         self.CalcGrenzVelCalculated = False
         sfx.cues[self.MotherNode.name].toTime_executed = False
 
-    def InitDataobject(self):
+    def Init_Dataobject(self):
         try:
             self.Dataobject =  bpy.data.objects[self.MotherNode.name+'_Data']
         except KeyError:
@@ -124,41 +126,10 @@ class SFX_secondCue_Op(bpy.types.Operator):
         bpy.data.actions.new(self.MotherNode.name+"_Cue")# or bpy.data.actions.get(self.MotherNode.name+"_Cue")
         self.action = self.Dataobject.animation_data.action
 
-    def InitGraph(self):
-        self.InitFcurves()
-        SFX_Calc_Default_Cue(self.Dataobject, self.Length, self.max_Acc, self.max_Vel )
-        sfx.cues[self.MotherNode.name].Actuator_props.simple_actuator_Time_prop = \
-            bpy.data.objects[self.MotherNode.name+'_Data'].animation_data.action.fcurves[3].keyframe_points[-1].co[0]
-        self.Time    = sfx.cues[self.MotherNode.name].Actuator_props.simple_actuator_Time_prop
-
-        # PosTime = bpy.data.objects[self.MotherNode.name+'_Data'].animation_data.action.fcurves[3]
-        # VelTime = bpy.data.objects[self.MotherNode.name+'_Data'].animation_data.action.fcurves[2]
-        # AccTime = bpy.data.objects[self.MotherNode.name+'_Data'].animation_data.action.fcurves[1]
-        # JrkTime = bpy.data.objects[self.MotherNode.name+'_Data'].animation_data.action.fcurves[0]
-
-        # for j in range(len(PosTime.keyframe_points) - 1, 0, -1):
-        #             PosTime.keyframe_points.remove(PosTime.keyframe_points[j])
-        # for j in range(len(VelTime.keyframe_points) - 1, 0, -1):
-        #             VelTime.keyframe_points.remove(VelTime.keyframe_points[j])
-        # for j in range(len(AccTime.keyframe_points) - 1, 0, -1):
-        #             AccTime.keyframe_points.remove(AccTime.keyframe_points[j])
-        # for j in range(len(PosTime.keyframe_points) - 1, 0, -1):
-        #             JrkTime.keyframe_points.remove(JrkTime.keyframe_points[j])
-        # Point0 = (self.min_Pos,0)
-        # Point1 = (self.Time,self.max_Pos)       
-        # PosTime.keyframe_points.insert(Point0[0],Point0[1])
-        # # self.PosInTime.keyframe_points[0].handle_left = (Point0[0]-1,0)
-        # # self.PosInTime.keyframe_points[0].handle_right = (Point0[0]+1,0)
-        # PosTime.keyframe_points.insert(Point1[0],Point1[1])
-        # # self.PosInTime.keyframe_points[-1].handle_left = (Point1[0]-1,Point1[1])
-        # # self.PosInTime.keyframe_points[-1].handle_right = (Point1[0]+1,Point1[1])                         
-
-
-
-    def InitFcurves(self):
+    def Init_Graph_Curves(self):
         try:
-            self.AccInTime = self.action.fcurves.new('Jrk')
-            self.AccInTime.lock = True
+            self.JrkInTime = self.action.fcurves.new('Jrk')
+            self.JrkInTime.lock = True
         except RuntimeError:
             print('Runtime Error')
         try:
@@ -180,16 +151,70 @@ class SFX_secondCue_Op(bpy.types.Operator):
         except RuntimeError:
             print('Runntime Error')
 
+    def Calc_Default_Action(self):
+        action0 = sfx.cues[self.MotherNode.name].Actuator_props.SFX_actions.add()
+        action0.id = 0
+        action0.name = self.MotherNode.name+'_default.sfxact'
+        action0.minPos = sfx.cues[self.MotherNode.name].Actuator_props.simple_actuator_HardMin_prop
+        action0.maxPos = sfx.cues[self.MotherNode.name].Actuator_props.simple_actuator_HardMax_prop
+        action0.length = action0.maxPos - action0.minPos
+        action0.maxAcc = sfx.cues[self.MotherNode.name].Actuator_props.simple_actuator_AccMax_prop
+        action0.maxVel = sfx.cues[self.MotherNode.name].Actuator_props.simple_actuator_VelMax_prop
+
+        A = SFX_Calc_Default_Move(action0.length, action0.maxAcc, action0.maxVel )
+        Jrk_Data,Acc_Data,Vel_Data,Pos_Data,Vel_Pos_Data = SFX_Calc_Default_Move.out(A)
+
+        action0.Jrk = json.dumps(Jrk_Data)
+        action0.Acc = json.dumps(Acc_Data)
+        action0.Vel = json.dumps(Vel_Data)
+        action0.Pos = json.dumps(Pos_Data)
+        action0.VP  = json.dumps(Vel_Pos_Data)
+
+        return action0
+
+    def Plot_Graph_Curves(self, action):
+        Jrk = json.loads(action.Jrk)
+        Acc = json.loads(action.Acc)
+        Vel = json.loads(action.Vel)
+        Pos = json.loads(action.Pos)
+        VP  = json.loads(action.VP)
+        self.JrkInTime.keyframe_points.insert(0,0) 
+        for i in range(0,len(Jrk[0])):
+            if Jrk[0][i]>0.01:
+                A=self.JrkInTime.keyframe_points.insert(Jrk[0][i],Jrk[1][i], options =  {'FAST'}) 
+                A.interpolation = 'LINEAR'
+        self.AccInTime.keyframe_points.insert(0,0)
+        for i in range(0,len(Acc[0])):
+            if Acc[0][i]>0.01:
+                A=self.AccInTime.keyframe_points.insert(Acc[0][i],Acc[1][i], options =  {'FAST'}) 
+                A.interpolation = 'LINEAR'
+        self.VelInTime.keyframe_points.insert(0,0)
+        for i in range(0,len(Vel[0])):
+            if Vel[0][i]>0.01:
+                A=self.VelInTime.keyframe_points.insert(Vel[0][i],Vel[1][i], options =  {'FAST'}) 
+                A.interpolation = 'LINEAR'
+        self.PosInTime.keyframe_points.insert(0,0)
+        for i in range(0,len(Pos[0])):
+            if Pos[0][i]>0.01:
+                A=self.PosInTime.keyframe_points.insert(Pos[0][i],Pos[1][i], options =  {'FAST'}) 
+                A.interpolation = 'LINEAR'
+        self.VelPos.keyframe_points.insert(0,0)         
+        for i in range(0,len(VP[0])):
+            if VP[0][i]>0.01:
+                A=self.VelPos.keyframe_points.insert(VP[0][i],VP[1][i], options =  {'FAST'}) 
+                A.interpolation = 'LINEAR'        
 
 
-    def FixEndsOfPosInTime(self):
-        PosTime = bpy.data.objects[self.MotherNode.name+'_Data'].animation_data.action.fcurves[3]
+
+
+    def FixEndsOfVelInPos(self):
+        VelPos = bpy.data.objects[self.MotherNode.name+'_Data'].animation_data.action.fcurves[4]
         Point0 = (self.min_Pos,0)
-        Point1 = (self.Time,self.max_Pos)       
-        PosTime.keyframe_points[0].co = Point0
+        Point1 = (sfx.cues[self.MotherNode.name].Actuator_props.simple_actuator_HardMax_prop,0)       
+        VelPos.keyframe_points[0].co = Point0
         # self.PosInTime.keyframe_points[0].handle_left = (Point0[0]-1,0)
         # self.PosInTime.keyframe_points[0].handle_right = (Point0[0]+1,0)
-        PosTime.keyframe_points[-1].co = Point1
+        VelPos.keyframe_points[-1].co = Point1
         # self.PosInTime.keyframe_points[-1].handle_left = (Point1[0]-1,Point1[1])
         # self.PosInTime.keyframe_points[-1].handle_right = (Point1[0]+1,Point1[1])
 
