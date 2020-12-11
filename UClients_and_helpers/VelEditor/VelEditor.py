@@ -21,6 +21,8 @@ import time
 import os
 import copy
 
+import pickle
+
 from GrenzVel import GrenzVel
 #from GrenzVelReconstruct1 import GrenzVelReconstruct1 as GrenzVel
 
@@ -888,7 +890,7 @@ class Diagramm(wx.Panel):
         for i in range(len(self.TTPoints)):
             self.TTPoints[self.hpoint].set(color='r')
         self.modifyP = 'none'
-        wx.PostEvent(self,wx.PaintEvent())
+        wx.PostEvent(self,wx.PaintEvent('#'))
     
     def OnKeyPress(self,evt):
         if evt.key == 'd':
@@ -1238,6 +1240,7 @@ class VelEditor4C(wx.App):
         except IOError:
             pass
         self.OpenFileStageII()
+        print(self.KeyPathDict)
 
     def OpenFileStageII(self):
         self.KeyPathDicCancel = copy.deepcopy(self.KeyPathDic)
