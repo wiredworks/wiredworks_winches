@@ -64,7 +64,7 @@ class SFX_Save_Action(Operator, ExportHelper):
 
     def execute(self, context):
         MotherNode = context.active_node
-        if MotherNode.sfx_type == 'Action':
+        if MotherNode.sfx_type == 'Actuator':
             index = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index
             action = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions[index]
             #self.description = action.name
