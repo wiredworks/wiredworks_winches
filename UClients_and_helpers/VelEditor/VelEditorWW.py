@@ -12,7 +12,9 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 #from matplotlib.backends.backend_wxagg import NavigationToolbar2WxAgg, wxc
 from scipy.interpolate import splev, splrep, splint, interp1d, BPoly, splprep
-from scipy.integrate import quad
+from scipy.integrate import quad,simps
+from scipy.optimize import root
+
 import math
 from math import copysign
 
@@ -23,13 +25,226 @@ import copy
 import pickle
 import json
 
-import matplotlib.style as mplstyle
-mplstyle.use('fast')
-
 ID_Menu_OpenVelFile = 5005
 ID_Menu_SaveVelFile = 5006
 ID_Menu_Exit        = 5008
 ID_Menu             = 5011
+
+class Calc_Default_Profile:
+    def __init__(self, length, maxAcc, maxVel):
+        self.Length     = length
+        self.accS        = maxAcc
+        self.velS       = maxVel
+        self.JH         = 10.0 
+        if self.Length > 0  and self.accS > 0 and self.velS > 0:
+            self.Pulses = []
+            self.JH = 10.0      
+            (self.T, self.t1, self.JH, self.t2, self.t3, self.time) = self.CalcTimes( self.Length, self.JH, self.accS, self.velS)        
+            Puls = ( 0, self.t1, self.T, self.t1)
+            self.starttime = Puls[0]
+            self.endtime   = Puls[0] + Puls[1] +  Puls[2] +  Puls[3]
+
+            self.InitCurveData()
+            self.AssembleFuncData()            
+            self.CalcDrawFcurves()
+
+    def CalcTimes(self, LengthS, JerkHeightS, accS, velS):
+        ''' T = 10t 
+            acc = (T+t)*JerkHeight
+            vel = 2*(T² + 3Tt + 2t²)*JerkHeight
+            len = 2*(2t+T)²(t+T)*JerkHeight '''
+        JerkHeight = JerkHeightS; t2 = 0; t3 = 0
+        
+        T = (10.0/11.0)*(accS/JerkHeight)
+        t1 = T / 10.0
+        if t1 < 0.02 :
+            t1 = 0.02
+            T  = 10 * t1
+            JerkHeight = accS/(T+t1)
+            
+        acc = JerkHeight*(T+t1)
+        vel =  JerkHeight*(T*T + 3*T*t1 + 2*t1*t1 + t2*t2)
+        Length = vel*(4*T + 8*t1 + 2*t2 + 2*t3) / 2.0 
+                   
+        if vel > velS:
+            T = math.sqrt((25*velS)/(33*JerkHeight))
+            t1 = T / 10.0
+            if t1 < 0.02 :
+                t1 = 0.02
+                T  = 10 * t1
+                while t1 <= 0.02 :
+                    JerkHeight = JerkHeight/2
+                    T = math.sqrt((25*velS)/(33*JerkHeight))
+                    t1 = T / 10.0
+               
+        if vel < velS:
+            t2 = (velS-vel)/acc
+            
+        acc = JerkHeight*(T+t1)
+        vel = JerkHeight*(T*T + 3*T*t1 + 2*t1*t1 )+acc*t2
+        Length = vel*(4*T + 8*t1 + 2*t2 + 2*t3) / 2.0
+        
+        if Length > LengthS:
+            LengthLambda = lambda x: (2*LengthS-(JerkHeight*(T*T+3*T*t1+2*t1*t1)+acc*x)*(4*T+ 8*t1+ 2*x))
+            t2=(root(LengthLambda,[0,]).x[0])               
+            if t2 <0:
+                t2=0
+                T = math.pow((LengthS*125/(396.0 * JerkHeight)),(1/3.0))
+                t1 = T / 10.0
+                if t1 < 0.02 :
+                    t1 = 0.02
+                    T  = 10 * t1
+                    while t1 <= 0.02 :
+                        JerkHeight = JerkHeight/2
+                        T = math.pow((LengthS*125/(396.0 * JerkHeight)),(1/3.0))
+                        t1 = T / 10.0
+
+        if Length < LengthS:
+            try:
+                t3 = (LengthS-Length)/vel    
+            except ZeroDivisionError:
+                print('Zero Division Error')
+                t3 = 0
+        acc = JerkHeight*(T+t1)                   
+        vel = JerkHeight*(T*T + 3*T*t1 + 2*t1*t1 )+acc*t2
+        Length = vel*(4*T + 8*t1 + 2*t2 + 2*t3 ) / 2.0#
+        Time = 4*T + 8*t1 + 2*t2 +t3 
+        
+        # print( 'Delta JH: %3.4f Delta Acc: %3.4f Adjusted Vel: %3.4f'%(JerkHeightS-JerkHeight,accS-acc,velS-vel))                            
+        # print( '                  With Acc: %3.4f      and Vel: %3.4f ---> Time: %3.4f Length: %3.4f'%(acc , vel, Time, Length))
+       
+        return (T, t1, JerkHeight, t2, t3, Time)
+
+    def AssembleFuncData(self):
+        # rauf index = 0 
+        Puls = ( 0, self.t1, self.T, self.t1, self.t2)         
+        self.Pulses.append(Puls)                
+        self.Jerk( self.Pulses[0], JH = self.JH)
+        # grad index = 1
+        Puls1 = (self.Pulses[0][0] + self.Pulses[0][1] + self.Pulses[0][2] + self.Pulses[0][3] , 0.0, self.t2, 0.0)
+        self.Pulses.append(Puls1)           
+        self.Jerk( self.Pulses[1], JH = 0) 
+        self.AppendCurveData(1)
+        # runter index = 2
+        Puls2 = (self.Pulses[1][0] + self.Pulses[1][1] + self.Pulses[1][2] + self.Pulses[1][3] , self.t1, self.T, self.t1)
+        self.Pulses.append(Puls2)             
+        self.Jerk( self.Pulses[2], -self.JH) 
+        self.AppendCurveData(2)
+        # grad index = 3
+        Puls3 = (self.Pulses[2][0] + self.Pulses[2][1] + self.Pulses[2][2] + self.Pulses[2][3] , 0, self.t3, 0.0)
+        self.Pulses.append(Puls3)             
+        self.Jerk( self.Pulses[3], JH = 0) 
+        self.AppendCurveData(3)
+        # runter index = 4
+        Puls4 = (self.Pulses[3][0] + self.Pulses[3][1] + self.Pulses[3][2] + self.Pulses[3][3] , self.t1, self.T, self.t1)
+        self.Pulses.append(Puls4)             
+        self.Jerk( self.Pulses[4], -self.JH) 
+        self.AppendCurveData(4)
+        # grad index = 5
+        Puls5 = (self.Pulses[4][0] + self.Pulses[4][1] + self.Pulses[4][2] + self.Pulses[4][3] , 0, self.t2, 0.0)
+        self.Pulses.append(Puls5)             
+        self.Jerk( self.Pulses[5], JH = 0) 
+        self.AppendCurveData(5)
+        # rauf index = 6
+        Puls6 = (self.Pulses[5][0] + self.Pulses[5][1] + self.Pulses[5][2] + self.Pulses[5][3] , self.t1, self.T, self.t1)
+        self.Pulses.append(Puls6)             
+        self.Jerk( self.Pulses[6], JH = self.JH) 
+        self.AppendCurveData(6)
+
+
+    def InitCurveData(self):
+        Teilung = 1001
+        self.X     = np.linspace(self.starttime , self.endtime, num = Teilung, retstep = False, dtype = np.double)
+        self.dX    = self.X[1] - self.X[0]
+        self.JrkC  = np.zeros(Teilung, dtype = np.double)
+        self.AccC  = np.zeros(Teilung, dtype = np.double)
+        self.VelC  = np.zeros(Teilung, dtype = np.double)
+        self.PosC  = np.zeros(Teilung, dtype = np.double) 
+
+    def AppendCurveData(self,i):
+        Teilung = 1001
+        start = self.Pulses[i][0]
+        end   = self.Pulses[i][0] + self.Pulses[i][1] +self.Pulses[i][2] +self.Pulses[i][3]
+        self.X    = np.append(self.X, np.linspace(start , end, num = Teilung, retstep = False, dtype = np.double))
+        self.JrkC = np.append(self.JrkC, np.zeros(Teilung, dtype = np.double))
+        self.AccC = np.append(self.AccC, np.zeros(Teilung, dtype = np.double))
+        self.VelC = np.append(self.VelC, np.zeros(Teilung, dtype = np.double))
+        self.PosC = np.append(self.PosC, np.zeros(Teilung, dtype = np.double))   
+            
+    def CalcDrawFcurves(self):
+        Jrkcurve = self.Dataobject.animation_data.action.fcurves[0]
+        Acccurve = self.Dataobject.animation_data.action.fcurves[1]
+        Velcurve = self.Dataobject.animation_data.action.fcurves[2]
+        Poscurve = self.Dataobject.animation_data.action.fcurves[3]
+        VelPos   = self.Dataobject.animation_data.action.fcurves[4]
+
+        Acccurve.keyframe_points.insert( 0 , 0) 
+        for i in range(1, len(self.X)):
+            self.JrkC[i] = Jrkcurve.evaluate(self.X[i])
+            self.AccC[i] = self.AccC[i-1] + self.JrkC[i] * (self.X[i]-self.X[i-1])
+        Acccurve.keyframe_points.insert( 0 ,0, options ={'FAST'})                
+        for i in range(1,len(self.AccC)):
+            if self.X[i] > 0.015:
+                Acccurve.keyframe_points.insert( self.X[i] , self.AccC[i], options ={'FAST'}) 
+        for i in range(1, len(self.X)):
+            #self.AccC[i] = self.Acccurve.evaluate(self.X[i])
+            self.VelC[i] = self.VelC[i-1] + self.AccC[i] * (self.X[i]-self.X[i-1])             
+        for i in range(0,len(self.VelC)):
+            Velcurve.keyframe_points.insert( self.X[i] , self.VelC[i], options ={'FAST'})
+            
+        for i in range(1, len(self.X)):
+            #VelC[i] = Velcurve.evaluate(X[i])
+            self.PosC[i] = self.PosC[i-1] + self.VelC[i] * (self.X[i]-self.X[i-1]) 
+        for i in range(0,len(self.PosC)):
+            Poscurve.keyframe_points.insert( self.X[i] , self.PosC[i], options ={'FAST'})
+
+        VelPos.keyframe_points.insert( 0 , 0)
+        VelPos.keyframe_points[0].handle_left   = (VelPos.keyframe_points[0].co[0],-10)
+        VelPos.keyframe_points[0].handle_right  = (VelPos.keyframe_points[0].co[0],10)
+        for i in range(0,len(self.X)):
+            v = Velcurve.evaluate(self.X[i])
+            p = Poscurve.evaluate(self.X[i])
+            if p > 0.015:
+                VelPos.keyframe_points.insert( p , v)
+        VelPos.keyframe_points[-1].handle_left   = (VelPos.keyframe_points[-1].co[0],10)
+        VelPos.keyframe_points[-1].handle_right  = (VelPos.keyframe_points[-1].co[0],-10)
+        
+        bpy.ops.sfx.simplify_cue('INVOKE_DEFAULT')                        
+        
+        # self.maxJrk = max(abs(self.JrkC))
+        # self.maxAcc = max(abs(self.AccC))
+        # self.maxVel = max((self.VelC))
+        # self.maxPos = max(abs(self.PosC))
+        # self.maxTime = self.X[-1]
+            
+    def Jerk(self, Puls, JH):
+        Jrkcurve = self.Dataobject.animation_data.action.fcurves[0]
+        Jer0  = 0
+        Jer1  = JH
+        Jer2  = JH
+        Jer3  = 0
+
+        Jert0    = Puls[0]
+        Jert1    = Puls[0] +  Puls[1]
+        Jert2    = Puls[0] +  Puls[1] +  Puls[2]
+        Jert3    = Puls[0] +  Puls[1] +  Puls[2] +  Puls[3]
+
+        Jrkcurve.keyframe_points.insert( Jert0 , Jer0)
+        Jrkcurve.keyframe_points.insert( Jert1 , Jer1)
+        Jrkcurve.keyframe_points.insert( Jert2 , Jer2)
+        Jrkcurve.keyframe_points.insert( Jert3 , Jer3)
+        
+        for i in range(0, len(Jrkcurve.keyframe_points)):
+            try:
+                Jrkcurve.keyframe_points[i].handle_left  = (Jrkcurve.keyframe_points[i].co[0],Jrkcurve.keyframe_points[i].co[1])
+                Jrkcurve.keyframe_points[i].handle_right = (Jrkcurve.keyframe_points[i].co[0],Jrkcurve.keyframe_points[i].co[1])  
+            except IndexError:
+                pass
+
+        self.CalcPos = True
+
+
+
 
 class Diagramm(wx.Panel):
     def __init__(self, parent,id= 1,dpi=None, **kwargs):
@@ -727,7 +942,6 @@ class Diagramm(wx.Panel):
         maxAcc = max(self.Acc_T[1])
         maxDcc = min(self.Acc_T[1])
         if self.VelEditorFrame:
-            print(float(self.Action_MaxAcc))
             self.VelEditorFrame.txtMaxTime.SetValue('%3.3f'% self.CP_M_Points[0][-1])
             self.VelEditorFrame.txtProfileMaxAcc.SetValue('%3.3f'% maxAcc)
             self.VelEditorFrame.txtProfileMaxDcc.SetValue('%3.3f'% maxDcc)
@@ -743,8 +957,6 @@ class Diagramm(wx.Panel):
                 self.VelEditorFrame.txtProfileMaxDcc.SetBackgroundColour((255,128,0))
             else:
                 self.VelEditorFrame.txtProfileMaxDcc.SetBackgroundColour((204,0,0))
-
-
 
     def Pan(self, evt):
         if self.press is None: return
@@ -897,29 +1109,28 @@ class VelEditor4C(wx.App):
         self.KeyPointWindow.panelOne           = xrc.XRCCTRL(self.KeyPointWindow.panelMainPanel,'PanelOne')
         self.KeyPointWindow.panelVelPath       = xrc.XRCCTRL(self.KeyPointWindow.panelOne,'panelVelPath')        
         self.KeyPointWindow.Diagramm           = Diagramm(self.KeyPointWindow.panelVelPath)        
-        self.KeyPointWindow.txtLength      = xrc.XRCCTRL(self.KeyPointWindow,'txtLength')
-        self.KeyPointWindow.txtPathMinTime     = xrc.XRCCTRL(self.KeyPointWindow,'txtPathMinTime')       
+        self.KeyPointWindow.txtLength          = xrc.XRCCTRL(self.KeyPointWindow,'txtLength')
+        self.KeyPointWindow.txtMaxTime         = xrc.XRCCTRL(self.KeyPointWindow,'txtMaxTime')       
         self.KeyPointWindow.txtSetupMaxAcc     = xrc.XRCCTRL(self.KeyPointWindow,'txtSetupMaxAcc')
         self.KeyPointWindow.txtSetupMaxVel     = xrc.XRCCTRL(self.KeyPointWindow,'txtSetupMaxVel')
-        self.KeyPointWindow.txtSetupUsrAcc     = xrc.XRCCTRL(self.KeyPointWindow,'txtSetupUsrAcc')
-        self.KeyPointWindow.txtSetupUsrVel     = xrc.XRCCTRL(self.KeyPointWindow,'txtSetupUsrVel')
-        self.KeyPointWindow.txtMaxTime         = xrc.XRCCTRL(self.KeyPointWindow,'txtMaxTime')
-        self.KeyPointWindow.txtMaxDistance     = xrc.XRCCTRL(self.KeyPointWindow,'txtMaxDistance')
+        self.KeyPointWindow.txtGenerateAcc     = xrc.XRCCTRL(self.KeyPointWindow,'txtGenerateAcc')
+        self.KeyPointWindow.txtGenerateVel     = xrc.XRCCTRL(self.KeyPointWindow,'txtGenerateVel')
+        self.KeyPointWindow.txtGenerateLength  = xrc.XRCCTRL(self.KeyPointWindow,'txtGenerateLength')
+        self.KeyPointWindow.txtGenerateDuration= xrc.XRCCTRL(self.KeyPointWindow,'txtGenerateDuration')
         self.KeyPointWindow.txtMouseXPos       = xrc.XRCCTRL(self.KeyPointWindow,'txtMouseXPos')
         self.KeyPointWindow.txtMouseYPos       = xrc.XRCCTRL(self.KeyPointWindow,'txtMouseYPos')
         self.KeyPointWindow.txtProfileMaxAcc   = xrc.XRCCTRL(self.KeyPointWindow,'txtProfileMaxAcc')
         self.KeyPointWindow.txtProfileMaxDcc   = xrc.XRCCTRL(self.KeyPointWindow,'txtProfileMaxDcc')
-     
+        self.KeyPointWindow.btnSmooth          = xrc.XRCCTRL(self.KeyPointWindow,'btnSmooth')
+        self.KeyPointWindow.btnGenerate        = xrc.XRCCTRL(self.KeyPointWindow,'btnGenerate')     
 
-        self.KeyPointWindow.txtMaxTime.Enable(False)
+        #self.KeyPointWindow.txtMaxTime.Enable(False)
         self.KeyPointWindow.txtMouseXPos.Enable(False)
         self.KeyPointWindow.txtMouseYPos.Enable(False)
         
-        self.Bind(wx.EVT_TEXT_ENTER        , self.EntertxtSetupMaxAcc,      self.KeyPointWindow.txtSetupMaxAcc)
-        self.Bind(wx.EVT_TEXT_ENTER        , self.EntertxtSetupMaxVel,      self.KeyPointWindow.txtSetupMaxVel)
-        self.Bind(wx.EVT_TEXT_ENTER        , self.EntertxtSetupUsrAcc,      self.KeyPointWindow.txtSetupUsrAcc)
-        self.Bind(wx.EVT_TEXT_ENTER        , self.EntertxtSetupUsrVel,      self.KeyPointWindow.txtSetupUsrVel) 
-        self.Bind(wx.EVT_TEXT_ENTER        , self.EntertxtMaxTime,          self.KeyPointWindow.txtMaxTime)
+        self.Bind(wx.EVT_BUTTON        , self.OnButtonSmooth,        self.KeyPointWindow.btnSmooth)
+        self.Bind(wx.EVT_BUTTON        , self.OnButtonGenerate,      self.KeyPointWindow.btnGenerate)
+
 
         File = wx.Menu()
         openFile = File.Append(ID_Menu_OpenVelFile,'Open Vel File','This opens a VelFile for editing')
@@ -944,6 +1155,15 @@ class VelEditor4C(wx.App):
 
         self.KeyPointWindow.Show()
         return True
+    def OnButtonSmooth(self,evt):
+        print('Smooth')
+        pass
+
+    def OnButtonGenerate(self,evt):
+        print('Generate')
+        A = Calc_Default_Profile(float(self.KeyPointWindow.txtGenerateLength.GetValue()),float(self.KeyPointWindow.txtGenerateAcc.GetValue()),
+                                 float(self.KeyPointWindow.txtGenerateVel.GetValue()))
+        pass
 
     def OpenFile(self,evt):
         with wx.FileDialog(None, "Open Vel file", wildcard="Vel files (*.sfxact)|*.sfxact",
@@ -1003,17 +1223,6 @@ class VelEditor4C(wx.App):
         self.KeyPointWindow.txtSetupMaxVel.SetValue('%3.3f'% float(Data[7]))
 
         self.KeyPointWindow.Diagramm.Entry()
-
-    def EntertxtMaxTime(self,evt):
-        evt.Skip()
-    def EntertxtSetupMaxAcc(self,evt):
-        evt.Skip()        
-    def EntertxtSetupMaxVel(self,evt):
-         evt.Skip()        
-    def EntertxtSetupUsrAcc(self,evt):
-        evt.Skip()        
-    def EntertxtSetupUsrVel(self,evt):
-         evt.Skip()
 
 if __name__ == "__main__":
     app = VelEditor4C()
