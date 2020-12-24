@@ -9,49 +9,42 @@
             <style>wxTAB_TRAVERSAL</style>
             <exstyle>wxWS_EX_VALIDATE_RECURSIVELY</exstyle>
             <object class="wxFlexGridSizer">
-                <cols>6</cols>
-                <rows>5</rows>
+                <cols>4</cols>
+                <rows>7</rows>
                 <vgap>0</vgap>
                 <hgap>0</hgap>
-                <growablecols>3</growablecols>
-                <growablerows>1</growablerows>
+                <growablecols>2</growablecols>
+                <growablerows>4</growablerows>
                 <object class="spacer">
-                    <flag>wxALIGN_LEFT|wxALIGN_TOP</flag>
+                    <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
                     <border>0</border>
-                    <size>10,10</size>
+                    <size>3,3</size>
                 </object>
                 <object class="spacer">
-                    <flag>wxALIGN_LEFT|wxALIGN_TOP</flag>
+                    <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
                     <border>0</border>
+                    <size>3,3</size>
                 </object>
                 <object class="spacer">
-                    <flag>wxALIGN_LEFT|wxALIGN_TOP</flag>
-                    <border>0</border>
+                    <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                    <border>5</border>
+                    <size>5,3</size>
                 </object>
                 <object class="spacer">
-                    <flag>wxALIGN_LEFT|wxALIGN_TOP</flag>
-                    <border>0</border>
-                    <size>10,10</size>
+                    <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                    <border>5</border>
+                    <size>5,15</size>
                 </object>
                 <object class="spacer">
-                    <flag>wxALIGN_LEFT|wxALIGN_TOP</flag>
+                    <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
                     <border>0</border>
-                    <size>10,10</size>
-                </object>
-                <object class="spacer">
-                    <flag>wxALIGN_LEFT|wxALIGN_TOP</flag>
-                    <border>0</border>
-                    <size>10,10</size>
-                </object>
-                <object class="spacer">
-                    <flag>wxALIGN_LEFT|wxALIGN_TOP</flag>
-                    <border>0</border>
+                    <size>5,5</size>
                 </object>
                 <object class="sizeritem">
                     <flag>wxALIGN_LEFT|wxALIGN_TOP</flag>
                     <border>0</border>
                     <object class="wxFlexGridSizer">
-                        <cols>7</cols>
+                        <cols>1</cols>
                         <rows>1</rows>
                         <vgap>4</vgap>
                         <hgap>4</hgap>
@@ -72,11 +65,6 @@
                             </object>
                         </object>
                     </object>
-                </object>
-                <object class="spacer">
-                    <flag>wxALIGN_LEFT|wxALIGN_TOP</flag>
-                    <border>0</border>
-                    <size>10,10</size>
                 </object>
                 <object class="sizeritem">
                     <flag>wxGROW|wxFIXED_MINSIZE</flag>
@@ -116,7 +104,12 @@
                     <border>0</border>
                     <object class="wxStaticBoxSizer" name="wxID_ANY">
                         <orient>wxVERTICAL</orient>
-                        <label>Loaded Profile</label>
+                        <label>Limit Profile</label>
+                        <object class="spacer">
+                            <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                            <border>5</border>
+                            <size>5,5</size>
+                        </object>
                         <object class="sizeritem">
                             <flag>wxALIGN_LEFT|wxLEFT|wxTOP</flag>
                             <border>0</border>
@@ -228,7 +221,7 @@
                                         <object class="sizeritem">
                                             <flag>wxALIGN_TOP</flag>
                                             <border>0</border>
-                                            <object class="wxTextCtrl" name="txtLength">
+                                            <object class="wxTextCtrl" name="txtSetupLength">
                                                 <size>50,20</size>
                                                 <style>wxTE_READONLY|wxTE_RIGHT</style>
                                                 <enabled>0</enabled>
@@ -240,55 +233,6 @@
                                             <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
                                             <border>5</border>
                                             <size>5,5</size>
-                                        </object>
-                                    </object>
-                                </object>
-                                <object class="sizeritem">
-                                    <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
-                                    <border>5</border>
-                                    <object class="wxBoxSizer">
-                                        <orient>wxHORIZONTAL</orient>
-                                        <object class="spacer">
-                                            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                            <border>5</border>
-                                            <size>7,5</size>
-                                        </object>
-                                        <object class="sizeritem">
-                                            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                            <border>5</border>
-                                            <object class="wxStaticText" name="wxID_STATIC">
-                                                <label>X-Pos:</label>
-                                            </object>
-                                        </object>
-                                        <object class="sizeritem">
-                                            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                            <border>5</border>
-                                            <object class="wxTextCtrl" name="txtMouseXPos">
-                                                <size>50,20</size>
-                                                <style>wxTE_READONLY|wxTE_RIGHT</style>
-                                                <bg>#FFFFFF</bg>
-                                            </object>
-                                        </object>
-                                        <object class="spacer">
-                                            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                            <border>0</border>
-                                            <size>9,5</size>
-                                        </object>
-                                        <object class="sizeritem">
-                                            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                            <border>5</border>
-                                            <object class="wxStaticText" name="wxID_STATIC">
-                                                <label>Y-Pos:</label>
-                                            </object>
-                                        </object>
-                                        <object class="sizeritem">
-                                            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                            <border>5</border>
-                                            <object class="wxTextCtrl" name="txtMouseYPos">
-                                                <size>50,20</size>
-                                                <style>wxTE_READONLY|wxTE_RIGHT</style>
-                                                <bg>#FFFFFF</bg>
-                                            </object>
                                         </object>
                                     </object>
                                 </object>
@@ -312,9 +256,10 @@
                                         <object class="sizeritem">
                                             <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
                                             <border>5</border>
-                                            <object class="wxTextCtrl" name="txtMaxTime">
+                                            <object class="wxTextCtrl" name="txtSetupTime">
                                                 <size>50,20</size>
                                                 <style>wxTE_READONLY|wxTE_RIGHT</style>
+                                                <enabled>0</enabled>
                                                 <bg>#FFFFFF</bg>
                                                 <value>0</value>
                                             </object>
@@ -387,6 +332,11 @@
                             <object class="wxStaticBoxSizer" name="wxID_ANY">
                                 <orient>wxVERTICAL</orient>
                                 <label>New Profile</label>
+                                <object class="spacer">
+                                    <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                                    <border>5</border>
+                                    <size>5,5</size>
+                                </object>
                                 <object class="sizeritem">
                                     <flag>wxALIGN_LEFT|wxLEFT|wxTOP</flag>
                                     <border>0</border>
@@ -422,11 +372,11 @@
                                                         <object class="sizeritem">
                                                             <flag>wxALIGN_TOP</flag>
                                                             <border>0</border>
-                                                            <object class="wxTextCtrl" name="ID_TEXTCTRL">
+                                                            <object class="wxTextCtrl" name="txtGenerateAcc">
                                                                 <size>50,20</size>
                                                                 <style>wxTE_RIGHT</style>
                                                                 <bg>#FFFFFF</bg>
-                                                                <value>1.0</value>
+                                                                <value>5.0</value>
                                                             </object>
                                                         </object>
                                                     </object>
@@ -456,12 +406,11 @@
                                                         <object class="sizeritem">
                                                             <flag>wxALIGN_TOP</flag>
                                                             <border>0</border>
-                                                            <object class="wxTextCtrl" name="ID_TEXTCTRL1">
+                                                            <object class="wxTextCtrl" name="txtGenerateVel">
                                                                 <size>50,20</size>
                                                                 <style>wxTE_RIGHT</style>
-                                                                <enabled>0</enabled>
                                                                 <bg>#FFFFFF</bg>
-                                                                <value>1.0</value>
+                                                                <value>5.0</value>
                                                             </object>
                                                         </object>
                                                         <object class="spacer">
@@ -497,12 +446,11 @@
                                                 <object class="sizeritem">
                                                     <flag>wxALIGN_TOP</flag>
                                                     <border>0</border>
-                                                    <object class="wxTextCtrl" name="ID_TEXTCTRL2">
+                                                    <object class="wxTextCtrl" name="txtGenerateLength">
                                                         <size>50,20</size>
                                                         <style>wxTE_RIGHT</style>
-                                                        <enabled>0</enabled>
                                                         <bg>#FFFFFF</bg>
-                                                        <value>1.0</value>
+                                                        <value>10.0</value>
                                                     </object>
                                                 </object>
                                                 <object class="spacer">
@@ -532,9 +480,10 @@
                                                 <object class="sizeritem">
                                                     <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
                                                     <border>5</border>
-                                                    <object class="wxTextCtrl" name="ID_TEXTCTRL5">
+                                                    <object class="wxTextCtrl" name="txtGenerateDuration">
                                                         <size>50,20</size>
                                                         <style>wxTE_READONLY|wxTE_RIGHT</style>
+                                                        <enabled>0</enabled>
                                                         <bg>#FFFFFF</bg>
                                                         <value>0</value>
                                                     </object>
@@ -549,7 +498,37 @@
                                                 <object class="sizeritem">
                                                     <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
                                                     <border>5</border>
-                                                    <object class="wxButton" name="ID_BUTTON">
+                                                    <object class="wxStaticText" name="wxID_STATIC">
+                                                        <label>Time Factor</label>
+                                                    </object>
+                                                </object>
+                                                <object class="spacer">
+                                                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                    <border>0</border>
+                                                    <size>1,10</size>
+                                                </object>
+                                                <object class="sizeritem">
+                                                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                    <border>5</border>
+                                                    <object class="wxTextCtrl" name="txtGenerateTimeFactor">
+                                                        <size>50,20</size>
+                                                        <style>wxTE_READONLY|wxTE_RIGHT</style>
+                                                        <enabled>0</enabled>
+                                                        <bg>#FFFFFF</bg>
+                                                        <value>0</value>
+                                                    </object>
+                                                </object>
+                                            </object>
+                                        </object>
+                                        <object class="sizeritem">
+                                            <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                                            <border>5</border>
+                                            <object class="wxBoxSizer">
+                                                <orient>wxHORIZONTAL</orient>
+                                                <object class="sizeritem">
+                                                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                    <border>5</border>
+                                                    <object class="wxButton" name="btnGenerate">
                                                         <label>Generate Profile</label>
                                                     </object>
                                                 </object>
@@ -560,7 +539,7 @@
                                 <object class="spacer">
                                     <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
                                     <border>5</border>
-                                    <size>5,250</size>
+                                    <size>5,205</size>
                                 </object>
                                 <object class="sizeritem">
                                     <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
@@ -582,7 +561,7 @@
                                         <object class="sizeritem">
                                             <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
                                             <border>5</border>
-                                            <object class="wxTextCtrl" name="ID_TEXTCTRL3">
+                                            <object class="wxTextCtrl" name="txtMouseXPos">
                                                 <size>50,20</size>
                                                 <style>wxTE_READONLY|wxTE_RIGHT</style>
                                                 <bg>#FFFFFF</bg>
@@ -603,7 +582,7 @@
                                         <object class="sizeritem">
                                             <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
                                             <border>5</border>
-                                            <object class="wxTextCtrl" name="ID_TEXTCTRL4">
+                                            <object class="wxTextCtrl" name="txtMouseYPos">
                                                 <size>50,20</size>
                                                 <style>wxTE_READONLY|wxTE_RIGHT</style>
                                                 <bg>#FFFFFF</bg>

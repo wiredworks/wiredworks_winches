@@ -15,7 +15,13 @@ from scipy.interpolate import splev, splrep, splint, interp1d, BPoly, splprep
 from scipy.integrate import quad,simps
 from scipy.optimize import root
 
-from simplification.cutil import simplify_coords_idx
+from simplification.cutil import (
+    simplify_coords,
+    simplify_coords_idx,
+    simplify_coords_vw,
+    simplify_coords_vw_idx,
+    simplify_coords_vwp,
+)
 
 import math
 from math import copysign
@@ -27,11 +33,6 @@ import copy
 import pickle
 import json
 
-#import inspect
-# curframe = inspect.currentframe()
-# calframe = inspect.getouterframes(curframe, 2)
-# print('caller name:', calframe[1][3])
-
 ID_Menu_OpenVelFile = 5005
 ID_Menu_SaveVelFile = 5006
 ID_Menu_Exit        = 5008
@@ -40,37 +41,27 @@ ID_Menu             = 5011
 class Simplify:
     def __init__(self):
         pass
-    def main(self, Kurve, Ableitung, error):
+    
+    def main(self, Kurve, error):
         splineVerts = []
         for i in range(0, len(Kurve[0])):
             splineVerts.append(np.array([Kurve[0][i],Kurve[1][i]]))
-
         newVerts = self.Visvalingam(splineVerts, error)
-
-        X_Values  = np.zeros(len(newVerts))
-        Y_Values  = np.zeros(len(newVerts))
-        k_Values  = np.zeros(len(newVerts))
-
-        for i in range(0,len(newVerts)):
-            X_Values[i]  = Kurve[0][newVerts[i]]
-            Y_Values[i]  = Kurve[1][newVerts[i]]
-            k_Values[i]  = Ableitung[1][newVerts[i]]
-        return [X_Values, Y_Values, k_Values]
+        return newVerts
 
     def Visvalingam(self,splineVerts, error):
         return simplify_coords_idx(splineVerts, 0.01)
 
 class Calc_Default_Profile:
     def __init__(self, length, maxAcc, maxVel):
-        self.Length        = length
-        self.accS          = maxAcc
-        self.velS          = maxVel
-        self.JH            = 10.0 
-        self.Jrk_T_D       = [[],[]]
-        self.Acc_T_D       = [[],[]]
-        self.Vel_T_D       = [[],[]]
-        self.Pos_T_D       = [[],[]]
-        self.Vel_P_D       = [[],[]]
+        self.Length     = length
+        self.accS        = maxAcc
+        self.velS       = maxVel
+        self.JH         = 10.0 
+        self.JerkD      = [[],[]]
+        self.AccD       = [[],[]]
+        self.VelD       = [[],[]]
+        self.PosD       = [[],[]]
 
         if self.Length > 0  and self.accS > 0 and self.velS > 0:
             self.Pulses = []
@@ -85,7 +76,7 @@ class Calc_Default_Profile:
             self.CalcDrawFcurves()
 
     def GetData(self):
-        return self.Jrk_T_D, self.Acc_T_D, self.Vel_T_D, self.Pos_T_D, self.Vel_P_D 
+        return self.JerkD, self.AccD, self.VelD, self.PosD 
 
     def CalcTimes(self, LengthS, JerkHeightS, accS, velS):
         ''' T = 10t 
@@ -149,8 +140,8 @@ class Calc_Default_Profile:
         Length = vel*(4*T + 8*t1 + 2*t2 + 2*t3 ) / 2.0#
         Time = 4*T + 8*t1 + 2*t2 +t3 
         
-        #print( 'Delta JH: %3.4f Delta Acc: %3.4f Adjusted Vel: %3.4f'%(JerkHeightS-JerkHeight,accS-acc,velS-vel))                            
-        #print( '                  With Acc: %3.4f      and Vel: %3.4f ---> Time: %3.4f Length: %3.4f'%(acc , vel, Time, Length))
+        print( 'Delta JH: %3.4f Delta Acc: %3.4f Adjusted Vel: %3.4f'%(JerkHeightS-JerkHeight,accS-acc,velS-vel))                            
+        print( '                  With Acc: %3.4f      and Vel: %3.4f ---> Time: %3.4f Length: %3.4f'%(acc , vel, Time, Length))
        
         return (T, t1, JerkHeight, t2, t3, Time)
 
@@ -210,52 +201,46 @@ class Calc_Default_Profile:
         self.PosC = np.append(self.PosC, np.zeros(Teilung, dtype = np.double))   
             
     def interp_Jerk(self,x):
-        f = interp1d(self.Jrk_T_D[0],self.Jrk_T_D[1], kind ='linear')
+        f = interp1d(self.JerkD[0],self.JerkD[1], kind ='linear')
         return f(x)
 
     def CalcDrawFcurves(self):
-        self.Acc_T_D[0].append( 0.0 )
-        self.Acc_T_D[1].append( 0.0 )
+        self.AccD[0].append(0)
+        self.AccD[1].append(0) 
         for i in range(1, len(self.X)):
-            self.Acc_T_D[0].append( self.X[i])
+            self.AccD[0].append(self.X[i])
             self.JrkC[i] = self.interp_Jerk(self.X[i])
-            self.Acc_T_D[1].append( self.Acc_T_D[1][-1] + self.JrkC[i] * (self.X[i]-self.X[i-1]))
-
-        self.Vel_T_D[0].append( 0.0 )
-        self.Vel_T_D[1].append( 0.0 )
+            self.AccD[1].append( self.AccD[1][-1] + self.JrkC[i] * (self.X[i]-self.X[i-1]))
+ 
+        self.VelD[0].append(0)
+        self.VelD[1].append(0) 
         for i in range(1, len(self.X)):
-            self.Vel_T_D[0].append( self.X[i] )
-            self.Vel_T_D[1].append( self.Vel_T_D[1][-1] + self.Acc_T_D[1][i] * (self.X[i]-self.X[i-1]))
-  
-        self.Pos_T_D[0].append( 0.0 )
-        self.Pos_T_D[1].append( 0.0 )
+            self.VelD[0].append(self.X[i])
+            self.VelD[1].append( self.VelD[1][-1] + self.AccD[1][i] * (self.X[i]-self.X[i-1]))
+           
+        self.PosD[0].append(0)
+        self.PosD[1].append(0) 
         for i in range(1, len(self.X)):
-            self.Pos_T_D[0].append( self.X[i] )
-            self.Pos_T_D[1].append( self.Pos_T_D[1][-1] + self.Vel_T_D[1][i] * (self.X[i]-self.X[i-1]))
+            self.PosD[0].append(self.X[i])
+            self.PosD[1].append( self.PosD[1][-1] + self.VelD[1][i] * (self.X[i]-self.X[i-1]))
 
-        self.Acc_T_D[0] = np.array(self.Acc_T_D[0])
-        self.Acc_T_D[1] = np.array(self.Acc_T_D[1])
-
-        self.Vel_T_D[0] = np.array(self.Vel_T_D[0])
-        self.Vel_T_D[1] = np.array(self.Vel_T_D[1])
-
-        self.Pos_T_D[0] = np.array(self.Pos_T_D[0])
-        self.Pos_T_D[1] = np.array(self.Pos_T_D[1])
-
+        # VelPos.keyframe_points.insert( 0 , 0)
+        # VelPos.keyframe_points[0].handle_left   = (VelPos.keyframe_points[0].co[0],-10)
+        # VelPos.keyframe_points[0].handle_right  = (VelPos.keyframe_points[0].co[0],10)
         # for i in range(0,len(self.X)):
-        #     v = self.eval_Vel_T_D(self.X[i])
-        #     p = self.eval_Pos_T_D(self.X[i])
-        #     self.Vel_P_D[0].append(p)
-        #     self.Vel_P_D[1].append(v)
-
-    def eval_Vel_T_D(self, x):
-        f = interp1d(self.Vel_T_D[0], self.Vel_T_D[1])
-        return f(x)
-
-    def eval_Pos_T_D(self, x):
-        f = interp1d(self.Pos_T_D[0], self.Pos_T_D[1])
-        return f(x)
-
+        #     v = Velcurve.evaluate(self.X[i])
+        #     p = Poscurve.evaluate(self.X[i])
+        #     if p > 0.015:
+        #         VelPos.keyframe_points.insert( p , v)
+        # VelPos.keyframe_points[-1].handle_left   = (VelPos.keyframe_points[-1].co[0],10)
+        # VelPos.keyframe_points[-1].handle_right  = (VelPos.keyframe_points[-1].co[0],-10)
+        
+        # self.maxJrk = max(abs(self.JrkC))
+        # self.maxAcc = max(abs(self.AccC))
+        # self.maxVel = max((self.VelC))
+        # self.maxPos = max(abs(self.PosC))
+        # self.maxTime = self.X[-1]
+            
     def Jerk(self, Puls, JH):
         '''Append Jerk Times and Heights to self.JerkD'''
         Jer0  = 0
@@ -268,14 +253,15 @@ class Calc_Default_Profile:
         Jert2    = Puls[0] +  Puls[1] +  Puls[2]
         Jert3    = Puls[0] +  Puls[1] +  Puls[2] +  Puls[3]
 
-        self.Jrk_T_D[0].append(Jert0)
-        self.Jrk_T_D[1].append(Jer0)
-        self.Jrk_T_D[0].append(Jert1)
-        self.Jrk_T_D[1].append(Jer1)
-        self.Jrk_T_D[0].append(Jert2)
-        self.Jrk_T_D[1].append(Jer2)
-        self.Jrk_T_D[0].append(Jert3)
-        self.Jrk_T_D[1].append(Jer3)
+        self.JerkD[0].append(Jert0)
+        self.JerkD[1].append(Jer0)
+        self.JerkD[0].append(Jert1)
+        self.JerkD[1].append(Jer1)
+        self.JerkD[0].append(Jert2)
+        self.JerkD[1].append(Jer2)
+        self.JerkD[0].append(Jert3)
+        self.JerkD[1].append(Jer3)
+
 
 class Diagramm(wx.Panel):
     def __init__(self, parent,id= 1,dpi=None, **kwargs):
@@ -371,6 +357,9 @@ class Diagramm(wx.Panel):
         self.mousezoom = False
         self.rezoom = False
         
+        self.MDDX = 0.
+        self.MDDY = 0.
+        
         self.press = None
         self.cur_xlim = None
         self.cur_ylim = None
@@ -442,15 +431,13 @@ class Diagramm(wx.Panel):
         self.Vel_T             = [[],[]]
         self.Vel_T_Limit       = [[],[]]
 
-        self.Jrk_T_D   = [[],[]]
-        self.Acc_T_D   = [[],[]]
-        self.Vel_T_D   = [[],[]]
-        self.Pos_T_D   = [[],[]]
-        self.Vel_P_D   = [[],[]]
+        self.JrkD   = [[],[]]
+        self.AccD   = [[],[]]
+        self.VelD   = [[],[]]
+        self.PosD   = [[],[]]
         self.VelDS  = [[],[]]
 
-        self.TimeScaling    =1.0
-        self.TimeScalingAbs =1.0
+        self.TimeScaling =1.0
         try:
             for i in range(len(self.VelInTime_markers)):
                 self.axesT.lines.remove(self.VelInTime_markers[i])
@@ -476,125 +463,148 @@ class Diagramm(wx.Panel):
 
     def Entry(self):
         ''' Setup of Controlpoints and the BPolys'''
-        self.ClearVars()        
-        self.VelEditorFrame.btnGenerate.Enable(True)
-        self.Length = float(self.VelEditorFrame.txtGenerateLength.GetValue())        
+        if not(self.Action_Signed):
+            self.VelEditorFrame.btnGenerate.Enable(True)
+
+        self.ClearVars()
+        self.Length               = self.Action_VelInPos[0][-1]
+        self.X_Pos_Values         = np.linspace(0., self.Length , 1000, dtype= np.double)
         self.Time_Pos_Values      = np.zeros(1000)
-
-        if not(self.Action_Signed):
-            self.Jrk_T_D,\
-            self.Acc_T_D,\
-            self.Vel_T_D,\
-            self.Pos_T_D,\
-            self.Vel_P_D   = self.Calc_Profile(float(self.VelEditorFrame.txtSetupLength.GetValue()),\
-                                               float(self.VelEditorFrame.txtSetupMaxAcc.GetValue()),\
-                                               float(self.VelEditorFrame.txtSetupMaxVel.GetValue()))
-
-            self.Samples = len(self.Vel_T_D[0])
-            self.X_Time_Values         = np.linspace(0., self.Vel_T_D[0][-1],  self.Samples, dtype= np.double)
-            self.X_Pos_Values          = np.linspace(0., self.Length,          self.Samples, dtype= np.double)
-
-            Vel_T_D_S = self.SimplifyProfile(self.Vel_T_D,self.Acc_T_D, 0.01)
-
-            self.VelEditorFrame.txtSetupTime.SetValue(str(Vel_T_D_S[0][-1]))
-
-            self.init_CP_T_Points(Vel_T_D_S)
-            self.init_T_BPoly()
-            self.init_CP_P_Points(Vel_T_D_S)            
-            self.init_P_BPoly()
-
-        else:
-            self.X_Pos_Values         = np.linspace(0., self.Length , 1000, dtype= np.double)
-            self.init_CP_P_Points(self.Action_VelInPos)
-            self.init_P_BPoly()
-            self.Time_Pos_Values = self.int_VelInPos_Line()
-            self.X_Time_Values   = np.linspace(0., self.Time_Pos_Values[-1] , 1000, dtype= np.double)
-            self.VelEditorFrame.txtSetupTime.SetValue(str(self.Time_Pos_Values[-1]))
-            self.init_CP_T_Points(self.Action_VelInPos)
-            self.init_T_BPoly()
-
+        self.init_CP_P_Points()
+        self.init_P_BPoly()
+        # Integrate Vel in Pos; 1st Step to get PosToTime interpolation
+        self.Time_Pos_Values = self.int_VelInPos_Line()
+        self.X_Time_Values   = np.linspace(0., self.Time_Pos_Values[-1] , 1000, dtype= np.double)
+        self.init_CP_T_Points()
+        self.init_T_BPoly()
         self.RecalcMove(init = True)
-        self.rezoom          = True
-        self.Plot(init       = True)
+        self.rezoom               = True
+        self.Plot(init = True)
 
-    def Calc_Profile(self,Length, Acc, Vel):   
-        A = Calc_Default_Profile(Length, Acc, Vel)
-        Jrk, Acc, Vel, Pos,Pos_P = A.GetData()
-        return Jrk, Acc, Vel, Pos,Pos_P
-
-    def SimplifyProfile(self,Profile, Ableitung, error):
+    def Calc_Default_Profile(self):   
+        A = Calc_Default_Profile(float(self.VelEditorFrame.txtGenerateLength.GetValue()),float(self.VelEditorFrame.txtGenerateAcc.GetValue()),
+                                 float(self.VelEditorFrame.txtGenerateVel.GetValue())*0.9)
+        self.JrkD, self.AccD, self.VelD, self.PosD = A.GetData()
         B = Simplify()
-        Profile_S = B.main(Profile, Ableitung, error)
-        return Profile_S
-       
-    def T_2_P(self, x):
-        f=interp1d( self.Pos_T_D[0] * self.TimeScalingAbs, self.Pos_T_D[1], kind ='slinear',bounds_error=False, fill_value=np.nan)
-        return f(x)
+        T =time.time_ns()
+        c = B.main(self.VelD, .01)
+        print((time.time_ns()-T)/1000000000)
+        for i in range(0,len(c)-1):
+            self.VelDS[0].append(self.VelD[0][c[i]])
+            self.VelDS[1].append(self.VelD[1][c[i]])
 
-    def P_2_T(self, x):
-        f=interp1d(self.Pos_T_D[1],self.Pos_T_D[0]* self.TimeScalingAbs, kind ='slinear',bounds_error=False, fill_value=np.nan)
-        return f(x)
+        self.rezoom               = True
+        self.Plot(init = True)        
 
-    def init_CP_P_Points(self, P_Points):
+    def init_CP_P_Points(self):
         '''Init the Controlpoints in P-Domain'''
-        self.CP_P_Points = self.init_CP_P(P_Points[0],P_Points[1]* 0.9)
+        self.init_CP_P_Limit()
+        self.init_CP_P()
 
-    def init_CP_P(self, X_Values, Y_Values):
+    def init_CP_P_Limit(self):
         ''' Init Limits in P-Domain'''
-        CP_P_Points = [[],[],[]]
-        if not(self.Action_Signed):
-            CP_P_Points[0] = self.T_2_P(copy.copy(X_Values))
-        else:
-            CP_P_Points[0] = copy.copy(X_Values)
-        CP_P_Points[1] = copy.copy(Y_Values)
-        k = (CP_P_Points[1][1]-CP_P_Points[1][0])/(CP_P_Points[0][1]-CP_P_Points[0][0])
-        CP_P_Points[2].append(k)    
-        for i in range (1,len(CP_P_Points[0])):
-            k= (CP_P_Points[1][i]-CP_P_Points[1][i-1])/(CP_P_Points[0][i]-CP_P_Points[0][i-1])
-            CP_P_Points[2].append(k)
-        return [CP_P_Points[0], CP_P_Points[1], CP_P_Points[2]]
+        self.CP_P_Points_Limit[0] = copy.copy(self.Action_VelInPos[0])
+        self.CP_P_Points_Limit[1] = copy.copy(self.Action_VelInPos[1])
+        k = (self.CP_P_Points_Limit[1][1]-self.CP_P_Points_Limit[1][0])/(self.CP_P_Points_Limit[0][1]-self.CP_P_Points_Limit[0][0])
+        self.CP_P_Points_Limit[2].append(k)    
+        for i in range (1,len(self.CP_P_Points_Limit[0])):
+            k= (self.CP_P_Points_Limit[1][i]-self.CP_P_Points_Limit[1][i-1])/(self.CP_P_Points_Limit[0][i]-self.CP_P_Points_Limit[0][i-1])
+            self.CP_P_Points_Limit[2].append(k)
+
+    def init_CP_P(self):
+        ''' Init Controlpoints in P_Domain'''
+        self.CP_P_Points[0]       = copy.copy(self.Action_VelInPos[0])
+        self.CP_P_Points[1]       = copy.copy(self.Action_VelInPos[1]*0.9)
+        k = (self.CP_P_Points[1][1]-self.CP_P_Points[1][0])/(self.CP_P_Points[0][1]-self.CP_P_Points[0][0])
+        self.CP_P_Points[2].append(k)    
+        for i in range (1,len(self.CP_P_Points[0])):
+            k= (self.CP_P_Points[1][i]-self.CP_P_Points[1][i-1])/(self.CP_P_Points[0][i]-self.CP_P_Points[0][i-1])
+            self.CP_P_Points[2].append(k)
 
     def init_P_BPoly(self):
         ''' Init BPolys in P-Domain'''
+        x  = self.eval_Grenz_P_Points(0.1,True)
         y  = self.eval_CP_P_Points(0.1,True)
 
-    def init_CP_T_Points(self, T_Points):
+    def int_VelInPos_Line(self):
+        ''' Integrate Vel over Pos to find out when a Pos is reached''' 
+        T_P_Values =[]
+        T_P_Values.append(0)
+        ST = 0       
+        for i in range(1,1000):
+            T = abs(self.X_Pos_Values[i-1]-self.X_Pos_Values[i])/\
+            ((self.eval_CP_P_Points(self.X_Pos_Values[i-1],False)+self.eval_CP_P_Points(self.X_Pos_Values[i],False))/2)
+            ST = ST + T
+            T_P_Values.append(ST) 
+        return T_P_Values
+
+    def init_CP_T_Points(self):
         '''Init Controlpoints in T-Domain'''
-        self.CP_T_Points       = self.init_CP_T(T_Points[0], T_Points[1]*0.9, T_Points[2]*0.81)
-        self.CP_M_Points       = self.init_CP_T(T_Points[0], T_Points[1]*0.9, T_Points[2]*0.81)
+        self.init_CP_M()
+        self.init_CP_T()
+        self.init_CP_T_Limit()
 
-    def init_CP_T(self, X_Values, Y_Values, k_Values):
+    def init_CP_M(self):
         ''' Init Master Controlpoint in T-Domain'''
-        CP_T_Points =[[],[],[],[]]
-        if not(self.Action_Signed): 
-            CP_T_Points[0]       = copy.copy(X_Values)
-        else:
-            CP_T_Points[0]       = self.P_2_T(copy.copy(X_Values))
-        CP_T_Points[1]       = copy.copy(Y_Values)
-        CP_T_Points[2]       = copy.copy(k_Values)
+        self.CP_M_Points[0]       = self.eval_PosToTime_Line(copy.copy(self.Action_VelInPos[0]))
+        self.CP_M_Points[1]       = copy.copy(self.Action_VelInPos[1]*0.9)
+        k = (self.CP_M_Points[1][1]-self.CP_M_Points[1][0])/(self.CP_M_Points[0][1]-self.CP_M_Points[0][0])
+        self.CP_M_Points[2].append(k)    
+        for i in range (1,len(self.CP_M_Points[0])):
+            k= (self.CP_M_Points[1][i]-self.CP_M_Points[1][i-1])/(self.CP_M_Points[0][i]-self.CP_M_Points[0][i-1])
+            self.CP_M_Points[2].append(k) 
+        self.CP_M_Points[2][0] =0.0
+        self.CP_M_Points[2][-1]=0.0
 
-        return [CP_T_Points[0], CP_T_Points[1], CP_T_Points[2]]
+    def init_CP_T(self):
+        '''Init Vel in T-Domain'''
+        self.CP_T_Points[0]       = self.eval_PosToTime_Line(self.CP_P_Points[0])
+        self.CP_T_Points[1]       = self.CP_P_Points[1]
+        k = (self.CP_T_Points[1][1]-self.CP_T_Points[1][0])/(self.CP_T_Points[0][1]-self.CP_T_Points[0][0])
+        self.CP_T_Points[2].append(k)    
+        for i in range (1,len(self.CP_T_Points[0])):
+            k= (self.CP_T_Points[1][i]-self.CP_T_Points[1][i-1])/(self.CP_T_Points[0][i]-self.CP_T_Points[0][i-1])
+            self.CP_T_Points[2].append(k) 
+        self.CP_T_Points[2][0] =0.0
+        self.CP_T_Points[2][-1]=0.0
+
+    def init_CP_T_Limit(self):
+        '''Init Vel Limits In T-Domain'''
+        self.CP_T_Points_Limit[0]       = self.eval_PosToTime_Line(self.CP_P_Points_Limit[0]) * self.TimeScaling
+        self.CP_T_Points_Limit[1]       = self.CP_P_Points_Limit[1]
+        k = (self.CP_T_Points_Limit[1][1]-self.CP_T_Points_Limit[1][0])/(self.CP_T_Points_Limit[0][1]-self.CP_T_Points_Limit[0][0])
+        self.CP_T_Points_Limit[2].append(k)    
+        for i in range (1,len(self.CP_T_Points_Limit[0])):
+            k= (self.CP_T_Points_Limit[1][i]-self.CP_T_Points_Limit[1][i-1])/(self.CP_T_Points_Limit[0][i]-self.CP_T_Points_Limit[0][i-1])
+            self.CP_T_Points_Limit[2].append(k) 
+        self.CP_T_Points_Limit[2][0] =0
+        self.CP_T_Points_Limit[2][-1]=0.0
 
     def init_T_BPoly(self):
         '''Init BPolys in T-Domain'''
+        u  = self.eval_Grenz_T_Points(0.1,True)
         v  = self.eval_CP_T_Points(0.1,True)
         w  = self.eval_CP_M_Points(0.1,True)
 
     def eval_Grenz_P_Points(self,x,refresh):
-        f=interp1d(self.Vel_P_Limit[0],self.Vel_P_Limit[1], kind ='slinear',bounds_error=False, fill_value=np.nan)
-        return f(x)
+        '''BPoly for Grenz_P_Points'''
+        if refresh == True:
+            yi = [[self.CP_P_Points_Limit[1][0],self.CP_P_Points_Limit[2][0]]]
+            for i in range(1,len(self.CP_P_Points_Limit[0])):
+                yi.append([self.CP_P_Points_Limit[1][i],self.CP_P_Points_Limit[2][i]])
+            order = 3
+            self.Grenz_P_BPoly = BPoly.from_derivatives(self.CP_P_Points_Limit[0],yi,orders = order)
+        return self.Grenz_P_BPoly(x)
 
     def eval_CP_P_Points(self,x,refresh):
         '''BPoly for Vel in P-Domain'''
         if refresh == True:
-            yi = [[self.CP_P_Points[1][0],0]]  #self.CP_P_Points[2][0]]]
+            yi = [[self.CP_P_Points[1][0],self.CP_P_Points[2][0]]]
             for i in range(1,len(self.CP_P_Points[0])):
                 yi.append([self.CP_P_Points[1][i],self.CP_P_Points[2][i]])
             order = 3
-            if  math.isnan(self.CP_P_Points[0][-1]):
-                self.CP_P_Points[0][-1] = self.CP_P_Points[0][-2]+0.0001
             self.CP_P_BPoly = BPoly.from_derivatives(self.CP_P_Points[0],yi,orders = order)
-
+            self.int_VelInPos_Line()
         return self.CP_P_BPoly(x)
      
     def eval_CP_M_Points(self,x,refresh):
@@ -623,9 +633,30 @@ class Diagramm(wx.Panel):
             self.CP_T_BPoly =BPoly.from_derivatives(self.CP_T_Points[0],yi,orders = order)
         return self.CP_T_BPoly(x)
 
-    def eval_Grenz_T_Points(self, x):
-        f=interp1d(self.Vel_T_Limit[0],self.Vel_T_Limit[1], kind ='slinear',bounds_error=False, fill_value=np.nan)
-        return f(x)
+    def eval_Grenz_T_Points(self,x,refresh):
+        ''' BPoly für Vel Limit in T-Domain'''
+        if refresh:
+            order = 3
+            yi = [[self.CP_T_Points_Limit[1][0],self.CP_T_Points_Limit[2][0]]]
+            for i in range (1,len(self.CP_T_Points_Limit[0])):
+                k= (self.CP_T_Points_Limit[1][i]-self.CP_T_Points_Limit[1][i-1])/(self.CP_T_Points_Limit[0][i]-self.CP_T_Points_Limit[0][i-1])
+                yi.append([self.CP_T_Points_Limit[1][i],k])
+            self.Grenz_T_BPoly =BPoly.from_derivatives(self.CP_T_Points_Limit[0] * self.TimeScaling,yi,orders = order)
+        return self.Grenz_T_BPoly(x)
+
+    def int_VelInTime_Line(self):
+        ST = 0       
+        for i in range(1,1000):
+            T = abs(self.X_Time_Values[i-1]-self.X_Time_Values[i])*\
+            ((self.eval_CP_T_Points(self.X_Time_Values[i-1],False)+self.eval_CP_T_Points(self.X_Time_Values[i],False))/2)
+            ST = ST + T
+        self.Time_Pos_Values[i] = ST
+
+    # Interpolation der TimeInPos_Line
+    def eval_TimeToPos_Line(self,x):
+        #print(self.Time_Pos_Values)
+        f=interp1d(self.X_Time_Values,self.Time_Pos_Values, kind ='slinear',bounds_error=False, fill_value=np.nan)
+        return f(x)    
     
     def PrepareGraphs(self): 
         self.axes.clear()
@@ -636,7 +667,7 @@ class Diagramm(wx.Panel):
         self.lines = []
         self.lines += self.axes.plot(self._xInit,self.Null, color="black",              linewidth=1.,  linestyle="-"              , pickradius = 0)   # VelLimit over Pos [0]
         self.lines += self.axes.plot(self._xInit,self.Null, color="darkred",          linewidth=1.0, linestyle="-"              , pickradius = 0)  # Vel  Beziers  [1]
-        #self.lines += self.axes.plot(self._xInit,self.Null, color="darkred",            linewidth=1.0, linestyle="-"              , pickradius = 0)  # Vel  Beziers  [1]
+        # self.lines += self.axes.plot(self._xInit,self.Null, color="darkred",            linewidth=1.0, linestyle="-"              , pickradius = 0)  # Vel  Beziers  [1]
         # self.lines += self.axes.plot(self._xInit,self.Null, color="darkgreen",          linewidth=1.0, linestyle="-",pickradius = 0)   # Acc  Beziers  [2]
         # self.lines += self.axes.plot(self._xInit,self.Null, color="darkblue",           linewidth=1.0, linestyle="-.",pickradius = 0)   # Jerk Beziers  [3]
         # self.lines += self.axes.plot(self._xInit,self.Null, color="darkred",            linewidth=1.4, linestyle="-",pickradius = 0)    # Vel           [4]
@@ -656,19 +687,18 @@ class Diagramm(wx.Panel):
         self.linesT += self.axesT.plot(self._xInit,self.Null,  color="darkred",         linewidth=1.0, linestyle="-"              ,pickradius = 0)   # Vel  [0]
         self.linesT += self.axesT.plot(self._xInit,self.Null,  color="darkblue",        linewidth=1.0, linestyle="-"              ,pickradius = 0)  # Pos  Beziers [3]
         
-        #self.linesT += self.axesT.plot(self._xInit,self.Null,  color="darkgreen",         linewidth= 0.5, linestyle="-.",pickradius = 0 ) # Vel  Beziers [1]
-        self.linesT += self.axesT.plot(self._xInit,self.Null,  color="darkblue",           linewidth= 0.5, linestyle="-.",pickradius = 0)  # Acc  Beziers [2]
-        self.linesT += self.axesT.plot(self._xInit,self.Null,  color="black",       linewidth= 0.5, linestyle="-."              , pickradius = 0) # Vel  Points [1]
-        
-        #self.linesT += self.axesT.plot(self._xInit,self.Null,  color="black",           linewidth=1.5, linestyle="-.",pickradius = 0)   # Vel          [4]
+        self.linesT += self.axesT.plot(self._xInit,self.Null,  color="darkgreen",       linewidth=1.5, linestyle="-."              , pickradius = 0) # Vel  Points [1]
+        self.linesT += self.axesT.plot(self._xInit,self.Null,  color="darkred",         linewidth=1.5, linestyle="-.",pickradius = 0 ) # Vel  Beziers [1]
+        self.linesT += self.axesT.plot(self._xInit,self.Null,  color="black",           linewidth=1.5, linestyle="-.",pickradius = 0)  # Acc  Beziers [2]
+        self.linesT += self.axesT.plot(self._xInit,self.Null,  color="black",           linewidth=1.5, linestyle="-.",pickradius = 0)   # Vel          [4]
         # self.linesT += self.axesT.plot(self._xInit,self.Null,  color="darkgreen",       linewidth=1.4, linestyle="-",pickradius = 0)   # Acc          [5]
-        #self.linesT += self.axesT.plot(self._xInit,self.Null,  color="m",           linewidth=0.8, linestyle="-",pickradius = 0)   # Pos          [6] 
+        self.linesT += self.axesT.plot(self._xInit,self.Null,  color="m",           linewidth=0.8, linestyle="-",pickradius = 0)   # Pos          [6] 
 
     def Plot(self, init = True):        
         #self.rezoom = True
         self.Refresh()
-        self.lines[0].set( xdata = self.Vel_P_Limit[0],    ydata=self.Vel_P_Limit[1])
-        self.lines[1].set( xdata = self.Vel_P[0],          ydata=self.Vel_P[1])        
+        self.lines[0].set( xdata = self.Vel_P_Limit[0], ydata=self.Vel_P_Limit[1])
+        self.lines[1].set( xdata = self.Vel_P[0], ydata=self.Vel_P[1])
  
         for i in range (len(self.fillP)):
             self.axes.patches.remove(self.fillP[i])
@@ -688,16 +718,15 @@ class Diagramm(wx.Panel):
             self.VelInPos_markers  += self.axes.plot(self.CP_P_Points[0][i],self.CP_P_Points[1][i],marker ='x',markersize = 7*self.scaleP , color = 'darkred')
             #self.VelInPos_tangents += self.axes.plot(x_data,y_data, linewidth=1.0, linestyle="-",  marker ='o',markersize = 4*self.scaleP , color = 'g', fillstyle = 'none')
 
-        self.linesT[0].set( xdata = self.Vel_T_Limit[0], ydata=self.Vel_T_Limit[1])
-        self.linesT[1].set( xdata = self.Vel_T[0],        ydata=self.Vel_T[1])
-        self.linesT[2].set( xdata = self.Acc_T[0],        ydata=self.Acc_T[1])
+        #self.linesT[0].set( xdata = self.Vel_T_Limit[0], ydata=self.Vel_T_Limit[1])
+        #self.linesT[1].set( xdata = self.Vel_T[0],        ydata=self.Vel_T[1])
+        #self.linesT[2].set( xdata = self.Acc_T[0],        ydata=self.Acc_T[1])
 
-        #self.linesT[3].set( xdata = self.Jrk_T_D[0],        ydata=self.Jrk_T_D[1])
-        self.linesT[3].set( xdata = self.Acc_T_D[0],        ydata=self.Acc_T_D[1])
-        self.linesT[4].set( xdata = self.Vel_T_D[0],        ydata=self.Vel_T_D[1])
-        #self.linesT[6].set( xdata = self.Pos_T_D[0],        ydata=self.Pos_T_D[1])
-          
-        #self.linesT[0].set( xdata = self.VelDS[0],       ydata=self.VelDS[1]) 
+        #self.linesT[3].set( xdata = self.JrkD[0],        ydata=self.JrkD[1])
+        #self.linesT[4].set( xdata = self.AccD[0],        ydata=self.AccD[1])
+        #self.linesT[5].set( xdata = self.VelD[0],        ydata=self.VelD[1])
+        #self.linesT[6].set( xdata = self.PosD[0],        ydata=self.PosD[1]) 
+        self.linesT[0].set( xdata = self.VelDS[0],       ydata=self.VelDS[1]) 
         self.axesT.plot(self.VelDS[0],self.VelDS[1],marker ='o',markersize = 7*self.scaleP , color = 'darkred')                
 
         for i in range (len(self.fillT)):
@@ -727,20 +756,19 @@ class Diagramm(wx.Panel):
                 self.VelInTime_markers[i].set(xdata=self.CP_T_Points[0][i],ydata=self.CP_T_Points[1][i])
                 self.VelInTime_tangents[i].set(xdata=x_data,ydata=y_data)
 
-    def OnPaint(self,evt):
+    def OnPaint(self,evt):        
         if  self.rezoom == True:  
             minlimx = self.CP_P_Points[0][0]-0.05 
             maxlimx = self.CP_P_Points[0][-1]+0.05
             self.axes.set_xlim(minlimx,maxlimx)
-            m = max(float(self.VelEditorFrame.txtSetupMaxAcc.GetValue()),float(self.VelEditorFrame.txtSetupMaxVel.GetValue())) 
-            self.axes.set_ylim(-0.5,m*1.2)
+            m = np.amax(self.Action_VelInPos[1]) 
+            self.axes.set_ylim(-0.5,m*1.1)
         if self.modifyP == 'TPoint' or self.rezoom == True:
-            minlimTx = self.Vel_T[0][0]-0.05
-            maxlimTx = self.Vel_T[0][-1]+0.05
+            minlimTx = self.CP_T_Points_Limit[0][0]-0.05
+            maxlimTx = self.CP_T_Points_Limit[0][-1]+0.05
             self.axesT.set_xlim(minlimTx,maxlimTx)
-            ma = max(float(self.VelEditorFrame.txtSetupMaxAcc.GetValue()),float(self.VelEditorFrame.txtSetupMaxVel.GetValue()))
-            mi = min(-float(self.VelEditorFrame.txtSetupMaxAcc.GetValue()),-float(self.VelEditorFrame.txtSetupMaxVel.GetValue()))
-            self.axesT.set_ylim(mi * 1.2, ma * 1.2)
+            m = np.amax(self.Action_Vel[1]) 
+            self.axesT.set_ylim(-0.5,m*1.1)
             self.rezoom = False
 
         size =  self.parent.GetClientSize()
@@ -761,23 +789,23 @@ class Diagramm(wx.Panel):
             if (x1+0.1 < self.ThpointX-MDX and
                 self.ThpointX-MDX < x3-0.1):        
                 x = self.ThpointX-MDX
+                self.MDDX = MDX
             else:
                 flag = 'exit' 
                 if MDX < 0 :
-                    x= x3-0.1
+                    x= x3-0.2
                 else:
-                    x= x1+0.1
-            if (self.eval_Grenz_T_Points(x) > self.ThpointY-MDY):
+                    x= x1+0.2
+            if (self.eval_Grenz_T_Points(x,False) > self.ThpointY-MDY):
                 y= max((self.ThpointY-MDY),0)
+                self.MDDY = MDY
             else:
                 flag = 'exit'
-                y = max((self.eval_Grenz_T_Points(x)),0) 
-
+                y = max((self.eval_Grenz_T_Points(x,False)),0) 
+                self.MDDY = MDY                
             if flag == 'exit':
                 self.modifyP == 'none'               
                 self.VelInTime_markers[self.hpoint].set(color='r')
-            else:
-                self.VelInTime_markers[self.hpoint].set(color='darkred')
                 
             self.CP_M_Points[0][self.hpoint] = x
             self.CP_M_Points[1][self.hpoint] = y
@@ -787,7 +815,9 @@ class Diagramm(wx.Panel):
             self.Refresh()
             self.rezoom = False
             self.Plot(init = False)
-        pass    
+            
+            
+            #wx.PostEvent(self,wx.PaintEvent()) 
        
     def OnSize(self,evt):
         evt.Skip()  
@@ -805,8 +835,8 @@ class Diagramm(wx.Panel):
                 for i in range(0,len(self.VelInPos_markers)):
                     if self.VelInPos_markers[i].contains(evt)[0]:
                         self.hpoint=i
-                        self.PhpointX = self.VelInPos_markers[self.hpoint].get_xdata()
-                        self.PhpointY = self.VelInPos_markers[self.hpoint].get_ydata()
+                        self.PhpointX = self.CP_P_Points[0][self.hpoint]
+                        self.PhpointY = self.CP_P_Points[1][self.hpoint]
                         self.VelInPos_markers[self.hpoint].set( color='b')
                         self.modifyP = 'PPoint'
                         self.VelInTime_markers[self.hpoint].set( color= 'b')
@@ -835,7 +865,8 @@ class Diagramm(wx.Panel):
                         self.modifyP = 'TI'
             self.MouseDeltaXPoint = 0.0
             self.MouseDeltaYPoint = 0.0
-
+            self.MDDX = 0.
+            self.MDDY = 0.
             self.clickpoint = [evt.xdata, evt.ydata]
             self.Refresh()
         elif evt.button == 3:
@@ -885,8 +916,7 @@ class Diagramm(wx.Panel):
         self.RecalcMove(init = False)
         self.Refresh()
         self.Plot(init = False)
-        #self.rezoom = True
-        pass    
+        #self.rezoom = True    
 
     def MovePointPosDomain(self):
         if self.modifyP == 'PPoint':
@@ -901,84 +931,72 @@ class Diagramm(wx.Panel):
                 if (x1+0.1 < self.PhpointX-MDX and
                     self.PhpointX-MDX < x3-0.1):
                     x = self.PhpointX-MDX
+                    self.MDDX = MDX
                 else:
                     flag = 'exit' 
                     if MDX < 0 :
-                        x= x3-0.1
+                        x= x3-0.2
                     else:
-                        x= x1+0.1
-
+                        x= x1+0.2
                 if (self.eval_Grenz_P_Points(x,False) > self.PhpointY-MDY ):
                     y=max((self.PhpointY-MDY),0.1)
+                    self.MDDY = MDY
                 else:
                     flag = 'exit'
                     y = max(self.eval_Grenz_P_Points(x,False),0.1) 
-
+                    self.MDDY = MDY                
                 if flag == 'exit':
                     self.modifyP == 'none'               
                     self.VelInPos_markers[self.hpoint].set(color='r')
-                else:
-                    self.VelInPos_markers[self.hpoint].set(color='darkred')
-
-                if (self.P_2_T(x) > self.CP_M_Points[0][self.hpoint-1] and
-                    self.P_2_T(x) < self.CP_M_Points[0][self.hpoint+1]):
-                    self.CP_M_Points[0][self.hpoint] = self.P_2_T(x)
+                if (self.eval_PosToTime_Line(x) > self.CP_M_Points[0][self.hpoint-1] and
+                    self.eval_PosToTime_Line(x) < self.CP_M_Points[0][self.hpoint+1]):
+                    self.CP_M_Points[0][self.hpoint] = self.eval_PosToTime_Line(x)
                     self.CP_M_Points[1][self.hpoint] = y
                 
                 self.RecalcMove(init = False)
 
-                self.Refresh()
                 self.Plot(init = False)
+                self.rezoom = True    
+                self.Refresh()
 
     def RecalcMove(self, init):
-        #print('Recalc')
         if init:
-            for i in range(0, len(self.X_Pos_Values)):
-                self.Vel_P_Limit[0].append(self.T_2_P(self.Vel_T_D[0][i]))
-                self.Vel_P_Limit[1].append(self.Vel_T_D[1][i])
-            pass
-
-        u = self.eval_CP_M_Points(0.1,True)
-        pint = self.CP_M_BPoly.antiderivative(1)        
-        PosI = pint(self.CP_T_Points[0][-1])
-
-        self.TimeScaling           = self.Length / PosI
-        self.X_Time_Values         = self.X_Time_Values        * self.TimeScaling        
-        self.CP_M_Points[0]        = self.CP_M_Points[0]       * self.TimeScaling
-        self.TimeScalingAbs        = self.X_Time_Values[-1] / self.Pos_T_D[0][-1]
+            self.Vel_P_Limit[0] = self.X_Pos_Values
+            self.Vel_P_Limit[1] = self.eval_Grenz_P_Points(self.X_Pos_Values,False)
 
         u = self.eval_CP_M_Points(0.1,True)
         pint = self.CP_M_BPoly.antiderivative(1)
+        
+        PosI = pint(self.CP_T_Points[0][-1])
+        self.TimeScaling    = self.CP_P_Points_Limit[0][-1]/PosI
+        self.X_Time_Values         = self.X_Time_Values        * self.TimeScaling
+        self.CP_M_Points[0]        = self.CP_M_Points[0]       * self.TimeScaling
+        self.CP_T_Points_Limit[0]  = self.CP_T_Points_Limit[0] * self.TimeScaling
+        u = self.eval_CP_M_Points(0.1,True)
 
-        self.CP_T_Points[0] = copy.copy(self.CP_M_Points[0])
-        self.CP_T_Points[1] = copy.copy(self.CP_M_Points[1])
-        self.CP_T_Points[2] = copy.copy(self.CP_M_Points[2])
-
-        self.CP_P_Points[0] = copy.copy(self.T_2_P(self.CP_M_Points[0]))
-        self.CP_P_Points[1] = copy.copy(self.CP_M_Points[1])
-        self.CP_P_Points[2] = copy.copy(self.CP_M_Points[2])       
-
+        self.CP_T_Points[0] = self.CP_M_Points[0]
+        self.CP_T_Points[1] = self.CP_M_Points[1]
+        # for i in range(1,len(self.CP_T_Points[0])-1):
+        #     self.CP_T_Points[2][i]=(self.CP_T_Points[1][i+1]-self.CP_T_Points[1][i-1])/(self.CP_T_Points[0][i+1]-self.CP_T_Points[0][i-1])
+        self.CP_P_Points[0] = pint(self.CP_M_Points[0])
+        self.CP_P_Points[1] = self.CP_M_Points[1]
         for i in range(1,len(self.CP_P_Points[0])-1):
-           self.CP_P_Points[2][i]=(self.CP_P_Points[1][i+1]-self.CP_P_Points[1][i-1])/(self.CP_P_Points[0][i+1]-self.CP_P_Points[0][i-1])
+            self.CP_P_Points[2][i]=(self.CP_P_Points[1][i+1]-self.CP_P_Points[1][i-1])/(self.CP_P_Points[0][i+1]-self.CP_P_Points[0][i-1])
 
         self.Vel_P[0] = self.X_Pos_Values
-        self.Vel_P[1] = self.eval_CP_P_Points(self.X_Pos_Values,True)
-
+        self.Vel_P[1] = self.eval_CP_P_Points(self.X_Pos_Values,True)        
         self.Vel_T[0] = self.X_Time_Values
         self.Vel_T[1] = self.eval_CP_T_Points(self.X_Time_Values,True)
-
         self.Vel_T_Limit[0]= self.X_Time_Values
-        self.Vel_T_Limit[1]= self.Vel_T_D[1]
-
+        self.Vel_T_Limit[1]= self.eval_Grenz_T_Points(self.X_Time_Values,True)
         pdt  = self.CP_T_BPoly.derivative(1)
         self.Acc_T[0] = self.X_Time_Values
         self.Acc_T[1] = pdt(self.X_Time_Values)
 
+        maxAcc = max(self.Acc_T[1])
+        maxDcc = min(self.Acc_T[1])
         if self.VelEditorFrame:
-            maxAcc = max(self.Acc_T[1])
-            maxDcc = min(self.Acc_T[1])
-            self.VelEditorFrame.txtGenerateDuration.SetValue('%3.3f'% self.CP_M_Points[0][-1])
-            self.VelEditorFrame.txtGenerateTimeFactor.SetValue('%3.3f'% self.TimeScalingAbs)
+            self.VelEditorFrame.txtMaxTime.SetValue('%3.3f'% self.CP_M_Points[0][-1])
             self.VelEditorFrame.txtProfileMaxAcc.SetValue('%3.3f'% maxAcc)
             self.VelEditorFrame.txtProfileMaxDcc.SetValue('%3.3f'% maxDcc)
             if maxAcc < 0.7 * float(self.Action_MaxAcc):
@@ -995,7 +1013,6 @@ class Diagramm(wx.Panel):
                 self.VelEditorFrame.txtProfileMaxDcc.SetBackgroundColour((204,0,0))
 
     def Pan(self, evt):
-        print('pan')
         if self.press is None: return
         if evt.inaxes == self.axes :
             dx = evt.xdata - self.xpress
@@ -1080,6 +1097,10 @@ class Diagramm(wx.Panel):
                 self.CP_M_Points = np.delete(self.CP_M_Points,self.hpoint,axis=1)
                 self.modifyP = 'none'
                 self.RecalcMove(init = False)
+                # if self.VelEditorFrame:
+                #     self.VelEditorFrame.btnProfileSave.Enable(True)    
+                #     self.VelEditorFrame.btnProfileReplace.Enable(True) 
+                #     self.VelEditorFrame.btnProfileReload.Enable(True)                  
                 self.Plot(init = True)
                 self.Refresh()                
         elif evt.key == 'i' and self.modifyP == 'TI':
@@ -1087,20 +1108,25 @@ class Diagramm(wx.Panel):
                 y = self.eval_CP_M_Points(self.clickpoint[0],False)
                 i = np.searchsorted(self.CP_M_Points[0],self.clickpoint[0])
                 self.CP_M_Points = np.insert(self.CP_M_Points,i,[self.clickpoint[0],y,0],axis =1)
-                self.CP_T_Points = np.insert(self.CP_T_Points,i,[self.clickpoint[0],y,0],axis =1)
-                self.CP_P_Points = np.insert(self.T_2_P(self.CP_P_Points),i,[self.clickpoint[0],y,0],axis =1)
                 self.RecalcMove(init = False)
+                # if self.VelEditorFrame:
+                #     self.VelEditorFrame.btnProfileSave.Enable(True)    
+                #     self.VelEditorFrame.btnProfileReplace.Enable(True) 
+                #     self.VelEditorFrame.btnProfileReload.Enable(True)                 
                 self.Plot(init = True)
                 self.Refresh()                
         elif evt.key == 'i' and self.modifyP == 'PI':
             pass
             if self.clickpoint[0] > 0.1:
-                y = self.eval_CP_P_Points((self.clickpoint[0]),False)
-                i = np.searchsorted(self.CP_M_Points[0],self.P_2_T(self.clickpoint[0]))
-                self.CP_M_Points = np.insert(self.CP_M_Points,i,[self.P_2_T(self.clickpoint[0]),y,0],axis =1)
-                self.CP_T_Points = np.insert(self.CP_T_Points,i,[self.P_2_T(self.clickpoint[0]),y,0],axis =1)
-                self.CP_P_Points = np.insert(self.CP_P_Points,i,[self.clickpoint[0],y,0],axis =1)
-                self.RecalcMove(init = False)
+                y = self.BPolyFunct(self.VelPosToVelTime(self.clickpoint[0]))
+                i = np.searchsorted(self.CP_M_Points[0],self.VelPosToVelTime(self.clickpoint[0]))
+                self.CP_M_Points = np.insert(self.SCTPCP_M_PointsointsT,i,[self.VelPosToVelTime(self.clickpoint[0]),y],axis =1)
+                self.RecalcBPolySCT()
+                # if self.VelEditorFrame:
+                #     self.VelEditorFrame.btnProfileSave.Enable(True)    
+                #     self.VelEditorFrame.btnProfileReplace.Enable(True) 
+                #     self.VelEditorFrame.btnProfileReload.Enable(True) 
+                    
                 self.Plot(init = True)
                 self.Refresh()                
         elif evt.key == 'z':
@@ -1130,29 +1156,27 @@ class Diagramm(wx.Panel):
 class VelEditor4C(wx.App):
     #def __init__(self):
         #self.OnInit()
-
     def OnInit(self):        
-        self.res = xrc.XmlResource('VelEditorWW.xrc')
-        self.KeyPointWindow                       = self.res.LoadFrame(None,'ID_WXFRAME')
-        self.KeyPointWindow.panelMainPanel        = xrc.XRCCTRL(self.KeyPointWindow,'MainPanel')         
-        self.KeyPointWindow.panelOne              = xrc.XRCCTRL(self.KeyPointWindow.panelMainPanel,'PanelOne')
-        self.KeyPointWindow.panelVelPath          = xrc.XRCCTRL(self.KeyPointWindow.panelOne,'panelVelPath')        
-        self.KeyPointWindow.Diagramm              = Diagramm(self.KeyPointWindow.panelVelPath)        
-        self.KeyPointWindow.txtSetupLength        = xrc.XRCCTRL(self.KeyPointWindow,'txtSetupLength')
-        self.KeyPointWindow.txtSetupTime          = xrc.XRCCTRL(self.KeyPointWindow,'txtSetupTime')       
-        self.KeyPointWindow.txtSetupMaxAcc        = xrc.XRCCTRL(self.KeyPointWindow,'txtSetupMaxAcc')
-        self.KeyPointWindow.txtSetupMaxVel        = xrc.XRCCTRL(self.KeyPointWindow,'txtSetupMaxVel')
-        self.KeyPointWindow.txtGenerateAcc        = xrc.XRCCTRL(self.KeyPointWindow,'txtGenerateAcc')
-        self.KeyPointWindow.txtGenerateVel        = xrc.XRCCTRL(self.KeyPointWindow,'txtGenerateVel')
-        self.KeyPointWindow.txtGenerateLength     = xrc.XRCCTRL(self.KeyPointWindow,'txtGenerateLength')
-        self.KeyPointWindow.txtGenerateDuration   = xrc.XRCCTRL(self.KeyPointWindow,'txtGenerateDuration')
-        self.KeyPointWindow.txtMouseXPos          = xrc.XRCCTRL(self.KeyPointWindow,'txtMouseXPos')
-        self.KeyPointWindow.txtMouseYPos          = xrc.XRCCTRL(self.KeyPointWindow,'txtMouseYPos')
-        self.KeyPointWindow.txtProfileMaxAcc      = xrc.XRCCTRL(self.KeyPointWindow,'txtProfileMaxAcc')
-        self.KeyPointWindow.txtProfileMaxDcc      = xrc.XRCCTRL(self.KeyPointWindow,'txtProfileMaxDcc')
-        self.KeyPointWindow.btnSmooth             = xrc.XRCCTRL(self.KeyPointWindow,'btnSmooth')
-        self.KeyPointWindow.btnGenerate           = xrc.XRCCTRL(self.KeyPointWindow,'btnGenerate')
-        self.KeyPointWindow.txtGenerateTimeFactor = xrc.XRCCTRL(self.KeyPointWindow,'txtGenerateTimeFactor')    
+        self.res = xrc.XmlResource('VelEditorW.xrc')
+        self.KeyPointWindow                    = self.res.LoadFrame(None,'ID_WXFRAME')
+        self.KeyPointWindow.panelMainPanel     = xrc.XRCCTRL(self.KeyPointWindow,'MainPanel')         
+        self.KeyPointWindow.panelOne           = xrc.XRCCTRL(self.KeyPointWindow.panelMainPanel,'PanelOne')
+        self.KeyPointWindow.panelVelPath       = xrc.XRCCTRL(self.KeyPointWindow.panelOne,'panelVelPath')        
+        self.KeyPointWindow.Diagramm           = Diagramm(self.KeyPointWindow.panelVelPath)        
+        self.KeyPointWindow.txtLength          = xrc.XRCCTRL(self.KeyPointWindow,'txtLength')
+        self.KeyPointWindow.txtMaxTime         = xrc.XRCCTRL(self.KeyPointWindow,'txtMaxTime')       
+        self.KeyPointWindow.txtSetupMaxAcc     = xrc.XRCCTRL(self.KeyPointWindow,'txtSetupMaxAcc')
+        self.KeyPointWindow.txtSetupMaxVel     = xrc.XRCCTRL(self.KeyPointWindow,'txtSetupMaxVel')
+        self.KeyPointWindow.txtGenerateAcc     = xrc.XRCCTRL(self.KeyPointWindow,'txtGenerateAcc')
+        self.KeyPointWindow.txtGenerateVel     = xrc.XRCCTRL(self.KeyPointWindow,'txtGenerateVel')
+        self.KeyPointWindow.txtGenerateLength  = xrc.XRCCTRL(self.KeyPointWindow,'txtGenerateLength')
+        self.KeyPointWindow.txtGenerateDuration= xrc.XRCCTRL(self.KeyPointWindow,'txtGenerateDuration')
+        self.KeyPointWindow.txtMouseXPos       = xrc.XRCCTRL(self.KeyPointWindow,'txtMouseXPos')
+        self.KeyPointWindow.txtMouseYPos       = xrc.XRCCTRL(self.KeyPointWindow,'txtMouseYPos')
+        self.KeyPointWindow.txtProfileMaxAcc   = xrc.XRCCTRL(self.KeyPointWindow,'txtProfileMaxAcc')
+        self.KeyPointWindow.txtProfileMaxDcc   = xrc.XRCCTRL(self.KeyPointWindow,'txtProfileMaxDcc')
+        self.KeyPointWindow.btnSmooth          = xrc.XRCCTRL(self.KeyPointWindow,'btnSmooth')
+        self.KeyPointWindow.btnGenerate        = xrc.XRCCTRL(self.KeyPointWindow,'btnGenerate')     
 
         #self.KeyPointWindow.txtMaxTime.Enable(False)
         self.KeyPointWindow.txtMouseXPos.Enable(False)
@@ -1186,7 +1210,6 @@ class VelEditor4C(wx.App):
         #self.Bind(wx.EVT_KILL_FOCUS, self.EntertxtSetupUsrVel,      self.KeyPointWindow.txtSetupUsrVel)        
 
         self.KeyPointWindow.Show()
-
         return True
     def OnButtonSmooth(self,evt):
         print('Smooth')
@@ -1194,7 +1217,7 @@ class VelEditor4C(wx.App):
 
     def OnButtonGenerate(self,evt):
         print('Generate')
-        self.KeyPointWindow.Diagramm.Calc_Profile()
+        self.KeyPointWindow.Diagramm.Calc_Default_Profile()
         pass
 
     def OpenFile(self,evt):
@@ -1251,7 +1274,7 @@ class VelEditor4C(wx.App):
         self.KeyPointWindow.Diagramm.Action_Description = Data[14]
         self.KeyPointWindow.Diagramm.Action_Signed      = False
 
-        self.KeyPointWindow.txtSetupLength.SetValue     ('%3.3f'% float(Data[8]))
+        self.KeyPointWindow.txtLength.SetValue     ('%3.3f'% float(Data[8]))
         self.KeyPointWindow.txtSetupMaxAcc.SetValue('%3.3f'% float(Data[6]))
         self.KeyPointWindow.txtSetupMaxVel.SetValue('%3.3f'% float(Data[7]))
 
