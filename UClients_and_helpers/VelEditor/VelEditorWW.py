@@ -517,6 +517,35 @@ class Diagramm(wx.Panel):
         self.rezoom          = True
         self.Plot(init       = True)
 
+    def GenerateProfile(self,Length, Acc, Vel):
+        self.Action_Signed      = False
+        self.ClearVars()        
+        self.Length = float(self.VelEditorFrame.txtGenerateLength.GetValue())        
+        self.Time_Pos_Values      = np.zeros(1000)
+
+        self.Jrk_T_D,\
+        self.Acc_T_D,\
+        self.Vel_T_D,\
+        self.Pos_T_D,\
+        self.Vel_P_D   = self.Calc_Profile(Length, Acc, Vel)
+
+        self.Samples = len(self.Vel_T_D[0])
+        self.X_Time_Values         = np.linspace(0., self.Vel_T_D[0][-1],  self.Samples, dtype= np.double)
+        self.X_Pos_Values          = np.linspace(0., self.Length,          self.Samples, dtype= np.double)
+
+        Vel_T_D_S = self.SimplifyProfile(self.Vel_T_D,self.Acc_T_D, 0.01)
+
+        self.VelEditorFrame.txtSetupTime.SetValue(str(Vel_T_D_S[0][-1]))
+
+        self.init_CP_T_Points(Vel_T_D_S)
+        self.init_T_BPoly()
+        self.init_CP_P_Points(Vel_T_D_S)            
+        self.init_P_BPoly()
+
+        self.RecalcMove(init = True)
+        self.rezoom          = True
+        self.Plot(init       = True)
+
     def Calc_Profile(self,Length, Acc, Vel):   
         A = Calc_Default_Profile(Length, Acc, Vel)
         Jrk, Acc, Vel, Pos,Pos_P = A.GetData()
@@ -656,9 +685,9 @@ class Diagramm(wx.Panel):
         self.linesT += self.axesT.plot(self._xInit,self.Null,  color="darkred",         linewidth=1.0, linestyle="-"              ,pickradius = 0)   # Vel  [0]
         self.linesT += self.axesT.plot(self._xInit,self.Null,  color="darkblue",        linewidth=1.0, linestyle="-"              ,pickradius = 0)  # Pos  Beziers [3]
         
-        #self.linesT += self.axesT.plot(self._xInit,self.Null,  color="darkgreen",         linewidth= 0.5, linestyle="-.",pickradius = 0 ) # Vel  Beziers [1]
-        self.linesT += self.axesT.plot(self._xInit,self.Null,  color="darkblue",           linewidth= 0.5, linestyle="-.",pickradius = 0)  # Acc  Beziers [2]
-        self.linesT += self.axesT.plot(self._xInit,self.Null,  color="black",       linewidth= 0.5, linestyle="-."              , pickradius = 0) # Vel  Points [1]
+        #self.linesT += self.axesT.plot(self._xInit,self.Null,  color="darkgreen",       linewidth= 0.5, linestyle="-.",pickradius = 0 ) # Vel  Beziers [1]
+        self.linesT += self.axesT.plot(self._xInit,self.Null,  color="darkblue",         linewidth= 0.5, linestyle="-.",pickradius = 0)  # Acc  Beziers [2]
+        self.linesT += self.axesT.plot(self._xInit,self.Null,  color="black",            linewidth= 0.5, linestyle="-."              , pickradius = 0) # Vel  Points [1]
         
         #self.linesT += self.axesT.plot(self._xInit,self.Null,  color="black",           linewidth=1.5, linestyle="-.",pickradius = 0)   # Vel          [4]
         # self.linesT += self.axesT.plot(self._xInit,self.Null,  color="darkgreen",       linewidth=1.4, linestyle="-",pickradius = 0)   # Acc          [5]
@@ -697,8 +726,6 @@ class Diagramm(wx.Panel):
         self.linesT[4].set( xdata = self.Vel_T_D[0],        ydata=self.Vel_T_D[1])
         #self.linesT[6].set( xdata = self.Pos_T_D[0],        ydata=self.Pos_T_D[1])
           
-        #self.linesT[0].set( xdata = self.VelDS[0],       ydata=self.VelDS[1]) 
-        self.axesT.plot(self.VelDS[0],self.VelDS[1],marker ='o',markersize = 7*self.scaleP , color = 'darkred')                
 
         for i in range (len(self.fillT)):
             self.axesT.patches.remove(self.fillT[i])
@@ -964,10 +991,14 @@ class Diagramm(wx.Panel):
         self.Vel_P[0] = self.X_Pos_Values
         self.Vel_P[1] = self.eval_CP_P_Points(self.X_Pos_Values,True)
 
+        if self.VelEditorFrame.chkAccSmooth.GetValue():	
+            for i in range(1,len(self.CP_T_Points[0])-1):
+                self.CP_T_Points[2][i]=(self.CP_T_Points[1][i+1]-self.CP_T_Points[1][i-1])/(self.CP_T_Points[0][i+1]-self.CP_T_Points[0][i-1])
+
         self.Vel_T[0] = self.X_Time_Values
         self.Vel_T[1] = self.eval_CP_T_Points(self.X_Time_Values,True)
 
-        self.Vel_T_Limit[0]= self.X_Time_Values
+        self.Vel_T_Limit[0]= self.Vel_T_D[0] * self.TimeScalingAbs
         self.Vel_T_Limit[1]= self.Vel_T_D[1]
 
         pdt  = self.CP_T_BPoly.derivative(1)
@@ -995,7 +1026,6 @@ class Diagramm(wx.Panel):
                 self.VelEditorFrame.txtProfileMaxDcc.SetBackgroundColour((204,0,0))
 
     def Pan(self, evt):
-        print('pan')
         if self.press is None: return
         if evt.inaxes == self.axes :
             dx = evt.xdata - self.xpress
@@ -1150,18 +1180,20 @@ class VelEditor4C(wx.App):
         self.KeyPointWindow.txtMouseYPos          = xrc.XRCCTRL(self.KeyPointWindow,'txtMouseYPos')
         self.KeyPointWindow.txtProfileMaxAcc      = xrc.XRCCTRL(self.KeyPointWindow,'txtProfileMaxAcc')
         self.KeyPointWindow.txtProfileMaxDcc      = xrc.XRCCTRL(self.KeyPointWindow,'txtProfileMaxDcc')
-        self.KeyPointWindow.btnSmooth             = xrc.XRCCTRL(self.KeyPointWindow,'btnSmooth')
         self.KeyPointWindow.btnGenerate           = xrc.XRCCTRL(self.KeyPointWindow,'btnGenerate')
-        self.KeyPointWindow.txtGenerateTimeFactor = xrc.XRCCTRL(self.KeyPointWindow,'txtGenerateTimeFactor')    
+        self.KeyPointWindow.txtGenerateTimeFactor = xrc.XRCCTRL(self.KeyPointWindow,'txtGenerateTimeFactor')  
+        self.KeyPointWindow.chkAccSmooth          = xrc.XRCCTRL(self.KeyPointWindow,'chkAccSmooth')
+        self.KeyPointWindow.chkAutoLimit          = xrc.XRCCTRL(self.KeyPointWindow,'chkAutoLimit')
+        self.KeyPointWindow.btnSign               = xrc.XRCCTRL(self.KeyPointWindow,'btnSign')
 
         #self.KeyPointWindow.txtMaxTime.Enable(False)
         self.KeyPointWindow.txtMouseXPos.Enable(False)
         self.KeyPointWindow.txtMouseYPos.Enable(False)
         self.KeyPointWindow.btnGenerate.Enable(False)
-        self.KeyPointWindow.btnSmooth.Enable(False)
         
-        self.Bind(wx.EVT_BUTTON        , self.OnButtonSmooth,        self.KeyPointWindow.btnSmooth)
         self.Bind(wx.EVT_BUTTON        , self.OnButtonGenerate,      self.KeyPointWindow.btnGenerate)
+        self.Bind(wx.EVT_BUTTON        , self.OnButtonSign,          self.KeyPointWindow.btnSign)
+        self.Bind(wx.EVT_CHECKBOX      , self.OnAccSmooth,           self.KeyPointWindow.chkAccSmooth)
 
 
         File = wx.Menu()
@@ -1188,15 +1220,21 @@ class VelEditor4C(wx.App):
         self.KeyPointWindow.Show()
 
         return True
-    def OnButtonSmooth(self,evt):
-        print('Smooth')
+    def OnButtonSign(self,evt):
+        print('Signing')
         pass
 
     def OnButtonGenerate(self,evt):
-        print('Generate')
-        self.KeyPointWindow.Diagramm.Calc_Profile()
+        self.KeyPointWindow.Diagramm.GenerateProfile(float(self.KeyPointWindow.txtGenerateLength.GetValue()),\
+                                                     float(self.KeyPointWindow.txtGenerateAcc.GetValue()),\
+                                                     float(self.KeyPointWindow.txtGenerateVel.GetValue()))
         pass
 
+    def OnAccSmooth(self,evt):
+        print('Smooth')
+        self.KeyPointWindow.Diagramm.RecalcMove(False)
+        self.KeyPointWindow.Diagramm.Plot(init = False)
+        
     def OpenFile(self,evt):
         with wx.FileDialog(None, "Open Vel file", wildcard="Vel files (*.sfxact)|*.sfxact",
                        style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:

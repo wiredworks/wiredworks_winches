@@ -313,8 +313,17 @@
                                         <object class="sizeritem">
                                             <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
                                             <border>5</border>
-                                            <object class="wxButton" name="btnSmooth">
-                                                <label>Smooth Acc</label>
+                                            <object class="wxCheckBox" name="chkAccSmooth">
+                                                <label>Acc Smoothing</label>
+                                                <checked>0</checked>
+                                            </object>
+                                        </object>
+                                        <object class="sizeritem">
+                                            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                            <border>5</border>
+                                            <object class="wxCheckBox" name="chkAutoLimit">
+                                                <label>Acc Auto Limit</label>
+                                                <checked>0</checked>
                                             </object>
                                         </object>
                                     </object>
@@ -539,55 +548,78 @@
                                 <object class="spacer">
                                     <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
                                     <border>5</border>
-                                    <size>5,205</size>
+                                    <size>5,150</size>
+                                </object>
+                            </object>
+                        </object>
+                        <object class="sizeritem">
+                            <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                            <border>5</border>
+                            <object class="wxStaticBoxSizer" name="wxID_ANY">
+                                <orient>wxHORIZONTAL</orient>
+                                <label>Sign</label>
+                                <object class="sizeritem">
+                                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                    <border>5</border>
+                                    <object class="wxButton" name="btnSign">
+                                        <label>Sign Profile</label>
+                                    </object>
                                 </object>
                                 <object class="sizeritem">
-                                    <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
                                     <border>5</border>
-                                    <object class="wxBoxSizer">
-                                        <orient>wxHORIZONTAL</orient>
-                                        <object class="spacer">
-                                            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                            <border>5</border>
-                                            <size>7,5</size>
-                                        </object>
-                                        <object class="sizeritem">
-                                            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                            <border>5</border>
-                                            <object class="wxStaticText" name="wxID_STATIC">
-                                                <label>X-Pos:</label>
-                                            </object>
-                                        </object>
-                                        <object class="sizeritem">
-                                            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                            <border>5</border>
-                                            <object class="wxTextCtrl" name="txtMouseXPos">
-                                                <size>50,20</size>
-                                                <style>wxTE_READONLY|wxTE_RIGHT</style>
-                                                <bg>#FFFFFF</bg>
-                                            </object>
-                                        </object>
-                                        <object class="spacer">
-                                            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                            <border>0</border>
-                                            <size>9,5</size>
-                                        </object>
-                                        <object class="sizeritem">
-                                            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                            <border>5</border>
-                                            <object class="wxStaticText" name="wxID_STATIC">
-                                                <label>Y-Pos:</label>
-                                            </object>
-                                        </object>
-                                        <object class="sizeritem">
-                                            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                            <border>5</border>
-                                            <object class="wxTextCtrl" name="txtMouseYPos">
-                                                <size>50,20</size>
-                                                <style>wxTE_READONLY|wxTE_RIGHT</style>
-                                                <bg>#FFFFFF</bg>
-                                            </object>
-                                        </object>
+                                    <object class="wxCheckBox" name="chkSign">
+                                        <enabled>0</enabled>
+                                        <checked>0</checked>
+                                    </object>
+                                </object>
+                            </object>
+                        </object>
+                        <object class="sizeritem">
+                            <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                            <border>5</border>
+                            <object class="wxBoxSizer">
+                                <orient>wxHORIZONTAL</orient>
+                                <object class="spacer">
+                                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                    <border>5</border>
+                                    <size>7,5</size>
+                                </object>
+                                <object class="sizeritem">
+                                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                    <border>5</border>
+                                    <object class="wxStaticText" name="wxID_STATIC">
+                                        <label>X-Pos:</label>
+                                    </object>
+                                </object>
+                                <object class="sizeritem">
+                                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                    <border>5</border>
+                                    <object class="wxTextCtrl" name="txtMouseXPos">
+                                        <size>50,20</size>
+                                        <style>wxTE_READONLY|wxTE_RIGHT</style>
+                                        <bg>#FFFFFF</bg>
+                                    </object>
+                                </object>
+                                <object class="spacer">
+                                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                    <border>0</border>
+                                    <size>9,5</size>
+                                </object>
+                                <object class="sizeritem">
+                                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                    <border>5</border>
+                                    <object class="wxStaticText" name="wxID_STATIC">
+                                        <label>Y-Pos:</label>
+                                    </object>
+                                </object>
+                                <object class="sizeritem">
+                                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                    <border>5</border>
+                                    <object class="wxTextCtrl" name="txtMouseYPos">
+                                        <size>50,20</size>
+                                        <style>wxTE_READONLY|wxTE_RIGHT</style>
+                                        <bg>#FFFFFF</bg>
                                     </object>
                                 </object>
                             </object>
