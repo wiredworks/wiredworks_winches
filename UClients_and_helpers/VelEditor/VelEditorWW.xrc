@@ -266,72 +266,10 @@
                                         </object>
                                     </object>
                                 </object>
-                                <object class="sizeritem">
-                                    <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
-                                    <border>5</border>
-                                    <object class="wxBoxSizer">
-                                        <orient>wxHORIZONTAL</orient>
-                                        <object class="sizeritem">
-                                            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                            <border>5</border>
-                                            <object class="wxStaticText" name="wxID_STATIC">
-                                                <label>MaxAcc: </label>
-                                            </object>
-                                        </object>
-                                        <object class="sizeritem">
-                                            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                            <border>5</border>
-                                            <object class="wxTextCtrl" name="txtProfileMaxAcc">
-                                                <size>50,20</size>
-                                                <style>wxTE_READONLY|wxTE_RIGHT</style>
-                                                <bg>#00BE00</bg>
-                                            </object>
-                                        </object>
-                                        <object class="sizeritem">
-                                            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                            <border>5</border>
-                                            <object class="wxStaticText" name="wxID_STATIC">
-                                                <label>MaxDcc:</label>
-                                            </object>
-                                        </object>
-                                        <object class="sizeritem">
-                                            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                            <border>5</border>
-                                            <object class="wxTextCtrl" name="txtProfileMaxDcc">
-                                                <size>50,20</size>
-                                                <style>wxTE_READONLY|wxTE_RIGHT</style>
-                                                <bg>#DC0A0A</bg>
-                                            </object>
-                                        </object>
-                                    </object>
-                                </object>
-                                <object class="sizeritem">
-                                    <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
-                                    <border>5</border>
-                                    <object class="wxBoxSizer">
-                                        <orient>wxHORIZONTAL</orient>
-                                        <object class="sizeritem">
-                                            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                            <border>5</border>
-                                            <object class="wxCheckBox" name="chkAccSmooth">
-                                                <label>Acc Smoothing</label>
-                                                <checked>0</checked>
-                                            </object>
-                                        </object>
-                                        <object class="sizeritem">
-                                            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                            <border>5</border>
-                                            <object class="wxCheckBox" name="chkAutoLimit">
-                                                <label>Acc Auto Limit</label>
-                                                <checked>0</checked>
-                                            </object>
-                                        </object>
-                                    </object>
-                                </object>
                                 <object class="spacer">
                                     <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
                                     <border>5</border>
-                                    <size>5,50</size>
+                                    <size>5,20</size>
                                 </object>
                             </object>
                         </object>
@@ -340,7 +278,7 @@
                             <border>0</border>
                             <object class="wxStaticBoxSizer" name="wxID_ANY">
                                 <orient>wxVERTICAL</orient>
-                                <label>New Profile</label>
+                                <label>User Profile</label>
                                 <object class="spacer">
                                     <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
                                     <border>5</border>
@@ -370,7 +308,7 @@
                                                             <flag>wxALIGN_TOP</flag>
                                                             <border>0</border>
                                                             <object class="wxStaticText" name="wxID_STATIC">
-                                                                <label>MaxAcc</label>
+                                                                <label>Usr Acc</label>
                                                             </object>
                                                         </object>
                                                         <object class="spacer">
@@ -381,7 +319,7 @@
                                                         <object class="sizeritem">
                                                             <flag>wxALIGN_TOP</flag>
                                                             <border>0</border>
-                                                            <object class="wxTextCtrl" name="txtGenerateAcc">
+                                                            <object class="wxTextCtrl" name="txtUsrAcc">
                                                                 <size>50,20</size>
                                                                 <style>wxTE_RIGHT</style>
                                                                 <bg>#FFFFFF</bg>
@@ -404,7 +342,7 @@
                                                             <flag>wxALIGN_TOP</flag>
                                                             <border>0</border>
                                                             <object class="wxStaticText" name="wxID_STATIC">
-                                                                <label>MaxVel</label>
+                                                                <label>Usr Vel</label>
                                                             </object>
                                                         </object>
                                                         <object class="spacer">
@@ -415,7 +353,7 @@
                                                         <object class="sizeritem">
                                                             <flag>wxALIGN_TOP</flag>
                                                             <border>0</border>
-                                                            <object class="wxTextCtrl" name="txtGenerateVel">
+                                                            <object class="wxTextCtrl" name="txtUsrVel">
                                                                 <size>50,20</size>
                                                                 <style>wxTE_RIGHT</style>
                                                                 <bg>#FFFFFF</bg>
@@ -455,7 +393,7 @@
                                                 <object class="sizeritem">
                                                     <flag>wxALIGN_TOP</flag>
                                                     <border>0</border>
-                                                    <object class="wxTextCtrl" name="txtGenerateLength">
+                                                    <object class="wxTextCtrl" name="txtUsrLength">
                                                         <size>50,20</size>
                                                         <style>wxTE_RIGHT</style>
                                                         <bg>#FFFFFF</bg>
@@ -466,6 +404,20 @@
                                                     <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
                                                     <border>5</border>
                                                     <size>5,5</size>
+                                                </object>
+                                            </object>
+                                        </object>
+                                        <object class="sizeritem">
+                                            <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                                            <border>5</border>
+                                            <object class="wxBoxSizer">
+                                                <orient>wxHORIZONTAL</orient>
+                                                <object class="sizeritem">
+                                                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                    <border>5</border>
+                                                    <object class="wxButton" name="btnGenerate">
+                                                        <label>Generate Profile</label>
+                                                    </object>
                                                 </object>
                                             </object>
                                         </object>
@@ -489,12 +441,42 @@
                                                 <object class="sizeritem">
                                                     <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
                                                     <border>5</border>
-                                                    <object class="wxTextCtrl" name="txtGenerateDuration">
+                                                    <object class="wxTextCtrl" name="txtUsrDuration">
                                                         <size>50,20</size>
                                                         <style>wxTE_READONLY|wxTE_RIGHT</style>
                                                         <enabled>0</enabled>
                                                         <bg>#FFFFFF</bg>
                                                         <value>0</value>
+                                                    </object>
+                                                </object>
+                                                <object class="sizeritem">
+                                                    <flag>wxALIGN_TOP|wxALL</flag>
+                                                    <border>5</border>
+                                                    <object class="wxBoxSizer">
+                                                        <orient>wxHORIZONTAL</orient>
+                                                        <object class="sizeritem">
+                                                            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                            <border>5</border>
+                                                            <object class="wxStaticText" name="wxID_STATIC">
+                                                                <label>Time Factor</label>
+                                                            </object>
+                                                        </object>
+                                                        <object class="spacer">
+                                                            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                            <border>0</border>
+                                                            <size>1,10</size>
+                                                        </object>
+                                                        <object class="sizeritem">
+                                                            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                            <border>5</border>
+                                                            <object class="wxTextCtrl" name="txtUsrTimeFactor">
+                                                                <size>50,20</size>
+                                                                <style>wxTE_READONLY|wxTE_RIGHT</style>
+                                                                <enabled>0</enabled>
+                                                                <bg>#FFFFFF</bg>
+                                                                <value>0</value>
+                                                            </object>
+                                                        </object>
                                                     </object>
                                                 </object>
                                             </object>
@@ -508,23 +490,32 @@
                                                     <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
                                                     <border>5</border>
                                                     <object class="wxStaticText" name="wxID_STATIC">
-                                                        <label>Time Factor</label>
+                                                        <label>Profile Acc: </label>
                                                     </object>
-                                                </object>
-                                                <object class="spacer">
-                                                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                                    <border>0</border>
-                                                    <size>1,10</size>
                                                 </object>
                                                 <object class="sizeritem">
                                                     <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
                                                     <border>5</border>
-                                                    <object class="wxTextCtrl" name="txtGenerateTimeFactor">
+                                                    <object class="wxTextCtrl" name="txtProfileMaxAcc">
                                                         <size>50,20</size>
                                                         <style>wxTE_READONLY|wxTE_RIGHT</style>
-                                                        <enabled>0</enabled>
-                                                        <bg>#FFFFFF</bg>
-                                                        <value>0</value>
+                                                        <bg>#00BE00</bg>
+                                                    </object>
+                                                </object>
+                                                <object class="sizeritem">
+                                                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                    <border>5</border>
+                                                    <object class="wxStaticText" name="wxID_STATIC">
+                                                        <label>Profile Dcc:</label>
+                                                    </object>
+                                                </object>
+                                                <object class="sizeritem">
+                                                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                    <border>5</border>
+                                                    <object class="wxTextCtrl" name="txtProfileMaxDcc">
+                                                        <size>50,20</size>
+                                                        <style>wxTE_READONLY|wxTE_RIGHT</style>
+                                                        <bg>#DC0A0A</bg>
                                                     </object>
                                                 </object>
                                             </object>
@@ -537,8 +528,17 @@
                                                 <object class="sizeritem">
                                                     <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
                                                     <border>5</border>
-                                                    <object class="wxButton" name="btnGenerate">
-                                                        <label>Generate Profile</label>
+                                                    <object class="wxCheckBox" name="chkAccSmooth">
+                                                        <label>Acc Smoothing</label>
+                                                        <checked>0</checked>
+                                                    </object>
+                                                </object>
+                                                <object class="sizeritem">
+                                                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                    <border>5</border>
+                                                    <object class="wxCheckBox" name="chkAutoLimit">
+                                                        <label>Acc Auto Limit</label>
+                                                        <checked>0</checked>
                                                     </object>
                                                 </object>
                                             </object>
@@ -548,29 +548,29 @@
                                 <object class="spacer">
                                     <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
                                     <border>5</border>
-                                    <size>5,150</size>
-                                </object>
-                            </object>
-                        </object>
-                        <object class="sizeritem">
-                            <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
-                            <border>5</border>
-                            <object class="wxStaticBoxSizer" name="wxID_ANY">
-                                <orient>wxHORIZONTAL</orient>
-                                <label>Sign</label>
-                                <object class="sizeritem">
-                                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                    <border>5</border>
-                                    <object class="wxButton" name="btnSign">
-                                        <label>Sign Profile</label>
-                                    </object>
+                                    <size>5,100</size>
                                 </object>
                                 <object class="sizeritem">
-                                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                    <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
                                     <border>5</border>
-                                    <object class="wxCheckBox" name="chkSign">
-                                        <enabled>0</enabled>
-                                        <checked>0</checked>
+                                    <object class="wxStaticBoxSizer" name="wxID_ANY">
+                                        <orient>wxHORIZONTAL</orient>
+                                        <label>Sign</label>
+                                        <object class="sizeritem">
+                                            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                            <border>5</border>
+                                            <object class="wxButton" name="btnSign">
+                                                <label>Sign Profile</label>
+                                            </object>
+                                        </object>
+                                        <object class="sizeritem">
+                                            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                            <border>5</border>
+                                            <object class="wxCheckBox" name="chkSign">
+                                                <enabled>0</enabled>
+                                                <checked>0</checked>
+                                            </object>
+                                        </object>
                                     </object>
                                 </object>
                             </object>
