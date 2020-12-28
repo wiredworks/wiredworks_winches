@@ -151,7 +151,7 @@ class SFX_OT_list_actions(bpy.types.Operator):
                 Acc  = json.loads(sfx_actions[index].Acc)
                 Vel  = json.loads(sfx_actions[index].Vel)
                 Pos  = json.loads(sfx_actions[index].Pos)
-                VP = json.loads(sfx_actions[index].VP)
+                VP   = json.loads(sfx_actions[index].VP)
 
                 sfx.actuators[context.active_node.name].Actuator_basic_props.Actuator_props.simple_actuator_Time_prop = Jrk[0][-1]
 
@@ -229,7 +229,7 @@ class SFX_OT_list_actions(bpy.types.Operator):
                 Acc  = json.loads(sfx_actions[index].Acc)
                 Vel  = json.loads(sfx_actions[index].Vel)
                 Pos  = json.loads(sfx_actions[index].Pos)
-                VP = json.loads(sfx_actions[index].VP)
+                VP   = json.loads(sfx_actions[index].VP)
 
                 sfx.cues[context.active_node.name].Actuator_props.simple_actuator_Time_prop = Jrk[0][-1]
 

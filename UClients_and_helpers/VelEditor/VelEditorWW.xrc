@@ -14,7 +14,7 @@
                 <vgap>0</vgap>
                 <hgap>0</hgap>
                 <growablecols>2</growablecols>
-                <growablerows>4</growablerows>
+                <growablerows>6</growablerows>
                 <object class="spacer">
                     <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
                     <border>0</border>
@@ -69,6 +69,7 @@
                 <object class="sizeritem">
                     <flag>wxGROW|wxFIXED_MINSIZE</flag>
                     <border>0</border>
+                    <option>5</option>
                     <object class="wxNotebook" name="Notebook">
                         <object class="notebookpage">
                             <label>Velocities</label>
@@ -528,17 +529,37 @@
                                                 <object class="sizeritem">
                                                     <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
                                                     <border>5</border>
-                                                    <object class="wxCheckBox" name="chkAccSmooth">
-                                                        <label>Acc Smoothing</label>
-                                                        <checked>0</checked>
+                                                    <object class="wxStaticText" name="wxID_STATIC">
+                                                        <label>Name:</label>
                                                     </object>
                                                 </object>
                                                 <object class="sizeritem">
                                                     <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
                                                     <border>5</border>
-                                                    <object class="wxCheckBox" name="chkAutoLimit">
-                                                        <label>Acc Auto Limit</label>
-                                                        <checked>0</checked>
+                                                    <object class="wxTextCtrl" name="txtName">
+                                                        <size>200,-1</size>
+                                                    </object>
+                                                </object>
+                                            </object>
+                                        </object>
+                                        <object class="sizeritem">
+                                            <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                                            <border>5</border>
+                                            <object class="wxBoxSizer">
+                                                <orient>wxHORIZONTAL</orient>
+                                                <object class="sizeritem">
+                                                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                    <border>5</border>
+                                                    <object class="wxStaticText" name="wxID_STATIC">
+                                                        <label>Description:</label>
+                                                    </object>
+                                                </object>
+                                                <object class="sizeritem">
+                                                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                    <border>5</border>
+                                                    <object class="wxTextCtrl" name="txtDescription">
+                                                        <size>180,-1</size>
+                                                        <style>wxTE_MULTILINE</style>
                                                     </object>
                                                 </object>
                                             </object>

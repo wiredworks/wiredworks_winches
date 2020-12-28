@@ -243,11 +243,11 @@ class Calc_Default_Profile:
         self.Pos_T_D[0] = np.array(self.Pos_T_D[0])
         self.Pos_T_D[1] = np.array(self.Pos_T_D[1])
 
-        # for i in range(0,len(self.X)):
-        #     v = self.eval_Vel_T_D(self.X[i])
-        #     p = self.eval_Pos_T_D(self.X[i])
-        #     self.Vel_P_D[0].append(p)
-        #     self.Vel_P_D[1].append(v)
+        for i in range(0,len(self.X)):
+            v = self.eval_Vel_T_D(self.X[i]).tolist()
+            p = self.eval_Pos_T_D(self.X[i]).tolist()
+            self.Vel_P_D[0].append(p)
+            self.Vel_P_D[1].append(v)
 
     def eval_Vel_T_D(self, x):
         f = interp1d(self.Vel_T_D[0], self.Vel_T_D[1])
@@ -400,36 +400,41 @@ class Diagramm(wx.Panel):
         self.fillT      = []
         
         self.PosSkalierung2 = 1.
-        
-        # self.GrenzDataX = np.linspace(0,10, num=10000, endpoint=True, retstep=False, dtype=np.double)        
-        # self.GrenzDataY = np.zeros(10000) 
-        
-        # self.SBPolyVelTData = np.array([[0,1],[0,1]])
-        # self.VelTData       = np.array([[0,1],[0,1]])
-        # self.SBPolyAccTData = np.array([[0,1],[0,1]])
 
         self.Action_ID          = 0
         self.Action_Name        = ''
         self.Action_Saved       = False
         self.Action_Path        = ''
-        self.Action_MinPos      = 1.0
-        self.Action_MaxPos      = 1.0
-        self.Action_MaxAcc      = 1.0
-        self.Action_MaxVel      = 1.0
-        self.Action_Length      = 1.0
+        self.Action_MinPos      = 0.0
+        self.Action_MaxPos      = 0.0
+        self.Action_MaxAcc      = 0.0
+        self.Action_MaxVel      = 0.0
+        self.Action_Length      = 0.0
         self.Action_Jrk              = [[],[]]
         self.Action_Acc              = [[],[]]
         self.Action_Vel              = [[],[]]
-        self.Action_Vel_Active       = [[],[]]
         self.Action_Pos              = [[],[]]
         self.Action_VelInPos         = [[],[]]
-        self.Action_VelInPos_Active  = [[],[]]
+        self.Jrk_T_D_L        = [[],[]]
+        self.Acc_T_D_L        = [[],[]]
+        self.Vel_T_D_L        = [[],[]]
+        self.Pos_T_D_L        = [[],[]]
+        self.Vel_P_D_L        = [[],[]]
+        self.Jrk_T_D          = [[],[]]
+        self.Acc_T_D          = [[],[]]
+        self.Vel_T_D          = [[],[]]
+        self.Pos_T_D          = [[],[]]
+        self.Vel_P_D          = [[],[]]
+        self.CP_T_Points      = [[],[],[]]
+        self.CP_M_Points      = [[],[],[]]
+        self.CP_P_Points      = [[],[],[]]
+
         self.Action_Description      = ''
         self.Action_Signed           = False
 
         self.PrepareGraphs()
 
-    def ClearVarsEntry(self):
+    def ClearVarsEntryUnsigned(self):
         ''' Clear Variables'''
         self.CP_P_Points_Limit = [[],[],[]] # Limit Control Points In Pos Domain   [[x-Values],[y-Values],[tangent]]
         self.CP_P_Points       = [[],[],[]] # Control Points In Pos Domain         [[x-Values],[y-Values],[tangent]]
@@ -451,6 +456,40 @@ class Diagramm(wx.Panel):
 
         self.TimeScaling    =1.0
         self.TimeScalingAbs =1.0
+        try:
+            for i in range(len(self.VelInTime_markers)):
+                self.axesT.lines.remove(self.VelInTime_markers[i])
+                self.axesT.lines.remove(self.VelInTime_tangents[i])
+            for i in range (len(self.fillT)):
+                self.axesT.patches.remove(self.fillT[i])
+            for i in range(len(self.VelInPos_markers)):
+                self.axes.lines.remove(self.VelInPos_markers[i])
+                #self.axes.lines.remove(self.VelInPos_tangents[i])
+            for i in range (len(self.fillP)):
+                self.axes.patches.remove(self.fillP[i])
+            for i in range (len(self.fillT)):
+                self.axesT.patches.remove(self.fillT[i])
+        except :#AttributeError:
+            pass
+
+        self.fillP              = []
+        self.fillT              = [] 
+        self.VelInPos_markers   = []
+        self.VelInPos_tangents  = []
+        self.VelInTime_markers  = []
+        self.VelInTime_tangents = []
+
+    def ClearVarsEntrySigned(self):
+        ''' Clear Variables'''
+        self.TimeScaling    =1.0
+        self.TimeScalingAbs =1.0
+
+        self.Vel_P_Limit       = [[],[]]
+        self.Vel_P             = [[],[]]
+        self.Acc_T             = [[],[]]
+        self.Vel_T             = [[],[]]
+        self.Vel_T_Limit       = [[],[]]
+
         try:
             for i in range(len(self.VelInTime_markers)):
                 self.axesT.lines.remove(self.VelInTime_markers[i])
@@ -521,13 +560,14 @@ class Diagramm(wx.Panel):
 
     def Entry(self):
         ''' Setup of Controlpoints and the BPolys'''
-        self.ClearVarsEntry()        
+                
         self.VelEditorFrame.btnGenerate.Enable(True)
         Vel_T_D_S_09 =[[],[],[]]
         self.Length = float(self.VelEditorFrame.txtUsrLength.GetValue())        
         self.Time_Pos_Values      = np.zeros(1000)
 
         if not(self.Action_Signed):
+            self.ClearVarsEntryUnsigned()
             self.Jrk_T_D_L,\
             self.Acc_T_D_L,\
             self.Vel_T_D_L,\
@@ -538,15 +578,15 @@ class Diagramm(wx.Panel):
 
             self.Samples = len(self.Vel_T_D_L[0])
             self.X_Time_Values         = np.linspace(0., self.Vel_T_D_L[0][-1],  self.Samples, dtype= np.double)
-            self.X_Pos_Values          = np.linspace(0., self.Length,          self.Samples, dtype= np.double)
+            self.X_Pos_Values          = np.linspace(0., self.Length,            self.Samples, dtype= np.double)
 
             Vel_T_D_S = self.SimplifyProfile(self.Vel_T_D_L,self.Acc_T_D_L, 0.01)
 
             self.VelEditorFrame.txtSetupTime.SetValue(str(Vel_T_D_S[0][-1]))
             
             Vel_T_D_S_09[0] = Vel_T_D_S[0]
-            Vel_T_D_S_09[1] = Vel_T_D_S[1]*(self.Action_UsrVel/float(self.Action_MaxVel))
-            Vel_T_D_S_09[2] = Vel_T_D_S[2]*(self.Action_UsrVel/float(self.Action_MaxVel))**2.0
+            Vel_T_D_S_09[1] = Vel_T_D_S[1]*(self.Action_UsrVel/self.Action_MaxVel)
+            Vel_T_D_S_09[2] = Vel_T_D_S[2]*(self.Action_UsrVel/self.Action_MaxVel)**2.0
 
             self.Jrk_T_D = self.Jrk_T_D_L,
             self.Acc_T_D = self.Acc_T_D_L
@@ -556,18 +596,22 @@ class Diagramm(wx.Panel):
 
             self.init_CP_T_Points(Vel_T_D_S_09)
             self.init_T_BPoly()
+
+            self.Vel_T[0] = self.X_Time_Values
+            self.Vel_T[1] = self.eval_CP_T_Points(self.X_Time_Values,True)
+
             self.init_CP_P_Points(Vel_T_D_S_09)            
             self.init_P_BPoly()
 
         else:
-            self.X_Pos_Values         = np.linspace(0., self.Length , 1000, dtype= np.double)
-            self.init_CP_P_Points(self.Action_VelInPos)
-            self.init_P_BPoly()
-            self.Time_Pos_Values = self.int_VelInPos_Line()
-            self.X_Time_Values   = np.linspace(0., self.Time_Pos_Values[-1] , 1000, dtype= np.double)
-            self.VelEditorFrame.txtSetupTime.SetValue(str(self.Time_Pos_Values[-1]))
-            self.init_CP_T_Points(self.Action_VelInPos)
-            self.init_T_BPoly()
+            print('else')
+            self.ClearVarsEntrySigned()
+
+            self.Samples = len(self.Vel_T_D_L[0])
+            self.X_Time_Values         = np.linspace(0., self.Vel_T_D_L[0][-1],  self.Samples, dtype= np.double)
+            self.X_Pos_Values          = np.linspace(0., self.Length,            self.Samples, dtype= np.double)
+            self.Vel_T[0] = self.X_Time_Values
+            self.Vel_T[1] = self.eval_CP_T_Points(self.X_Time_Values,True)
 
         self.RecalcMove(init = True)
         self.rezoom          = True
@@ -593,6 +637,10 @@ class Diagramm(wx.Panel):
 
         self.init_CP_T_Points(Vel_T_D_S)
         self.init_T_BPoly()
+
+        self.Vel_T[0] = self.X_Time_Values
+        self.Vel_T[1] = self.eval_CP_T_Points(self.X_Time_Values,True)
+
         self.init_CP_P_Points(Vel_T_D_S)            
         self.init_P_BPoly()
 
@@ -668,17 +716,12 @@ class Diagramm(wx.Panel):
         return f(x)
 
     def eval_CP_P_Points(self,x,refresh):
-        '''BPoly for Vel in P-Domain'''
         if refresh == True:
-            yi = [[self.CP_P_Points[1][0],0]]  #self.CP_P_Points[2][0]]]
-            for i in range(1,len(self.CP_P_Points[0])):
-                yi.append([self.CP_P_Points[1][i],self.CP_P_Points[2][i]])
-            order = 3
-            if  math.isnan(self.CP_P_Points[0][-1]):
-                self.CP_P_Points[0][-1] = self.CP_P_Points[0][-2]+0.0001
-            self.CP_P_BPoly = BPoly.from_derivatives(self.CP_P_Points[0],yi,orders = order)
+            xC = self.T_2_P(self.X_Time_Values)
+            yC = self.Vel_T[1]
+            self.eval_CP_P=interp1d(xC,yC, kind ='slinear',bounds_error=False, fill_value=np.nan)
+        return self.eval_CP_P(x)
 
-        return self.CP_P_BPoly(x)
      
     def eval_CP_M_Points(self,x,refresh):
         '''BPoly for MasterVel in T-Domain'''
@@ -717,9 +760,9 @@ class Diagramm(wx.Panel):
         self._xInit           = np.linspace(0., 1000. , 1001)
         self.Null             = np.zeros(len(self._xInit))
         self.lines = []
-        self.lines += self.axes.plot(self._xInit,self.Null, color="black",              linewidth=1.,  linestyle="-"              , pickradius = 0)   # VelLimit over Pos [0]
-        self.lines += self.axes.plot(self._xInit,self.Null, color="darkred",          linewidth=1.0, linestyle="-"              , pickradius = 0)  # Vel  Beziers  [1]
-        #self.lines += self.axes.plot(self._xInit,self.Null, color="darkred",            linewidth=1.0, linestyle="-"              , pickradius = 0)  # Vel  Beziers  [1]
+        self.lines += self.axes.plot(self._xInit,self.Null, color="black",              linewidth=0.5,  linestyle="-."              , pickradius = 0)   # VelLimit over Pos [0]
+        self.lines += self.axes.plot(self._xInit,self.Null, color="darkred",            linewidth=1.0, linestyle="-"                , pickradius = 0)  # Vel  Beziers  [1]
+        self.lines += self.axes.plot(self._xInit,self.Null, color="black",              linewidth=1.0, linestyle="-."               , pickradius = 0)  # Vel  Beziers  [1]
         # self.lines += self.axes.plot(self._xInit,self.Null, color="darkgreen",          linewidth=1.0, linestyle="-",pickradius = 0)   # Acc  Beziers  [2]
         # self.lines += self.axes.plot(self._xInit,self.Null, color="darkblue",           linewidth=1.0, linestyle="-.",pickradius = 0)   # Jerk Beziers  [3]
         # self.lines += self.axes.plot(self._xInit,self.Null, color="darkred",            linewidth=1.4, linestyle="-",pickradius = 0)    # Vel           [4]
@@ -750,14 +793,16 @@ class Diagramm(wx.Panel):
     def Plot(self, init = True):        
         #self.rezoom = True
         self.Refresh()
-        self.lines[0].set( xdata = self.Vel_P_Limit[0],    ydata=self.Vel_P_Limit[1])
-        self.lines[1].set( xdata = self.Vel_P[0],          ydata=self.Vel_P[1])        
+        self.lines[0].set( xdata = self.Vel_P_D_L[0],      ydata=self.Vel_P_D_L[1])
+        self.lines[1].set( xdata = self.Vel_P[0],          ydata=self.Vel_P[1])
+        self.lines[2].set( xdata = self.Vel_P_Limit[0],    ydata=self.Vel_P_Limit[1])        
  
         for i in range (len(self.fillP)):
             self.axes.patches.remove(self.fillP[i])
         self.fillP =[]       
-        self.fillP =self.axes.fill(self.Vel_P_Limit[0],self.Vel_P_Limit[1], color="lightgreen", alpha = 0.2,)
-        self.fillP += self.axes.fill(self.Vel_P[0],self.Vel_P[1], color="lightgreen", alpha = 0.2,)
+        self.fillP =self.axes.fill(self.Vel_P_Limit[0],self.Vel_P_Limit[1], color="lightgreen", alpha = 0.1333,)
+        self.fillP += self.axes.fill(self.Vel_P[0],self.Vel_P[1],           color="lightgreen", alpha = 0.1333,)
+        self.fillP += self.axes.fill(self.Vel_P_D_L[0],self.Vel_P_D_L[1],   color="lightgreen", alpha = 0.1333,)
         for i in range(len(self.VelInPos_markers)):
             self.axes.lines.remove(self.VelInPos_markers[i])
             #self.axes.lines.remove(self.VelInPos_tangents[i])
@@ -1039,18 +1084,11 @@ class Diagramm(wx.Panel):
         self.CP_P_Points[1] = copy.copy(self.CP_M_Points[1])
         self.CP_P_Points[2] = copy.copy(self.CP_M_Points[2])       
 
-        for i in range(1,len(self.CP_P_Points[0])-1):
-           self.CP_P_Points[2][i]=(self.CP_P_Points[1][i+1]-self.CP_P_Points[1][i-1])/(self.CP_P_Points[0][i+1]-self.CP_P_Points[0][i-1])
+        self.Vel_T[0] = self.X_Time_Values
+        self.Vel_T[1] = self.eval_CP_T_Points(self.X_Time_Values,True)
 
         self.Vel_P[0] = self.X_Pos_Values
         self.Vel_P[1] = self.eval_CP_P_Points(self.X_Pos_Values,True)
-
-        if self.VelEditorFrame.chkAccSmooth.GetValue():	
-            for i in range(1,len(self.CP_T_Points[0])-1):
-                self.CP_T_Points[2][i]=(self.CP_T_Points[1][i+1]-self.CP_T_Points[1][i-1])/(self.CP_T_Points[0][i+1]-self.CP_T_Points[0][i-1])
-
-        self.Vel_T[0] = self.X_Time_Values
-        self.Vel_T[1] = self.eval_CP_T_Points(self.X_Time_Values,True)
 
         self.Vel_T_Limit[0]= self.Vel_T_D[0] * self.TimeScalingAbs
         self.Vel_T_Limit[1]= self.Vel_T_D[1]
@@ -1060,24 +1098,31 @@ class Diagramm(wx.Panel):
         self.Acc_T[1] = pdt(self.X_Time_Values)
 
         if self.VelEditorFrame:
-            maxAcc = max(self.Acc_T[1])
-            maxDcc = min(self.Acc_T[1])
+            maxAcc = abs(max(self.Acc_T[1]))
+            maxDcc = abs(min(self.Acc_T[1]))
             self.VelEditorFrame.txtUsrDuration.SetValue('%3.3f'% self.CP_M_Points[0][-1])
-            self.VelEditorFrame.txtUsrTimeFactor.SetValue('%3.3f'% self.TimeScalingAbs)
+            self.VelEditorFrame.txtUsrTimeFactor.SetValue('%3.3f'% \
+                (float(self.VelEditorFrame.txtUsrDuration.GetValue())/float(self.VelEditorFrame.txtSetupTime.GetValue())))
             self.VelEditorFrame.txtProfileMaxAcc.SetValue('%3.3f'% maxAcc)
             self.VelEditorFrame.txtProfileMaxDcc.SetValue('%3.3f'% maxDcc)
-            if maxAcc < 0.7 * float(self.Action_MaxAcc):
+
+            if maxAcc <= 0.9 * float(self.VelEditorFrame.txtSetupMaxAcc.GetValue()):
                 self.VelEditorFrame.txtProfileMaxAcc.SetBackgroundColour((0,204,0))
-            elif maxAcc < 0.9 * float(self.Action_MaxAcc):
+            elif 0.9 * float(self.VelEditorFrame.txtSetupMaxAcc.GetValue()) < maxAcc <= float(self.VelEditorFrame.txtSetupMaxAcc.GetValue()):
                 self.VelEditorFrame.txtProfileMaxAcc.SetBackgroundColour((255,128,0))
-            else:
+            elif maxAcc > float(self.VelEditorFrame.txtSetupMaxAcc.GetValue()):
                 self.VelEditorFrame.txtProfileMaxAcc.SetBackgroundColour((204,0,0))
-            if abs(maxDcc) < 0.7 * float(self.Action_MaxAcc):
-                self.VelEditorFrame.txtProfileMaxDcc.SetBackgroundColour((0,204,0))
-            elif abs(maxDcc) < 0.9 * float(self.Action_MaxAcc):
-                self.VelEditorFrame.txtProfileMaxDcc.SetBackgroundColour((255,128,0))
             else:
+                self.VelEditorFrame.txtProfileMaxAcc.SetBackgroundColour((225,225,225))
+
+            if abs(maxDcc) <= 0.9 * float(self.VelEditorFrame.txtSetupMaxAcc.GetValue()):
+                self.VelEditorFrame.txtProfileMaxDcc.SetBackgroundColour((0,204,0))
+            elif 0.9 * float(self.VelEditorFrame.txtSetupMaxAcc.GetValue()) < abs(maxDcc) <= float(self.VelEditorFrame.txtSetupMaxAcc.GetValue()):
+                self.VelEditorFrame.txtProfileMaxDcc.SetBackgroundColour((255,128,0))
+            elif abs(maxDcc) >  float(self.VelEditorFrame.txtSetupMaxAcc.GetValue()):
                 self.VelEditorFrame.txtProfileMaxDcc.SetBackgroundColour((204,0,0))
+            else:
+                self.VelEditorFrame.txtProfileMaxDcc.SetBackgroundColour((225,225,225))
 
     def Pan(self, evt):
         if self.press is None: return
@@ -1236,9 +1281,10 @@ class VelEditor4C(wx.App):
         self.KeyPointWindow.txtProfileMaxDcc      = xrc.XRCCTRL(self.KeyPointWindow,'txtProfileMaxDcc')
         self.KeyPointWindow.btnGenerate           = xrc.XRCCTRL(self.KeyPointWindow,'btnGenerate')
         self.KeyPointWindow.txtUsrTimeFactor      = xrc.XRCCTRL(self.KeyPointWindow,'txtUsrTimeFactor')  
-        self.KeyPointWindow.chkAccSmooth          = xrc.XRCCTRL(self.KeyPointWindow,'chkAccSmooth')
-        self.KeyPointWindow.chkAutoLimit          = xrc.XRCCTRL(self.KeyPointWindow,'chkAutoLimit')
         self.KeyPointWindow.btnSign               = xrc.XRCCTRL(self.KeyPointWindow,'btnSign')
+        self.KeyPointWindow.txtDescription        = xrc.XRCCTRL(self.KeyPointWindow,'txtDescription')
+        self.KeyPointWindow.txtName               = xrc.XRCCTRL(self.KeyPointWindow,'txtName')
+        self.KeyPointWindow.chkSign               = xrc.XRCCTRL(self.KeyPointWindow,'chkSign')
 
         #self.KeyPointWindow.txtMaxTime.Enable(False)
         self.KeyPointWindow.txtMouseXPos.Enable(False)
@@ -1247,8 +1293,6 @@ class VelEditor4C(wx.App):
         
         self.Bind(wx.EVT_BUTTON        , self.OnButtonGenerate,      self.KeyPointWindow.btnGenerate)
         self.Bind(wx.EVT_BUTTON        , self.OnButtonSign,          self.KeyPointWindow.btnSign)
-        self.Bind(wx.EVT_CHECKBOX      , self.OnAccSmooth,           self.KeyPointWindow.chkAccSmooth)
-
 
         File = wx.Menu()
         openFile = File.Append(ID_Menu_OpenVelFile,'Open Vel File','This opens a VelFile for editing')
@@ -1263,32 +1307,38 @@ class VelEditor4C(wx.App):
         self.menuBar = wx.MenuBar(ID_Menu)        
         self.menuBar.Append(File,'File')
         self.KeyPointWindow.SetMenuBar(self.menuBar)
-        
-        # Probleme mit Debug Modus GUI von matplotlib ... daher mal auskomentiert
-        #self.Bind(wx.EVT_KILL_FOCUS, self.EntertxtMaxTime,          self.KeyPointWindow.txtMaxTime)
-        #self.Bind(wx.EVT_KILL_FOCUS, self.EntertxtSetupMaxAcc,      self.KeyPointWindow.txtSetupMaxAcc)
-        #self.Bind(wx.EVT_KILL_FOCUS, self.EntertxtSetupMaxVel,      self.KeyPointWindow.txtSetupMaxVel)
-        #self.Bind(wx.EVT_KILL_FOCUS, self.EntertxtSetupUsrAcc,      self.KeyPointWindow.txtSetupUsrAcc)
-        #self.Bind(wx.EVT_KILL_FOCUS, self.EntertxtSetupUsrVel,      self.KeyPointWindow.txtSetupUsrVel)        
 
         self.KeyPointWindow.Show()
 
         return True
 
     def OnButtonSign(self,evt):
-        print('Signing')
+        if (abs(float(self.KeyPointWindow.txtProfileMaxAcc.GetValue())) <= abs(float(self.KeyPointWindow.txtSetupMaxAcc.GetValue())) and
+            abs(float(self.KeyPointWindow.txtProfileMaxDcc.GetValue())) <= abs(float(self.KeyPointWindow.txtSetupMaxAcc.GetValue()))):
+
+            self.KeyPointWindow.chkSign.SetValue(True)
+
+        else:
+            dlg = wx.MessageDialog(None,'Invalid Data', 'Invalid Data Check Accelerations ', wx.OK)
+            dlg.ShowModal()
+            print('Invalid Data')
         pass
 
     def OnButtonGenerate(self,evt):
-        self.KeyPointWindow.Diagramm.GenerateProfile(float(self.KeyPointWindow.txtUsrLength.GetValue()),\
+        if (float(self.KeyPointWindow.txtSetupMaxAcc.GetValue()) >= float(self.KeyPointWindow.txtUsrAcc.GetValue()) and
+            float(self.KeyPointWindow.txtSetupMaxVel.GetValue()) >= float(self.KeyPointWindow.txtUsrVel.GetValue())  and
+            float(self.KeyPointWindow.txtSetupLength.GetValue()) >= float(self.KeyPointWindow.txtUsrLength.GetValue())):
+
+            self.KeyPointWindow.Diagramm.GenerateProfile(float(self.KeyPointWindow.txtUsrLength.GetValue()),\
                                                      float(self.KeyPointWindow.txtUsrAcc.GetValue()),\
                                                      float(self.KeyPointWindow.txtUsrVel.GetValue()))
-        pass
+            self.KeyPointWindow.chkSign.SetValue(False)
 
-    def OnAccSmooth(self,evt):
-        print('Smooth')
-        self.KeyPointWindow.Diagramm.RecalcMove(False)
-        self.KeyPointWindow.Diagramm.Plot(init = False)
+        else:
+            dlg = wx.MessageDialog(None,'Invalid Data', 'Invalid Data Check Usr Limits', wx.OK)
+            dlg.ShowModal()
+            print('Invalid Data')
+        pass
         
     def OpenFile(self,evt):
         with wx.FileDialog(None, "Open Vel file", wildcard="Vel files (*.sfxact)|*.sfxact",
@@ -1301,12 +1351,12 @@ class VelEditor4C(wx.App):
             pathname = fileDialog.GetPath()
             try:
                 with open(pathname, 'r', encoding='utf-8') as file:
-                    self.LoadFile(file)
+                    self.LoadData(file)
             except IOError:
                 wx.LogError("Cannot open file '%s'." % newfile)
 
     def SaveFile(self,evt):
-        with wx.FileDialog(self, "Save Vel file", wildcard="Vel files (*.sfxact)|*.sfxact",
+        with wx.FileDialog(None, "Save Vel file", wildcard="Vel files (*.sfxact)|*.sfxact",
                        style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:
 
             if fileDialog.ShowModal() == wx.ID_CANCEL:
@@ -1316,45 +1366,157 @@ class VelEditor4C(wx.App):
             pathname = fileDialog.GetPath()
             try:
                 with open(pathname, 'w') as file:
-                    self.doSaveData(file)
+                    self.SaveData(file)
             except IOError:
                 wx.LogError("Cannot save current data in file '%s'." % pathname)
+
+    def SaveData(self,file):
+        if self.KeyPointWindow.chkSign.GetValue():
+            Data =[ "Action ID"                                                           + ';' +     # 0
+                    self.KeyPointWindow.Diagramm.Action_Name                              + ';' +     # 1
+                    self.KeyPointWindow.Diagramm.Action_Saved                             + ';' +     # 2
+                    self.KeyPointWindow.Diagramm.Action_Path                              + ';' +     # 3
+                    str(self.KeyPointWindow.Diagramm.Action_MinPos)                       + ';' +     # 4
+                    str(self.KeyPointWindow.Diagramm.Action_MaxPos)                       + ';' +     # 5
+                    str(self.KeyPointWindow.Diagramm.Action_MaxAcc)                       + ';' +     # 6
+                    str(self.KeyPointWindow.Diagramm.Action_MaxVel)                       + ';' +     # 7
+                    str(self.KeyPointWindow.Diagramm.Action_Length)                       + ';' +     # 8
+                    json.dumps(self.KeyPointWindow.Diagramm.Action_Jrk[0].tolist())       + ';' +     # 9
+                    json.dumps(self.KeyPointWindow.Diagramm.Action_Jrk[1].tolist())       + ';' +     # 10
+                    json.dumps(self.KeyPointWindow.Diagramm.Action_Acc[0].tolist())       + ';' +     # 11
+                    json.dumps(self.KeyPointWindow.Diagramm.Action_Acc[1].tolist())       + ';' +     # 12
+                    json.dumps(self.KeyPointWindow.Diagramm.Action_Vel[0].tolist())       + ';' +     # 13
+                    json.dumps(self.KeyPointWindow.Diagramm.Action_Vel[1].tolist())       + ';' +     # 14
+                    json.dumps(self.KeyPointWindow.Diagramm.Action_Pos[0].tolist())       + ';' +     # 15
+                    json.dumps(self.KeyPointWindow.Diagramm.Action_Pos[1].tolist())       + ';' +     # 16
+                    json.dumps(self.KeyPointWindow.Diagramm.Action_VelInPos[0].tolist())  + ';' +     # 17
+                    json.dumps(self.KeyPointWindow.Diagramm.Action_VelInPos[1].tolist())  + ';' +     # 18
+                    self.KeyPointWindow.Diagramm.Action_Description                       + ';' +     # 19
+
+                    json.dumps((self.KeyPointWindow.Diagramm.Jrk_T_D_L[0]))               + ';' +     # 20
+                    json.dumps((self.KeyPointWindow.Diagramm.Jrk_T_D_L[1]))               + ';' +     # 21
+                    json.dumps((self.KeyPointWindow.Diagramm.Acc_T_D_L[0]).tolist())      + ';' +     # 22
+                    json.dumps((self.KeyPointWindow.Diagramm.Acc_T_D_L[1]).tolist())      + ';' +     # 23
+                    json.dumps((self.KeyPointWindow.Diagramm.Vel_T_D_L[0]).tolist())      + ';' +     # 24
+                    json.dumps((self.KeyPointWindow.Diagramm.Vel_T_D_L[1]).tolist())      + ';' +     # 25
+                    json.dumps((self.KeyPointWindow.Diagramm.Pos_T_D_L[0]).tolist())      + ';' +     # 26
+                    json.dumps((self.KeyPointWindow.Diagramm.Pos_T_D_L[1]).tolist())      + ';' +     # 27
+                    json.dumps((self.KeyPointWindow.Diagramm.Vel_P_D_L[0]))               + ';' +     # 28
+                    json.dumps((self.KeyPointWindow.Diagramm.Vel_P_D_L[1]))               + ';' +     # 29
+
+                    json.dumps((self.KeyPointWindow.Diagramm.Jrk_T_D[0][0]))              + ';' +     # 30
+                    json.dumps((self.KeyPointWindow.Diagramm.Jrk_T_D[0][1]))              + ';' +     # 31
+                    json.dumps((self.KeyPointWindow.Diagramm.Acc_T_D[0]).tolist())        + ';' +     # 32
+                    json.dumps((self.KeyPointWindow.Diagramm.Acc_T_D[1]).tolist())        + ';' +     # 33
+                    json.dumps((self.KeyPointWindow.Diagramm.Vel_T_D[0]).tolist())        + ';' +     # 34
+                    json.dumps((self.KeyPointWindow.Diagramm.Vel_T_D[1]).tolist())        + ';' +     # 35
+                    json.dumps((self.KeyPointWindow.Diagramm.Pos_T_D)[0].tolist())        + ';' +     # 36
+                    json.dumps((self.KeyPointWindow.Diagramm.Pos_T_D)[1].tolist())        + ';' +     # 37
+                    json.dumps((self.KeyPointWindow.Diagramm.Vel_P_D[0]))                 + ';' +     # 38
+                    json.dumps((self.KeyPointWindow.Diagramm.Vel_P_D[1]))                 + ';' +     # 39
+                    json.dumps((self.KeyPointWindow.Diagramm.CP_T_Points[0]).tolist())    + ';' +     # 40
+                    json.dumps((self.KeyPointWindow.Diagramm.CP_T_Points[1]).tolist())    + ';' +     # 41
+                    json.dumps((self.KeyPointWindow.Diagramm.CP_T_Points[2]).tolist())    + ';' +     # 42
+                    json.dumps((self.KeyPointWindow.Diagramm.CP_M_Points[0]).tolist())    + ';' +     # 43
+                    json.dumps((self.KeyPointWindow.Diagramm.CP_M_Points[1]).tolist())    + ';' +     # 44
+                    json.dumps((self.KeyPointWindow.Diagramm.CP_M_Points[2]).tolist())    + ';' +     # 45
+                    json.dumps((self.KeyPointWindow.Diagramm.CP_P_Points[0]).tolist())    + ';' +     # 46
+                    json.dumps((self.KeyPointWindow.Diagramm.CP_P_Points[1]).tolist())    + ';' +     # 47
+                    json.dumps((self.KeyPointWindow.Diagramm.CP_P_Points[2]).tolist())    + ';' +     # 48
+                    str(self.KeyPointWindow.Diagramm.Action_Signed)                       + ';' +     # 49
+                    str(self.KeyPointWindow.txtUsrAcc.GetValue())                         + ';' +     # 50
+                    str(self.KeyPointWindow.txtUsrVel.GetValue())                         + ';' +     # 51
+                    str(self.KeyPointWindow.txtUsrLength.GetValue())                      + ';' ]     # 52
+
+            file.write(json.dumps(Data))
+            file.close()
+
+        else:  
+            dlg = wx.MessageDialog(None,'Invalid Data', 'The Profile has to be Signed', wx.OK)
+            dlg.ShowModal()
+            print('Invalid Data')       
+        pass
 
     def Exit(self,evt):
         sys.exit()
 
-    def LoadFile(self,file):
+    def LoadData(self,file):
         data = file.read()
         file.close()
         Data = data.split(';')
-        self.KeyPointWindow.Diagramm.Action_ID          = Data[0]
-        self.KeyPointWindow.Diagramm.Action_Name        = Data[1]
-        self.KeyPointWindow.Diagramm.Action_Saved       = Data[2]
-        self.KeyPointWindow.Diagramm.Action_Path        = Data[3]
-        self.KeyPointWindow.Diagramm.Action_MinPos      = Data[4]
-        self.KeyPointWindow.Diagramm.Action_MaxPos      = Data[5]
-        self.KeyPointWindow.Diagramm.Action_MaxAcc      = Data[6]
-        self.KeyPointWindow.Diagramm.Action_MaxVel      = Data[7]
-        self.KeyPointWindow.Diagramm.Action_Length      = Data[8]
-        self.KeyPointWindow.Diagramm.Action_Jrk         = np.asarray(json.loads(Data[9]))
-        self.KeyPointWindow.Diagramm.Action_Acc         = np.asarray(json.loads(Data[10]))
-        self.KeyPointWindow.Diagramm.Action_Vel         = np.asarray(json.loads(Data[11]))
-        self.KeyPointWindow.Diagramm.Action_Pos         = np.asarray(json.loads(Data[12]))
-        self.KeyPointWindow.Diagramm.Action_VelInPos    = np.asarray(json.loads(Data[13]))
-        self.KeyPointWindow.Diagramm.Action_Description = Data[14]
-        # Fake has to be implemented in Blender yet
-        self.KeyPointWindow.Diagramm.Action_Signed      = False
-        self.KeyPointWindow.Diagramm.Action_UsrAcc      = float(Data[6]) * 0.9
-        self.KeyPointWindow.Diagramm.Action_UsrVel      = float(Data[7]) * 0.9
-        self.KeyPointWindow.Diagramm.Action_UsrLength   = float(Data[8])     
+        self.KeyPointWindow.Diagramm.Action_ID            = Data[0]
+        self.KeyPointWindow.Diagramm.Action_Name          = Data[1]
+        self.KeyPointWindow.Diagramm.Action_Saved         = Data[2]
+        self.KeyPointWindow.Diagramm.Action_Path          = Data[3]
+        self.KeyPointWindow.Diagramm.Action_MinPos        = float(Data[4])
+        self.KeyPointWindow.Diagramm.Action_MaxPos        = float(Data[5])
+        self.KeyPointWindow.Diagramm.Action_MaxAcc        = float(Data[6])
+        self.KeyPointWindow.Diagramm.Action_MaxVel        = float(Data[7])
+        self.KeyPointWindow.Diagramm.Action_Length        = float(Data[8])
 
+        self.KeyPointWindow.Diagramm.Action_Jrk[0]        = np.asarray(json.loads(Data[9]))
+        self.KeyPointWindow.Diagramm.Action_Jrk[1]        = np.asarray(json.loads(Data[10]))
+        self.KeyPointWindow.Diagramm.Action_Acc[0]        = np.asarray(json.loads(Data[11]))
+        self.KeyPointWindow.Diagramm.Action_Acc[1]        = np.asarray(json.loads(Data[12]))
+        self.KeyPointWindow.Diagramm.Action_Vel[0]        = np.asarray(json.loads(Data[13]))
+        self.KeyPointWindow.Diagramm.Action_Vel[1]        = np.asarray(json.loads(Data[14]))
+        self.KeyPointWindow.Diagramm.Action_Pos[0]        = np.asarray(json.loads(Data[15]))
+        self.KeyPointWindow.Diagramm.Action_Pos[1]        = np.asarray(json.loads(Data[16]))
+        self.KeyPointWindow.Diagramm.Action_VelInPos[0]   = np.asarray(json.loads(Data[17]))
+        self.KeyPointWindow.Diagramm.Action_VelInPos[1]   = np.asarray(json.loads(Data[18]))
+        self.KeyPointWindow.Diagramm.Action_Description   = Data[19]
+
+        self.KeyPointWindow.Diagramm.Jrk_T_D_L[0]         = (json.loads(Data[20]))
+        self.KeyPointWindow.Diagramm.Jrk_T_D_L[1]         = (json.loads(Data[21]))
+        self.KeyPointWindow.Diagramm.Acc_T_D_L[0]         = np.asarray(json.loads(Data[22]))
+        self.KeyPointWindow.Diagramm.Acc_T_D_L[1]         = np.asarray(json.loads(Data[23]))
+        self.KeyPointWindow.Diagramm.Vel_T_D_L[0]         = np.asarray(json.loads(Data[24]))
+        self.KeyPointWindow.Diagramm.Vel_T_D_L[1]         = np.asarray(json.loads(Data[25]))
+        self.KeyPointWindow.Diagramm.Pos_T_D_L[0]         = np.asarray(json.loads(Data[26]))
+        self.KeyPointWindow.Diagramm.Pos_T_D_L[1]         = np.asarray(json.loads(Data[27]))
+        self.KeyPointWindow.Diagramm.Vel_P_D_L[0]         = (json.loads(Data[28]))
+        self.KeyPointWindow.Diagramm.Vel_P_D_L[1]         = (json.loads(Data[29]))
+
+        self.KeyPointWindow.Diagramm.Jrk_T_D[0]           = np.asarray(json.loads(Data[30]))
+        self.KeyPointWindow.Diagramm.Jrk_T_D[1]           = np.asarray(json.loads(Data[31]))
+        self.KeyPointWindow.Diagramm.Acc_T_D[0]           = np.asarray(json.loads(Data[32]))
+        self.KeyPointWindow.Diagramm.Acc_T_D[1]           = np.asarray(json.loads(Data[33]))
+        self.KeyPointWindow.Diagramm.Vel_T_D[0]           = np.asarray(json.loads(Data[34]))
+        self.KeyPointWindow.Diagramm.Vel_T_D[1]           = np.asarray(json.loads(Data[35]))
+        self.KeyPointWindow.Diagramm.Pos_T_D[0]           = np.asarray(json.loads(Data[36]))
+        self.KeyPointWindow.Diagramm.Pos_T_D[1]           = np.asarray(json.loads(Data[37]))
+        self.KeyPointWindow.Diagramm.Vel_P_D[0]           = np.asarray(json.loads(Data[38]))
+        self.KeyPointWindow.Diagramm.Vel_P_D[1]           = np.asarray(json.loads(Data[39]))
+
+        self.KeyPointWindow.Diagramm.CP_T_Points[0]       = np.asarray(json.loads(Data[40]))
+        self.KeyPointWindow.Diagramm.CP_T_Points[1]       = np.asarray(json.loads(Data[41]))
+        self.KeyPointWindow.Diagramm.CP_T_Points[2]       = np.asarray(json.loads(Data[42]))  
+        self.KeyPointWindow.Diagramm.CP_P_Points[0]       = np.asarray(json.loads(Data[43]))
+        self.KeyPointWindow.Diagramm.CP_P_Points[1]       = np.asarray(json.loads(Data[44]))
+        self.KeyPointWindow.Diagramm.CP_P_Points[2]       = np.asarray(json.loads(Data[45]))
+        self.KeyPointWindow.Diagramm.CP_M_Points[0]       = np.asarray(json.loads(Data[46]))
+        self.KeyPointWindow.Diagramm.CP_M_Points[1]       = np.asarray(json.loads(Data[47]))
+        self.KeyPointWindow.Diagramm.CP_M_Points[2]       = np.asarray(json.loads(Data[48]))
+
+        self.KeyPointWindow.Diagramm.Action_Signed        = Data[49]
+        self.KeyPointWindow.Diagramm.Action_UsrAcc        = float(Data[50])
+        self.KeyPointWindow.Diagramm.Action_UsrVel        = float(Data[51])
+        self.KeyPointWindow.Diagramm.Action_UsrLength     = float(Data[52])
+
+        # # Fake has to be implemented in Blender yet
+        self.KeyPointWindow.Diagramm.Action_Signed        = False
+        # self.KeyPointWindow.Diagramm.Action_UsrAcc      = float(Data[6]) * 0.9
+        # self.KeyPointWindow.Diagramm.Action_UsrVel      = float(Data[7]) * 0.9
+        # self.KeyPointWindow.Diagramm.Action_UsrLength   = float(Data[8]) 
+ 
+        self.KeyPointWindow.txtDescription.SetValue     (Data[19])
+        self.KeyPointWindow.txtName.SetValue            (Data[1])
         self.KeyPointWindow.txtSetupLength.SetValue     ('%3.3f'% float(Data[8]))
         self.KeyPointWindow.txtSetupMaxAcc.SetValue     ('%3.3f'% float(Data[6]))
         self.KeyPointWindow.txtSetupMaxVel.SetValue     ('%3.3f'% float(Data[7]))
-
-        self.KeyPointWindow.txtUsrLength.SetValue       ('%3.3f'% self.KeyPointWindow.Diagramm.Action_UsrLength)
-        self.KeyPointWindow.txtUsrAcc.SetValue          ('%3.3f'% self.KeyPointWindow.Diagramm.Action_UsrAcc)
-        self.KeyPointWindow.txtUsrVel.SetValue          ('%3.3f'% self.KeyPointWindow.Diagramm.Action_UsrVel)
+        self.KeyPointWindow.txtUsrLength.SetValue       ('%3.3f'% float(Data[52]))
+        self.KeyPointWindow.txtUsrAcc.SetValue          ('%3.3f'% float(Data[50]))
+        self.KeyPointWindow.txtUsrVel.SetValue          ('%3.3f'% float(Data[51]))
 
         self.KeyPointWindow.Diagramm.Entry()
 
