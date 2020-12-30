@@ -490,6 +490,33 @@
                                                 <object class="sizeritem">
                                                     <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
                                                     <border>5</border>
+                                                    <object class="wxCheckBox" name="chkSmoothing">
+                                                        <size>90,20</size>
+                                                        <bg>#00AA00</bg>
+                                                        <label>Smoothing</label>
+                                                        <checked>0</checked>
+                                                    </object>
+                                                </object>
+                                                <object class="sizeritem">
+                                                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                    <border>5</border>
+                                                    <object class="wxCheckBox" name="chkSmoothingII">
+                                                        <size>90,20</size>
+                                                        <bg>#00AA00</bg>
+                                                        <label>Smoothing II</label>
+                                                        <checked>0</checked>
+                                                    </object>
+                                                </object>
+                                            </object>
+                                        </object>
+                                        <object class="sizeritem">
+                                            <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                                            <border>5</border>
+                                            <object class="wxBoxSizer">
+                                                <orient>wxHORIZONTAL</orient>
+                                                <object class="sizeritem">
+                                                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                    <border>5</border>
                                                     <object class="wxStaticText" name="wxID_STATIC">
                                                         <label>Profile Acc: </label>
                                                     </object>
