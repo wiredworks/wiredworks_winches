@@ -30,10 +30,12 @@ from Simplify import Simplify
 # calframe = inspect.getouterframes(curframe, 2)
 # print('caller name:', calframe[1][3])
 
-ID_Menu_OpenVelFile = 5005
-ID_Menu_SaveVelFile = 5006
-ID_Menu_Exit        = 5008
-ID_Menu             = 5011
+ID_Menu_OpenVelFile   = 5005
+ID_Menu_SaveVelFile   = 5006
+ID_Menu_Exit          = 5008
+ID_Menu               = 5011
+ID_Menu_ImportVelFile = 5012
+ID_Menu_ExportVelFile = 5013
 
 class Diagramm(wx.Panel):
     def __init__(self, parent,id= 1,dpi=None, **kwargs):
@@ -345,8 +347,10 @@ class Diagramm(wx.Panel):
             self.Vel_T_D_L,\
             self.Pos_T_D_L,\
             self.Vel_P_D_L   = self.Calc_Profile(float(self.VelEditorFrame.txtSetupLength.GetValue()),\
-                                               float(self.VelEditorFrame.txtSetupMaxAcc.GetValue()),\
-                                               float(self.VelEditorFrame.txtSetupMaxVel.GetValue()))
+                                                 float(self.VelEditorFrame.txtSetupMaxAcc.GetValue()),\
+                                                 float(self.VelEditorFrame.txtSetupMaxVel.GetValue()),
+                                                 float(self.VelEditorFrame.txtSetupJrkRiseTime.GetValue()),
+                                                 float(self.VelEditorFrame.txtSetupJrkHeight.GetValue()))
 
             self.Samples = len(self.Vel_T_D_L[0])
             self.X_Time_Values         = np.linspace(0., self.Vel_T_D_L[0][-1],  self.Samples, dtype= np.double)
@@ -409,7 +413,7 @@ class Diagramm(wx.Panel):
         self.rezoom          = True
         self.Plot(init       = True)
 
-    def GenerateProfile(self,Length, Acc, Vel):
+    def GenerateProfile(self,Length, Acc, Vel, RiseTime, JHeight):
         self.Action_Signed      = False
         self.ClearVarsGenerate()
         self.canvas.draw()
@@ -424,7 +428,7 @@ class Diagramm(wx.Panel):
         self.Acc_T_D,\
         self.Vel_T_D,\
         self.Pos_T_D,\
-        self.Vel_P_D   = self.Calc_Profile(Length, Acc, Vel)
+        self.Vel_P_D   = self.Calc_Profile(Length, Acc, Vel, RiseTime, JHeight)
 
         self.Samples = len(self.Vel_T_D[0])
         self.X_Time_Values         = np.linspace(0., self.Vel_T_D[0][-1],  self.Samples, dtype= np.double)
@@ -459,8 +463,8 @@ class Diagramm(wx.Panel):
         self.rezoom          = True
         self.Plot(init       = True)
 
-    def Calc_Profile(self,Length, Acc, Vel):   
-        A = Calc_Default_Profile(Length, Acc, Vel)
+    def Calc_Profile(self,Length, Acc, Vel, RiseTime, JHeight):   
+        A = Calc_Default_Profile(Length, Acc, Vel, RiseTime, JHeight)
         Jrk, Acc, Vel, Pos,Pos_P = A.GetData()
         return Jrk, Acc, Vel, Pos,Pos_P
 
@@ -1220,12 +1224,17 @@ class VelEditor4C(wx.App):
         self.KeyPointWindow.txtName               = xrc.XRCCTRL(self.KeyPointWindow,'txtName')
         self.KeyPointWindow.chkSign               = xrc.XRCCTRL(self.KeyPointWindow,'chkSign')
         self.KeyPointWindow.chkSmoothing          = xrc.XRCCTRL(self.KeyPointWindow,'chkSmoothing')
-        self.KeyPointWindow.chkSmoothingII          = xrc.XRCCTRL(self.KeyPointWindow,'chkSmoothingII')
+        self.KeyPointWindow.chkSmoothingII        = xrc.XRCCTRL(self.KeyPointWindow,'chkSmoothingII')
+        self.KeyPointWindow.txtSetupJerkRiseTime  = xrc.XRCCTRL(self.KeyPointWindow,'txtSetupJerkRiseTime')
+        self.KeyPointWindow.txtSetupJerkHeight    = xrc.XRCCTRL(self.KeyPointWindow,'txtSetupJerkHeight')
+        self.KeyPointWindow.txtUsrJrkRiseTime     = xrc.XRCCTRL(self.KeyPointWindow,'txtUsrJrkRiseTime')
+        self.KeyPointWindow.txtUsrJrkHeight       = xrc.XRCCTRL(self.KeyPointWindow,'txtUsrJrkHeight')
 
         #self.KeyPointWindow.txtMaxTime.Enable(False)
         self.KeyPointWindow.txtMouseXPos.Enable(False)
         self.KeyPointWindow.txtMouseYPos.Enable(False)
         self.KeyPointWindow.btnGenerate.Enable(False)
+        self.KeyPointWindow.txtUsrJrkRiseTime.Enable(False)
         
         self.Bind(wx.EVT_BUTTON        , self.OnButtonGenerate,      self.KeyPointWindow.btnGenerate)
         self.Bind(wx.EVT_BUTTON        , self.OnButtonSign,          self.KeyPointWindow.btnSign)
@@ -1236,12 +1245,17 @@ class VelEditor4C(wx.App):
         File = wx.Menu()
         openFile = File.Append(ID_Menu_OpenVelFile,'Open Vel File','This opens a VelFile for editing')
         saveFile = File.Append(ID_Menu_SaveVelFile,'Save Vel File','This saves a vel File')
-        File.AppendSeparator()        
+        File.AppendSeparator()
+        importFile = File.Append(ID_Menu_ImportVelFile,'Import SFX Action File','This opens a SFX Action File for editing')
+        exportFile = File.Append(ID_Menu_ExportVelFile,'Export SFX Action File','This exports a SFX Action File after editing') 
+        File.AppendSeparator()       
         exit = File.Append(ID_Menu_Exit,'Exit','This exits the Program without saving anything')
 
         self.Bind(wx.EVT_MENU              , self.OpenFile,                  openFile)
         self.Bind(wx.EVT_MENU              , self.SaveFile,                  saveFile)
         self.Bind(wx.EVT_MENU              , self.Exit    ,                  exit)
+        self.Bind(wx.EVT_MENU              , self.ImportFile,                importFile)
+        self.Bind(wx.EVT_MENU              , self.ExportFile,                exportFile)
 
         self.menuBar = wx.MenuBar(ID_Menu)        
         self.menuBar.Append(File,'File')
@@ -1250,6 +1264,125 @@ class VelEditor4C(wx.App):
         self.KeyPointWindow.Show()
 
         return True
+
+    def ImportFile(self,evt):
+        with wx.FileDialog(None, "Import SFXACT Vel file", wildcard="SFXAction files (*.sfxact)|*.sfxact",
+                       style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
+
+            if fileDialog.ShowModal() == wx.ID_CANCEL:
+                return     # the user changed their mind
+
+            # Proceed loading the file chosen by the user
+            pathname = fileDialog.GetPath()
+            try:
+                with open(pathname, 'r', encoding='utf-8') as file:
+                    self.ImportData(file)
+            except IOError:
+                wx.LogError("Cannot open file '%s'." % newfile)
+
+    def ImportData(self,file):
+        data = file.read()
+        file.close()
+        self.CP_P_Points_Limit = [[],[],[]] 
+        self.CP_P_Points       = [[],[],[]]
+        self.CP_T_Points       = [[],[],[]]
+        self.CP_M_Points       = [[],[],[]]
+        self.CP_T_Points_Limit = [[],[],[]]
+        self.CP_TA_Points      = [[],[],[]]
+        self.Jrk_T_D_L         = [[],[]]
+        self.Acc_T_D_L         = [[],[]]
+        self.Vel_T_D_L         = [[],[]]
+        self.Pos_T_D_L         = [[],[]]
+        self.Vel_P_D_L         = [[],[]]
+        self.Jrk_T_D           = [[],[]]
+        self.Acc_T_D           = [[],[]]
+        self.Vel_T_D           = [[],[]]
+        self.Pos_T_D           = [[],[]]
+        self.Vel_P_D           = [[],[]]
+        
+        Data = data.split(';')
+        if len(Data) == 15:
+            self.KeyPointWindow.Diagramm.Action_ID            = Data[0]
+            self.KeyPointWindow.Diagramm.Action_Name          = Data[1]
+            self.KeyPointWindow.Diagramm.Action_Saved         = Data[2]
+            self.KeyPointWindow.Diagramm.Action_Path          = Data[3]
+            self.KeyPointWindow.Diagramm.Action_MinPos        = float(Data[4])
+            self.KeyPointWindow.Diagramm.Action_MaxPos        = float(Data[5])
+            self.KeyPointWindow.Diagramm.Action_MaxAcc        = float(Data[6])
+            self.KeyPointWindow.Diagramm.Action_MaxVel        = float(Data[7])
+            self.KeyPointWindow.Diagramm.Action_Length        = float(Data[8])
+            self.KeyPointWindow.Diagramm.Action_Description   = Data[14]
+            self.KeyPointWindow.Diagramm.Action_UsrAcc        = float(Data[6]) * 0.9
+            self.KeyPointWindow.Diagramm.Action_UsrVel        = float(Data[7]) * 0.9
+            self.KeyPointWindow.Diagramm.Action_UsrLength     = float(Data[8]) 
+            self.KeyPointWindow.Diagramm.Action_Signed        = False
+        else:
+            dlg = wx.MessageDialog(None,'File can not be decoded','Invalid Data',  wx.OK)
+            dlg.ShowModal()
+            print('Invalid Data')  
+        self.KeyPointWindow.Diagramm.Entry()
+
+    def ExportFile(self,evt):
+        if self.KeyPointWindow.chkSign.GetValue():
+            self.CompileExportData()
+            with wx.FileDialog(None, "Export SFXACT file", wildcard="SFXAction files (*.sfxact)|*.sfxact",
+                        style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:
+
+                if fileDialog.ShowModal() == wx.ID_CANCEL:
+                    return     # the user changed their mind
+
+                # save the current contents in the file
+                pathname = fileDialog.GetPath()
+                try:
+                    with open(pathname, 'w') as file:
+                        self.ExportData(file)
+                except IOError:
+                    wx.LogError("Cannot save current data in file '%s'." % pathname)
+        else:  
+            dlg = wx.MessageDialog(None,'The Profile has to be Signed','Invalid Data',  wx.OK)
+            dlg.ShowModal()
+            print('Invalid Data')       
+        pass
+
+    def CompileExportData(self):
+        self.ExportData =[ "Action ID"                                            + ';' +     # 0
+            self.KeyPointWindow.Diagramm.Action_Name                              + ';' +     # 1
+            self.KeyPointWindow.Diagramm.Action_Saved                             + ';' +     # 2
+            self.KeyPointWindow.Diagramm.Action_Path                              + ';' +     # 3
+            str(self.KeyPointWindow.Diagramm.Action_MinPos)                       + ';' +     # 4
+            str(self.KeyPointWindow.Diagramm.Action_MaxPos)                       + ';' +     # 5
+            str(self.KeyPointWindow.Diagramm.Action_MaxAcc)                       + ';' +     # 6
+            str(self.KeyPointWindow.Diagramm.Action_MaxVel)                       + ';' +     # 7
+            str(self.KeyPointWindow.Diagramm.Action_Length)                       + ';' +     # 8
+            json.dumps(self.KeyPointWindow.Diagramm.Action_Jrk[0].tolist())       + ';' +     # 9
+            json.dumps(self.KeyPointWindow.Diagramm.Action_Jrk[1].tolist())       + ';' +     # 10
+            json.dumps(self.KeyPointWindow.Diagramm.Action_Acc[0].tolist())       + ';' +     # 11
+            json.dumps(self.KeyPointWindow.Diagramm.Action_Acc[1].tolist())       + ';' +     # 12
+            json.dumps(self.KeyPointWindow.Diagramm.Action_Vel[0].tolist())       + ';' +     # 13
+            json.dumps(self.KeyPointWindow.Diagramm.Action_Vel[1].tolist())       + ';' +     # 14
+            json.dumps(self.KeyPointWindow.Diagramm.Action_Pos[0].tolist())       + ';' +     # 15
+            json.dumps(self.KeyPointWindow.Diagramm.Action_Pos[1].tolist())       + ';' +     # 16
+            json.dumps(self.KeyPointWindow.Diagramm.Action_VelInPos[0].tolist())  + ';' +     # 17
+            json.dumps(self.KeyPointWindow.Diagramm.Action_VelInPos[1].tolist())  + ';' +     # 18
+            self.KeyPointWindow.txtDescription.GetValue()                         + ';' +     # 19
+            str(self.KeyPointWindow.Diagramm.Action_Signed)                       + ';' +     # 49
+            str(self.KeyPointWindow.txtUsrAcc.GetValue())                         + ';' +     # 50
+            str(self.KeyPointWindow.txtUsrVel.GetValue())                         + ';' +     # 51
+            str(self.KeyPointWindow.txtUsrLength.GetValue())                      + ';' +     # 52
+            str(self.KeyPointWindow.txtSetupTime.GetValue())                      + ';' +     # 53
+            str(self.KeyPointWindow.Diagramm.TimeScaling)                         + ';' +     # 54
+            str(self.KeyPointWindow.Diagramm.TimeScalingAbs)                      + ';' +     # 55
+            json.dumps((self.KeyPointWindow.Diagramm.CP_TA_Points[0]).tolist())   + ';' +     # 56
+            json.dumps((self.KeyPointWindow.Diagramm.CP_TA_Points[1]).tolist())   + ';' +     # 57
+            json.dumps((self.KeyPointWindow.Diagramm.CP_TA_Points[2]).tolist())   + ';' +     # 58
+            str(self.KeyPointWindow.txtSetupJerkRiseTime.GetValue())              + ';' +     # 59
+            str(self.KeyPointWindow.txtSetupJerkHeight.GetValue())                + ';' +     # 60
+            str(self.KeyPointWindow.txtUsrJrkRiseTime.GetValue())                 + ';' +     # 61
+            str(self.KeyPointWindow.txtUsrJrkHeight.GetValue())                   + ';' ]     # 62
+
+    def ExportData(self,file):
+        file.write(json.dumps(self.ExportData))
+        file.close()
 
     def OnSmooth(self, evt):
         self.KeyPointWindow.Diagramm.Smooth()
@@ -1276,7 +1409,10 @@ class VelEditor4C(wx.App):
 
             self.KeyPointWindow.Diagramm.GenerateProfile(float(self.KeyPointWindow.txtUsrLength.GetValue()),\
                                                      float(self.KeyPointWindow.txtUsrAcc.GetValue()),\
-                                                     float(self.KeyPointWindow.txtUsrVel.GetValue()))
+                                                     float(self.KeyPointWindow.txtUsrVel.GetValue()),
+                                                     float(self.KeyPointWindow.txtUsrJrkRiseTime.GetValue()),
+                                                     float(self.KeyPointWindow.txtUsrJrkHeight.GetValue()))
+
             self.KeyPointWindow.chkSign.SetValue(False)
 
         else:
@@ -1286,7 +1422,7 @@ class VelEditor4C(wx.App):
         pass
         
     def OpenFile(self,evt):
-        with wx.FileDialog(None, "Open Vel file", wildcard="Vel files (*.sfxact)|*.sfxact",
+        with wx.FileDialog(None, "Open Vel file", wildcard="Vel files (*.vedt)|*.vedt",
                        style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
 
             if fileDialog.ShowModal() == wx.ID_CANCEL:
@@ -1303,7 +1439,7 @@ class VelEditor4C(wx.App):
     def SaveFile(self,evt):
         if self.KeyPointWindow.chkSign.GetValue():
             self.CompileData()
-            with wx.FileDialog(None, "Save Vel file", wildcard="Vel files (*.sfxact)|*.sfxact",
+            with wx.FileDialog(None, "Save Vel file", wildcard="Vel files (*.vedt)|*.vedt",
                         style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:
 
                 if fileDialog.ShowModal() == wx.ID_CANCEL:
@@ -1385,7 +1521,11 @@ class VelEditor4C(wx.App):
                 str(self.KeyPointWindow.Diagramm.TimeScalingAbs)                      + ';' +     # 55
                 json.dumps((self.KeyPointWindow.Diagramm.CP_TA_Points[0]).tolist())   + ';' +     # 56
                 json.dumps((self.KeyPointWindow.Diagramm.CP_TA_Points[1]).tolist())   + ';' +     # 57
-                json.dumps((self.KeyPointWindow.Diagramm.CP_TA_Points[2]).tolist())   + ';' ]     # 58
+                json.dumps((self.KeyPointWindow.Diagramm.CP_TA_Points[2]).tolist())   + ';' +     # 58
+                str(self.KeyPointWindow.txtSetupJerkRiseTime.GetValue())              + ';' +     # 59
+                str(self.KeyPointWindow.txtSetupJerkHeight.GetValue())                + ';' +     # 60
+                str(self.KeyPointWindow.txtUsrJrkRiseTime.GetValue())                 + ';' +     # 61
+                str(self.KeyPointWindow.txtUsrJrkHeight.GetValue())                   + ';' ]     # 62
 
     def Exit(self,evt):
         sys.exit()
@@ -1411,7 +1551,7 @@ class VelEditor4C(wx.App):
         self.Vel_P_D           = [[],[]]
         
         Data = data.split(';')
-        if len(Data) == 60:
+        if len(Data) == 64:
             self.KeyPointWindow.Diagramm.Action_ID            = Data[0]
             self.KeyPointWindow.Diagramm.Action_Name          = Data[1]
             self.KeyPointWindow.Diagramm.Action_Saved         = Data[2]
@@ -1468,33 +1608,22 @@ class VelEditor4C(wx.App):
             self.KeyPointWindow.Diagramm.Action_Duration      = float(Data[53])
             self.KeyPointWindow.Diagramm.TimeScaling          = float(Data[54])
             self.KeyPointWindow.Diagramm.TimeScalingAbs       = float(Data[55])
-            self.KeyPointWindow.Diagramm.CP_TA_Points[0]       = np.asarray(json.loads(Data[56]))
-            self.KeyPointWindow.Diagramm.CP_TA_Points[1]       = np.asarray(json.loads(Data[57]))
-            self.KeyPointWindow.Diagramm.CP_TA_Points[2]       = np.asarray(json.loads(Data[58]))                
-            self.KeyPointWindow.txtName.SetValue            (Data[1])
-            self.KeyPointWindow.txtSetupLength.SetValue     ('%3.3f'% float(Data[8]))
-            self.KeyPointWindow.txtSetupMaxAcc.SetValue     ('%3.3f'% float(Data[6]))
-            self.KeyPointWindow.txtSetupMaxVel.SetValue     ('%3.3f'% float(Data[7]))
-            self.KeyPointWindow.txtDescription.SetValue     (Data[19])
-            self.KeyPointWindow.txtUsrLength.SetValue       ('%3.3f'% float(Data[52]))
-            self.KeyPointWindow.txtUsrAcc.SetValue          ('%3.3f'% float(Data[50]))
-            self.KeyPointWindow.txtUsrVel.SetValue          ('%3.3f'% float(Data[51]))
-            self.KeyPointWindow.txtSetupTime.SetValue       ('%3.3f'% float(Data[53]))
-        elif len(Data) == 15:
-            self.KeyPointWindow.Diagramm.Action_ID            = Data[0]
-            self.KeyPointWindow.Diagramm.Action_Name          = Data[1]
-            self.KeyPointWindow.Diagramm.Action_Saved         = Data[2]
-            self.KeyPointWindow.Diagramm.Action_Path          = Data[3]
-            self.KeyPointWindow.Diagramm.Action_MinPos        = float(Data[4])
-            self.KeyPointWindow.Diagramm.Action_MaxPos        = float(Data[5])
-            self.KeyPointWindow.Diagramm.Action_MaxAcc        = float(Data[6])
-            self.KeyPointWindow.Diagramm.Action_MaxVel        = float(Data[7])
-            self.KeyPointWindow.Diagramm.Action_Length        = float(Data[8])
-            self.KeyPointWindow.Diagramm.Action_Description   = Data[14]
-            self.KeyPointWindow.Diagramm.Action_UsrAcc        = float(Data[6]) * 0.9
-            self.KeyPointWindow.Diagramm.Action_UsrVel        = float(Data[7]) * 0.9
-            self.KeyPointWindow.Diagramm.Action_UsrLength     = float(Data[8]) 
-            self.KeyPointWindow.Diagramm.Action_Signed        = False
+            self.KeyPointWindow.Diagramm.CP_TA_Points[0]      = np.asarray(json.loads(Data[56]))
+            self.KeyPointWindow.Diagramm.CP_TA_Points[1]      = np.asarray(json.loads(Data[57]))
+            self.KeyPointWindow.Diagramm.CP_TA_Points[2]      = np.asarray(json.loads(Data[58]))                
+            self.KeyPointWindow.txtName.SetValue              (Data[1])
+            self.KeyPointWindow.txtSetupLength.SetValue       ('%3.3f'%  float(Data[8]))
+            self.KeyPointWindow.txtSetupMaxAcc.SetValue       ('%3.3f'%  float(Data[6]))
+            self.KeyPointWindow.txtSetupMaxVel.SetValue       ('%3.3f'%  float(Data[7]))
+            self.KeyPointWindow.txtDescription.SetValue       (Data[19])
+            self.KeyPointWindow.txtUsrLength.SetValue         ('%3.3f'%  float(Data[52]))
+            self.KeyPointWindow.txtUsrAcc.SetValue            ('%3.3f'%  float(Data[50]))
+            self.KeyPointWindow.txtUsrVel.SetValue            ('%3.3f'%  float(Data[51]))
+            self.KeyPointWindow.txtSetupTime.SetValue         ('%3.3f'%  float(Data[53]))
+            self.KeyPointWindow.txtSetupJerkRiseTime.SetValue ('%3.3f'%  float(Data[59]))
+            self.KeyPointWindow.txtSetupJerkHeight.SetValue   ('%0.0f'% float(Data[60]))
+            self.KeyPointWindow.txtUsrJrkRiseTime.SetValue    ('%3.3f'%  float(Data[61]))
+            self.KeyPointWindow.txtUsrJrkHeight.SetValue      ('%0.0f'%  float(Data[62]))
         else:
             dlg = wx.MessageDialog(None,'File can not be decoded','Invalid Data',  wx.OK)
             dlg.ShowModal()

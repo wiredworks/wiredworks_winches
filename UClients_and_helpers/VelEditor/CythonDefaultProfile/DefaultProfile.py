@@ -1,18 +1,17 @@
 #!python
-##cython: boundscheck=False
 
 import numpy as np
-cimport numpy as np
+
 from scipy.optimize import root
 from scipy.interpolate import interp1d
 import math
 
 class Calc_Default_Profile:
-    def __init__(self, length, maxAcc, maxVel):
+    def __init__(self, length, maxAcc, maxVel, riseTime, JHeight):
         self.Length        = length
         self.accS          = maxAcc
         self.velS          = maxVel
-        self.JH            = 10.0 
+        self.JH            = JHeight 
         self.Jrk_T_D       = [[],[]]
         self.Acc_T_D       = [[],[]]
         self.Vel_T_D       = [[],[]]
@@ -22,7 +21,6 @@ class Calc_Default_Profile:
 
         if self.Length > 0  and self.accS > 0 and self.velS > 0:
             self.Pulses = []
-            self.JH = 10.0      
             (self.T, self.t1, self.JH, self.t2, self.t3, self.time) = self.CalcTimes( self.Length, self.JH, self.accS, self.velS)        
             Puls = ( 0, self.t1, self.T, self.t1)
             self.starttime = Puls[0]

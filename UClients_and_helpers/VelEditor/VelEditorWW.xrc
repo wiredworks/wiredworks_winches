@@ -117,14 +117,84 @@
                             <object class="wxBoxSizer">
                                 <orient>wxVERTICAL</orient>
                                 <object class="sizeritem">
+                                    <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                                    <border>5</border>
+                                    <object class="wxBoxSizer">
+                                        <orient>wxHORIZONTAL</orient>
+                                        <object class="sizeritem">
+                                            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                            <border>0</border>
+                                            <object class="wxBoxSizer">
+                                                <orient>wxHORIZONTAL</orient>
+                                                <object class="sizeritem">
+                                                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                    <border>0</border>
+                                                    <object class="wxStaticText" name="wxID_STATIC">
+                                                        <label>Jrk Rise Time</label>
+                                                    </object>
+                                                </object>
+                                                <object class="spacer">
+                                                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                    <border>0</border>
+                                                    <size>10,5</size>
+                                                </object>
+                                                <object class="sizeritem">
+                                                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                    <border>0</border>
+                                                    <object class="wxTextCtrl" name="txtSetupJerkRiseTime">
+                                                        <size>50,20</size>
+                                                        <style>wxTE_RIGHT</style>
+                                                        <enabled>0</enabled>
+                                                        <value>0.02</value>
+                                                    </object>
+                                                </object>
+                                                <object class="spacer">
+                                                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                    <border>5</border>
+                                                    <size>5,5</size>
+                                                </object>
+                                            </object>
+                                        </object>
+                                        <object class="sizeritem">
+                                            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                            <border>0</border>
+                                            <object class="wxBoxSizer">
+                                                <orient>wxHORIZONTAL</orient>
+                                                <object class="sizeritem">
+                                                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                    <border>0</border>
+                                                    <object class="wxStaticText" name="wxID_STATIC">
+                                                        <label>Jrk Height</label>
+                                                    </object>
+                                                </object>
+                                                <object class="spacer">
+                                                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                    <border>0</border>
+                                                    <size>10,5</size>
+                                                </object>
+                                                <object class="sizeritem">
+                                                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                    <border>0</border>
+                                                    <object class="wxTextCtrl" name="txtSetupJerkHeight">
+                                                        <size>50,20</size>
+                                                        <style>wxTE_RIGHT</style>
+                                                        <enabled>0</enabled>
+                                                        <value>10</value>
+                                                    </object>
+                                                </object>
+                                            </object>
+                                        </object>
+                                    </object>
+                                </object>
+                                <object class="sizeritem">
                                     <flag>wxALIGN_LEFT</flag>
                                     <border>0</border>
                                     <object class="wxBoxSizer">
                                         <orient>wxHORIZONTAL</orient>
                                         <object class="spacer">
                                             <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                            <border>5</border>
-                                            <size>10,5</size>
+                                            <border>0</border>
+                                            <size>31,5</size>
                                         </object>
                                         <object class="sizeritem">
                                             <flag>wxALIGN_TOP</flag>
@@ -141,7 +211,7 @@
                                                 <object class="spacer">
                                                     <flag>wxALIGN_TOP</flag>
                                                     <border>0</border>
-                                                    <size>11,10</size>
+                                                    <size>10,10</size>
                                                 </object>
                                                 <object class="sizeritem">
                                                     <flag>wxALIGN_TOP</flag>
@@ -158,8 +228,8 @@
                                         </object>
                                         <object class="spacer">
                                             <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                            <border>5</border>
-                                            <size>10,5</size>
+                                            <border>0</border>
+                                            <size>30,5</size>
                                         </object>
                                         <object class="sizeritem">
                                             <flag>wxALIGN_TOP</flag>
@@ -176,7 +246,7 @@
                                                 <object class="spacer">
                                                     <flag>wxALIGN_TOP</flag>
                                                     <border>0</border>
-                                                    <size>11,10</size>
+                                                    <size>10,10</size>
                                                 </object>
                                                 <object class="sizeritem">
                                                     <flag>wxALIGN_TOP</flag>
@@ -191,8 +261,8 @@
                                                 </object>
                                                 <object class="spacer">
                                                     <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                                    <border>5</border>
-                                                    <size>10,5</size>
+                                                    <border>0</border>
+                                                    <size>1,5</size>
                                                 </object>
                                             </object>
                                         </object>
@@ -201,12 +271,18 @@
                                 <object class="spacer">
                                     <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
                                     <border>5</border>
+                                    <size>-1,5</size>
                                 </object>
                                 <object class="sizeritem">
                                     <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
-                                    <border>5</border>
+                                    <border>0</border>
                                     <object class="wxBoxSizer">
                                         <orient>wxHORIZONTAL</orient>
+                                        <object class="spacer">
+                                            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                            <border>5</border>
+                                            <size>5,5</size>
+                                        </object>
                                         <object class="sizeritem">
                                             <flag>wxALIGN_TOP</flag>
                                             <border>0</border>
@@ -217,7 +293,7 @@
                                         <object class="spacer">
                                             <flag>wxALIGN_TOP</flag>
                                             <border>0</border>
-                                            <size>15,10</size>
+                                            <size>8,10</size>
                                         </object>
                                         <object class="sizeritem">
                                             <flag>wxALIGN_TOP</flag>
@@ -239,12 +315,12 @@
                                 </object>
                                 <object class="sizeritem">
                                     <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
-                                    <border>5</border>
+                                    <border>0</border>
                                     <object class="wxBoxSizer">
                                         <orient>wxHORIZONTAL</orient>
                                         <object class="sizeritem">
                                             <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                            <border>5</border>
+                                            <border>0</border>
                                             <object class="wxStaticText" name="wxID_STATIC">
                                                 <label>Duration</label>
                                             </object>
@@ -252,11 +328,11 @@
                                         <object class="spacer">
                                             <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
                                             <border>0</border>
-                                            <size>1,10</size>
+                                            <size>8,10</size>
                                         </object>
                                         <object class="sizeritem">
                                             <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                            <border>5</border>
+                                            <border>0</border>
                                             <object class="wxTextCtrl" name="txtSetupTime">
                                                 <size>50,20</size>
                                                 <style>wxTE_READONLY|wxTE_RIGHT</style>
@@ -265,11 +341,16 @@
                                                 <value>0</value>
                                             </object>
                                         </object>
+                                        <object class="spacer">
+                                            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                            <border>0</border>
+                                            <size>11,5</size>
+                                        </object>
                                     </object>
                                 </object>
                                 <object class="spacer">
                                     <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
-                                    <border>5</border>
+                                    <border>0</border>
                                     <size>5,20</size>
                                 </object>
                             </object>
@@ -291,14 +372,82 @@
                                     <object class="wxBoxSizer">
                                         <orient>wxVERTICAL</orient>
                                         <object class="sizeritem">
+                                            <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                                            <border>5</border>
+                                            <object class="wxBoxSizer">
+                                                <orient>wxHORIZONTAL</orient>
+                                                <object class="sizeritem">
+                                                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                    <border>0</border>
+                                                    <object class="wxBoxSizer">
+                                                        <orient>wxHORIZONTAL</orient>
+                                                        <object class="sizeritem">
+                                                            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                            <border>0</border>
+                                                            <object class="wxStaticText" name="wxID_STATIC">
+                                                                <label>Jrk Rise Time</label>
+                                                            </object>
+                                                        </object>
+                                                        <object class="spacer">
+                                                            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                            <border>0</border>
+                                                            <size>10,5</size>
+                                                        </object>
+                                                        <object class="sizeritem">
+                                                            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                            <border>0</border>
+                                                            <object class="wxTextCtrl" name="txtUsrJrkRiseTime">
+                                                                <size>50,20</size>
+                                                                <style>wxTE_RIGHT</style>
+                                                                <value>0.02</value>
+                                                            </object>
+                                                        </object>
+                                                        <object class="spacer">
+                                                            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                            <border>5</border>
+                                                            <size>5,5</size>
+                                                        </object>
+                                                    </object>
+                                                </object>
+                                                <object class="sizeritem">
+                                                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                    <border>0</border>
+                                                    <object class="wxBoxSizer">
+                                                        <orient>wxHORIZONTAL</orient>
+                                                        <object class="sizeritem">
+                                                            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                            <border>0</border>
+                                                            <object class="wxStaticText" name="wxID_STATIC">
+                                                                <label>Jrk Height</label>
+                                                            </object>
+                                                        </object>
+                                                        <object class="spacer">
+                                                            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                            <border>0</border>
+                                                            <size>5,5</size>
+                                                        </object>
+                                                        <object class="sizeritem">
+                                                            <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                            <border>0</border>
+                                                            <object class="wxTextCtrl" name="txtUsrJrkHeight">
+                                                                <size>50,20</size>
+                                                                <style>wxTE_RIGHT</style>
+                                                                <value>10</value>
+                                                            </object>
+                                                        </object>
+                                                    </object>
+                                                </object>
+                                            </object>
+                                        </object>
+                                        <object class="sizeritem">
                                             <flag>wxALIGN_LEFT</flag>
                                             <border>0</border>
                                             <object class="wxBoxSizer">
                                                 <orient>wxHORIZONTAL</orient>
                                                 <object class="spacer">
                                                     <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                                    <border>5</border>
-                                                    <size>10,5</size>
+                                                    <border>0</border>
+                                                    <size>38,5</size>
                                                 </object>
                                                 <object class="sizeritem">
                                                     <flag>wxALIGN_TOP</flag>
@@ -315,7 +464,7 @@
                                                         <object class="spacer">
                                                             <flag>wxALIGN_TOP</flag>
                                                             <border>0</border>
-                                                            <size>11,10</size>
+                                                            <size>10,10</size>
                                                         </object>
                                                         <object class="sizeritem">
                                                             <flag>wxALIGN_TOP</flag>
@@ -331,8 +480,8 @@
                                                 </object>
                                                 <object class="spacer">
                                                     <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                                    <border>5</border>
-                                                    <size>10,5</size>
+                                                    <border>0</border>
+                                                    <size>28,5</size>
                                                 </object>
                                                 <object class="sizeritem">
                                                     <flag>wxALIGN_TOP</flag>
@@ -349,7 +498,7 @@
                                                         <object class="spacer">
                                                             <flag>wxALIGN_TOP</flag>
                                                             <border>0</border>
-                                                            <size>11,10</size>
+                                                            <size>10,10</size>
                                                         </object>
                                                         <object class="sizeritem">
                                                             <flag>wxALIGN_TOP</flag>
@@ -363,8 +512,8 @@
                                                         </object>
                                                         <object class="spacer">
                                                             <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                                            <border>5</border>
-                                                            <size>10,5</size>
+                                                            <border>0</border>
+                                                            <size>1,5</size>
                                                         </object>
                                                     </object>
                                                 </object>
@@ -373,10 +522,11 @@
                                         <object class="spacer">
                                             <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
                                             <border>5</border>
+                                            <size>-1,5</size>
                                         </object>
                                         <object class="sizeritem">
                                             <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
-                                            <border>5</border>
+                                            <border>0</border>
                                             <object class="wxBoxSizer">
                                                 <orient>wxHORIZONTAL</orient>
                                                 <object class="sizeritem">
@@ -403,7 +553,7 @@
                                                 </object>
                                                 <object class="spacer">
                                                     <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                                    <border>5</border>
+                                                    <border>0</border>
                                                     <size>5,5</size>
                                                 </object>
                                             </object>
@@ -429,7 +579,7 @@
                                                 <orient>wxHORIZONTAL</orient>
                                                 <object class="sizeritem">
                                                     <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                                    <border>5</border>
+                                                    <border>0</border>
                                                     <object class="wxStaticText" name="wxID_STATIC">
                                                         <label>Duration</label>
                                                     </object>
@@ -441,7 +591,7 @@
                                                 </object>
                                                 <object class="sizeritem">
                                                     <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                                    <border>5</border>
+                                                    <border>0</border>
                                                     <object class="wxTextCtrl" name="txtUsrDuration">
                                                         <size>50,20</size>
                                                         <style>wxTE_READONLY|wxTE_RIGHT</style>
@@ -450,14 +600,19 @@
                                                         <value>0</value>
                                                     </object>
                                                 </object>
+                                                <object class="spacer">
+                                                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                    <border>5</border>
+                                                    <size>5,5</size>
+                                                </object>
                                                 <object class="sizeritem">
                                                     <flag>wxALIGN_TOP|wxALL</flag>
-                                                    <border>5</border>
+                                                    <border>0</border>
                                                     <object class="wxBoxSizer">
                                                         <orient>wxHORIZONTAL</orient>
                                                         <object class="sizeritem">
                                                             <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                                            <border>5</border>
+                                                            <border>0</border>
                                                             <object class="wxStaticText" name="wxID_STATIC">
                                                                 <label>Time Factor</label>
                                                             </object>
@@ -469,7 +624,7 @@
                                                         </object>
                                                         <object class="sizeritem">
                                                             <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                                            <border>5</border>
+                                                            <border>0</border>
                                                             <object class="wxTextCtrl" name="txtUsrTimeFactor">
                                                                 <size>50,20</size>
                                                                 <style>wxTE_READONLY|wxTE_RIGHT</style>
@@ -555,14 +710,19 @@
                                                 <orient>wxHORIZONTAL</orient>
                                                 <object class="sizeritem">
                                                     <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                                    <border>5</border>
+                                                    <border>0</border>
                                                     <object class="wxStaticText" name="wxID_STATIC">
                                                         <label>Name:</label>
                                                     </object>
                                                 </object>
-                                                <object class="sizeritem">
+                                                <object class="spacer">
                                                     <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
                                                     <border>5</border>
+                                                    <size>5,5</size>
+                                                </object>
+                                                <object class="sizeritem">
+                                                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                    <border>0</border>
                                                     <object class="wxTextCtrl" name="txtName">
                                                         <size>200,-1</size>
                                                     </object>
@@ -571,19 +731,19 @@
                                         </object>
                                         <object class="sizeritem">
                                             <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
-                                            <border>5</border>
+                                            <border>0</border>
                                             <object class="wxBoxSizer">
                                                 <orient>wxHORIZONTAL</orient>
                                                 <object class="sizeritem">
                                                     <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                                    <border>5</border>
+                                                    <border>0</border>
                                                     <object class="wxStaticText" name="wxID_STATIC">
                                                         <label>Description:</label>
                                                     </object>
                                                 </object>
                                                 <object class="sizeritem">
                                                     <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                                    <border>5</border>
+                                                    <border>0</border>
                                                     <object class="wxTextCtrl" name="txtDescription">
                                                         <size>180,-1</size>
                                                         <style>wxTE_MULTILINE</style>
