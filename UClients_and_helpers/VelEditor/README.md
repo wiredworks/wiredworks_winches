@@ -2,20 +2,33 @@
 
 # VelEditor
 
-![Screen](https://github.com/wiredworks/wiredworks_winches/blob/master/Pictures/Screen.png)
+![Screen](https://github.com/wiredworks/wiredworks_winches/blob/master/Pictures/VelEditorOverview.png)
+
+##### Upper Diagram - Position Domain ( Vel over Position )
+* dashed Line: Upper Limit with Limit Profile data
+* dash dot: Upper Limit with User Profile Data
+* red Line: Curve beeing edited
+
+##### Lower Diagram - Time Domain (Acc, Vel, Pos over Time )
+* black dashed: Vel Limit with Limit Profile Data
+* blue dashed:  Acc Limit with Limit Profile Data
+* black dash dot: Limit with User Profile Data
+* red line: Curve beeing edited
+* blue dashed: Acc before smoothing
+* blue: Acc after Smoothing
+* magenta: Position
+
+* x-markers: Controlpoints with tangents calculated by Smoothing algorithm
+* o-markers: Controlpoints with horizontal tangents
+
+###### Keys:
+* z: Zoom All
+* x+Scroll: Zoom X-Axis
+* y+Scroll: Zoom Y-Axis
+* m+Scroll: Zoom both axis with mouspoint as center
+* t+Click on Controlpoint: Toggle Tangent (smoothing horizontal)
+* i+Click on Line: Insert Controlpoint
+* d+Click on Controlpoint: Delete Controlpoint
 
 
-
-Blender is a very powerful tool to manipulate the virtual world of film and videos. It excels in the field of VFX whereas the field of SFX and the manipulation of the physical set is left to proprietary solutions.
-Having such a solution designed, built, gotten the TÜV approval, it has been used on a number of A-movies. I would now like to invoke the Open Source approach that has Blender thriving, hoping other users are going to be as fascinated as I am myself in getting Blender to interact with the power SFX (MOCO) Stunts and Shows need.
-
-
-
-## Installation:
-Download Blender add-on from: https://github.com/wiredworks/wiredworks_winches
-After getting the .zip remove '-master' from the filename and unzip it to the Blender scripts/add-ons folder. Take the modified Node Editor (/UClients_and_helpers/space-node.py and overwrite the standard Node Editor (/Programs/Blender Foundation/Blender 2.83/2.83/scripts/startup/bl_ui/space_node.py). Start Blender and activate the addon (Blender-> Edit-> Preferences-> Add-ons).
-
-## New Example with Dana Dolly
-
-
-![Joystick](https://github.com/wiredworks/wiredworks_winches/blob/master/Pictures/Dana_Dolly.png)
+The generated curve has a limited Jerk with variable Height but a fixed Rise Time of 0.02s.
