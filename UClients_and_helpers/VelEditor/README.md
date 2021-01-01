@@ -1,6 +1,6 @@
 
 
-# Blender for SFX (MOCO) Stunts and Shows (How to)
+# VelEditor
 
 ![Screen](https://github.com/wiredworks/wiredworks_winches/blob/master/Pictures/Screen.png)
 
