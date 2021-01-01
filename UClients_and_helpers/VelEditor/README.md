@@ -31,4 +31,4 @@
 * d+Click on Controlpoint: Delete Controlpoint
 
 
-
+The generated curve has a limited Jerk with variable Height but a fixed Rise Time of 0.02s.
