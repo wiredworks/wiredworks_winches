@@ -11,22 +11,19 @@ def read_some_data(context, filepath, item):
     f = open(filepath, 'r', encoding='utf-8')
     data = f.read()
     f.close()
+    data = json.loads(data)
     Data = data.split(';')
     item.id          = float(Data[0])
     item.name        = Data[1]
     item.saved       = bool(Data[2])
     item.path        = Data[3]
-    item.minPos      = float(Data[4])
-    item.maxPos      = float(Data[5])
-    item.maxAcc      = float(Data[6])
-    item.maxVel      = float(Data[7])
-    item.length      = float(Data[8])
-    item.Jrk         = Data[9]
-    item.Acc         = Data[10]
-    item.Vel         = Data[11]
-    item.Pos         = Data[12]
-    item.VP          = Data[13]
-    item.description = Data[14]
+    item.Vel[0]      = Data[4]
+    item.Vel[1]      = Data[5]
+    item.description = Data[6]
+    item.signed      = bool(Data[7])
+    item.maxAcc      = float(Data[8])
+    item.maxVel      = float(Data[9])
+    item.length      = float(Data[10])
 
     return {'FINISHED'}
 
@@ -259,8 +256,6 @@ class SFX_OT_list_actions(bpy.types.Operator):
                         A=VelPos.keyframe_points.insert(VP[0][i],VP[1][i], options =  {'FAST'}) 
                         A.interpolation = 'LINEAR'
 
-
-
 class SFX_OT_save_List(bpy.types.Operator):
     bl_idname = "sfx.save_list"
     bl_label = "Save Action"
@@ -273,7 +268,6 @@ class SFX_OT_save_List(bpy.types.Operator):
     def execute(self, context):
         bpy.ops.sfx.save_action('INVOKE_DEFAULT')        
         return{'FINISHED'}
-
 
 class SFX_OT_SelectOperator(bpy.types.Operator, ImportHelper):
     """This appears in the tooltip of the operator and in the generated docs"""

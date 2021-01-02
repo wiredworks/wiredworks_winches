@@ -164,11 +164,15 @@ class Diagramm(wx.Panel):
         self.Action_Name         = ''
         self.Action_Saved        = False
         self.Action_Path         = ''
-        self.Action_MinPos       = 0.0
-        self.Action_MaxPos       = 0.0
-        self.Action_MaxAcc       = 0.0
-        self.Action_MaxVel       = 0.0
+        self.Action_Description  = ''
+        self.Action_Signed       = False
+        self.Action_UsrAcc       = 0.0
+        self.Action_UsrVel       = 0.0
+        self.Action_minPos       = 0.0
+        self.Action_maxPos       = 0.0
         self.Action_Length       = 0.0
+        self.Action_Duation      = 0.0
+        self.Action_IntVel_SM    = [[],[]]      # Pos Smooth
         self.Action_Jrk          = [[],[]]      # Jerk in Time     saved by Blender not used [[Time],[Jrk]]
         self.Action_Acc          = [[],[]]      # Acc  in Time     saved by Blender not used [[Time],[Jrk]]
         self.Action_Vel          = [[],[]]      # Vel  in Time     saved by Blender not used [[Time],[Jrk]]
@@ -1301,28 +1305,40 @@ class VelEditor4C(wx.App):
         
         Data = data.split(';')
         print(len(Data))
-        if len(Data) == 13:
+        if len(Data) == 19:
+            print('###',Data[15])
+            print('+++',Data[16])
+            print(json.loads(Data[16]))
             self.KeyPointWindow.Diagramm.Action_ID            = Data[0]
             self.KeyPointWindow.Diagramm.Action_Name          = Data[1]
             self.KeyPointWindow.Diagramm.Action_Saved         = Data[2]
             self.KeyPointWindow.Diagramm.Action_Path          = Data[3]
-            self.KeyPointWindow.Diagramm.intVel_T_SM[0]       = np.asarray(json.loads(Data[4]))
-            self.KeyPointWindow.Diagramm.intVel_T_SM[1]       = np.asarray(json.loads(Data[5]))
-            self.KeyPointWindow.Diagramm.Action_Description   = Data[6]
-            self.KeyPointWindow.Diagramm.Action_Signed        = Data[7]
-            self.KeyPointWindow.txtUsrAcc.SetValue            (str(float(Data[8]) * 0.9))
-            self.KeyPointWindow.txtUsrVel.SetValue            (str(float(Data[9]) * 0.9))
+            self.KeyPointWindow.Diagramm.Action_Description   = Data[4]
+            self.KeyPointWindow.Diagramm.Action_Signed        = Data[5]
+            self.KeyPointWindow.txtUsrAcc.SetValue            (str(float(Data[6]) * 0.9))
+            self.KeyPointWindow.txtUsrVel.SetValue            (str(float(Data[7]) * 0.9))
+            self.KeyPointWindow.Diagramm.Action_minPos        = float(Data[8])
+            self.KeyPointWindow.Diagramm.Action_maxPos        = float(Data[9])
             self.KeyPointWindow.txtUsrLength.SetValue         (Data[10])
-            self.KeyPointWindow.txtUsrDuration.SetValue      (Data[11])
-            self.KeyPointWindow.txtSetupMaxAcc.SetValue       (Data[8])
-            self.KeyPointWindow.txtSetupMaxVel.SetValue       (Data[9])
+            self.KeyPointWindow.txtUsrDuration.SetValue       (Data[11])
+            self.KeyPointWindow.Diagramm.intVel_T_SM          = np.asarray(json.loads(Data[12]))
+            self.KeyPointWindow.Diagramm.Action_Jrk           = np.asarray(json.loads(Data[13]))
+            self.KeyPointWindow.Diagramm.Action_Acc           = np.asarray(json.loads(Data[14]))
+            self.KeyPointWindow.Diagramm.Action_Vel           = np.asarray(json.loads(Data[15]))
+            self.KeyPointWindow.Diagramm.Action_Pos_P         = np.asarray(json.loads(Data[16]))
+            self.KeyPointWindow.Diagramm.Action_VP            = np.asarray(json.loads(Data[17]))
+
+            self.KeyPointWindow.txtSetupMaxAcc.SetValue       (Data[6])
+            self.KeyPointWindow.txtSetupMaxVel.SetValue       (Data[7])
             self.KeyPointWindow.txtSetupLength.SetValue       (Data[10])
-            self.KeyPointWindow.txtSetupTime.SetValue        (Data[11])            
+            self.KeyPointWindow.txtSetupTime.SetValue         (Data[11])
+
             self.KeyPointWindow.Diagramm.FileLoaded           = True
         else:
             dlg = wx.MessageDialog(None,'File can not be decoded','Invalid Data',  wx.OK)
             dlg.ShowModal()
-            print('Invalid Data')  
+            print('Invalid Data') 
+
         self.KeyPointWindow.Diagramm.Entry()
 
     def ExportFile(self,evt):
@@ -1348,18 +1364,26 @@ class VelEditor4C(wx.App):
         pass
 
     def CompileExportData(self):
-        self.EData =[ "SFX Action"                                                + ';' +     # 0
+        intVel = [self.KeyPointWindow.Diagramm.intVel_T_SM[0].tolist(),\
+                  self.KeyPointWindow.Diagramm.intVel_T_SM[1].tolist()]
+        self.EData =( str(0)                                                      + ';' +     # 0
             self.KeyPointWindow.Diagramm.Action_Name                              + ';' +     # 1
             self.KeyPointWindow.Diagramm.Action_Saved                             + ';' +     # 2
             self.KeyPointWindow.Diagramm.Action_Path                              + ';' +     # 3
-            json.dumps(self.KeyPointWindow.Diagramm.intVel_T_SM[0].tolist())      + ';' +     # 4
-            json.dumps(self.KeyPointWindow.Diagramm.intVel_T_SM[1].tolist())      + ';' +     # 5
-            self.KeyPointWindow.txtDescription.GetValue()                         + ';' +     # 6
-            str(self.KeyPointWindow.Diagramm.Action_Signed)                       + ';' +     # 7
-            str(self.KeyPointWindow.txtUsrAcc.GetValue())                         + ';' +     # 8
-            str(self.KeyPointWindow.txtUsrVel.GetValue())                         + ';' +     # 9
-            str(self.KeyPointWindow.txtUsrLength.GetValue())                      + ';' +     # 10
-            str(self.KeyPointWindow.txtUsrDuration.GetValue())                    + ';' ]     # 11
+            self.KeyPointWindow.txtDescription.GetValue()                         + ';' +     # 4
+            str(self.KeyPointWindow.Diagramm.Action_Signed)                       + ';' +     # 5
+            str(self.KeyPointWindow.txtUsrAcc.GetValue())                         + ';' +     # 6
+            str(self.KeyPointWindow.txtUsrVel.GetValue())                         + ';' +     # 7
+            str(self.KeyPointWindow.Diagramm.Action_minPos)                            + ';' +     # 7
+            str(self.KeyPointWindow.Diagramm.Action_maxPos)                            + ';' +     # 7
+            str(self.KeyPointWindow.txtUsrLength.GetValue())                      + ';' +     # 8
+            str(self.KeyPointWindow.txtUsrDuration.GetValue())                    + ';' +     # 9
+            json.dumps(intVel)                                                    + ';' +     # 10
+            json.dumps(self.KeyPointWindow.Diagramm.Action_Jrk.tolist())                   + ';' +     # 11
+            json.dumps(self.KeyPointWindow.Diagramm.Action_Acc.tolist())                   + ';' +     # 12
+            json.dumps(self.KeyPointWindow.Diagramm.Action_Vel.tolist())                   + ';' +     # 13
+            json.dumps(self.KeyPointWindow.Diagramm.Action_Pos.tolist())                   + ';' +     # 14
+            json.dumps(self.KeyPointWindow.Diagramm.Action_VP.tolist())                    + ';' )     #15
 
     def ExportData(self,file):
         file.write(json.dumps(self.EData))

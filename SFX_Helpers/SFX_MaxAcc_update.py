@@ -48,7 +48,10 @@ class SFX_OT_MaxAcc_update(bpy.types.Operator):
 
             A = SFX_Calc_Default_Move(action0.length, action0.maxAcc, action0.maxVel )
             Jrk_Data,Acc_Data,Vel_Data,Pos_Data,Vel_Pos_Data = SFX_Calc_Default_Move.out(A)
-            sfx.actuators[name].Actuator_basic_props.Actuator_props.simple_actuator_Time_prop = Jrk_Data[-1][0]
+
+            sfx.actuators[name].Actuator_basic_props.Actuator_props.simple_actuator_Time_prop = Jrk_Data[0][-1]
+            action0.duration = sfx.actuators[name].Actuator_basic_props.Actuator_props.simple_actuator_Time_prop
+
         elif context.active_node.sfx_type == 'Cue':
             action0.minPos = sfx.cues[name].Actuator_props.simple_actuator_HardMin_prop
             action0.maxPos = sfx.cues[name].Actuator_props.simple_actuator_HardMax_prop
@@ -58,7 +61,8 @@ class SFX_OT_MaxAcc_update(bpy.types.Operator):
 
             A = SFX_Calc_Default_Move(action0.length, action0.maxAcc, action0.maxVel )
             Jrk_Data,Acc_Data,Vel_Data,Pos_Data,Vel_Pos_Data = SFX_Calc_Default_Move.out(A)
-            sfx.cues[name].Actuator_props.simple_actuator_Time_prop = Jrk_Data[-1][0]
+            sfx.cues[name].Actuator_props.simple_actuator_Time_prop = Jrk_Data[0][-1]
+            action0.duration = sfx.cues[name].props.Actuator_props.simple_actuator_Time_prop
 
         action0.Jrk = json.dumps(Jrk_Data)
         action0.Acc = json.dumps(Acc_Data)

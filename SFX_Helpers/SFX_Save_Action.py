@@ -7,21 +7,25 @@ from .. exchange_data.sfx import sfx
 
 def write_some_data(context, filepath, action, description):
     f = open(filepath, 'w', encoding='utf-8')
-    Data = (str(action.id)+';'+
-           action.name+';'+
-           str(action.saved)+';'+
-           action.path+';'+
-           str(action.minPos)+';'+
-           str(action.maxPos)+';'+
-           str(action.maxAcc)+';'+
-           str(action.maxVel)+';'+
-           str(action.length)+';'+
-           action.Jrk+';'+
-           action.Acc+';'+
-           action.Vel+';'+
-           action.Pos+';'+
-           action.VP+';'+
-           description)   
+    Data = (str(action.id)       +';'+     # 0
+           action.name           +';'+     # 1
+           str(action.saved)     +';'+     # 2
+           action.path           +';'+     # 3
+           description           +';'+     # 4
+           str(action.signed)    +';'+     # 5
+           str(action.maxAcc)    +';'+     # 6
+           str(action.maxVel)    +';'+     # 7
+           str(action.minPos)    +';'+     # 8
+           str(action.maxPos)    +';'+     # 9                                                  
+           str(action.length)    +';'+     # 10
+           str(action.duration)  +';'+     # 11
+           action.Pos_SM         +';'+     # 12
+           action.Jrk            +';'+     # 13
+           action.Acc            +';'+     # 14
+           action.Vel            +';'+     # 15
+           action.Pos            +';'+     # 16
+           action.VP             +';')     # 17
+  
     f.write(Data)
     f.close()
 
@@ -70,7 +74,7 @@ class SFX_Save_Action(Operator, ExportHelper):
             #self.description = action.name
         elif MotherNode.sfx_type == 'Cue':
             index = sfx.cues[MotherNode.name].Actuator_props.SFX_actions_index
-            action = sfx.cues[MotherNode.name].Actuator_props.SFX_actions[index]          
+            action = sfx.cues[MotherNode.name].Actuator_props.SFX_actions[index] 
         action.saved = True
         action.description = self.description
         return write_some_data(context, self.filepath, action, self.description)
