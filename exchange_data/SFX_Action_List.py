@@ -17,13 +17,20 @@ def read_some_data(context, filepath, item):
     item.name        = Data[1]
     item.saved       = bool(Data[2])
     item.path        = Data[3]
-    item.Vel[0]      = Data[4]
-    item.Vel[1]      = Data[5]
-    item.description = Data[6]
-    item.signed      = bool(Data[7])
-    item.maxAcc      = float(Data[8])
-    item.maxVel      = float(Data[9])
+    item.description = Data[4]
+    item.signed      = bool(Data[5])
+    item.maxAcc      = float(Data[6])
+    item.maxVel      = float(Data[7])
+    item.minPos      = float(Data[8])
+    item.maxPos      = float(Data[9])
     item.length      = float(Data[10])
+    item.Duration    = float(Data[11])
+    item.Pos_SM      = Data[12]   
+    item.Jrk         = Data[13] 
+    item.Acc         = Data[14] 
+    item.Vel         = Data[15]
+    item.Pos         = Data[16] 
+    item.VP          = Data[17] 
 
     return {'FINISHED'}
 
@@ -306,7 +313,7 @@ class SFX_OT_SelectOperator(bpy.types.Operator, ImportHelper):
             item = sfx_actions.add()
             item.id = len(sfx_actions)
             item.name = i.name # assign name of selected object
-            read_some_data(context, path_to_file, item)        
+            read_some_data(context, path_to_file, item)
         self.report({'INFO'}, "Files Added")
         return {'FINISHED'}
 
@@ -332,12 +339,20 @@ class SFX_OT_clear_List(bpy.types.Operator):
 
     def execute(self, context):
         MotherNode = context.active_node
-        sfx_actions       = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions
-        if len(sfx_actions) > 1:
-             # reverse range to remove last item first but keep first
-            for i in range(len(sfx_actions)-1,0,-1):
-                sfx_actions.remove(i)
-            sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index = 0
-        else:
-            pass
+        if MotherNode.sfx_type == 'Action':
+            sfx_actions       = sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions
+            if len(sfx_actions) > 1:
+                # reverse range to remove last item first but keep first
+                for i in range(len(sfx_actions)-1,0,-1):
+                    sfx_actions.remove(i)
+                sfx.actuators[MotherNode.name].Actuator_basic_props.Actuator_props.SFX_actions_index = 0
+            else:
+                pass
+        elif MotherNode.sfx_type == 'Cue':
+            sfx_actions       = sfx.cues[MotherNode.name].Actuator_props.SFX_actions
+            if len(sfx_actions) > 1:
+                # reverse range to remove last item first but keep first
+                for i in range(len(sfx_actions)-1,0,-1):
+                    sfx_actions.remove(i)
+                sfx.actuators[MotherNode.name].Actuator_props.SFX_actions_index = 0            
         return{'FINISHED'}

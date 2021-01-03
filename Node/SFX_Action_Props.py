@@ -39,7 +39,7 @@ class SFX_Action_Props(bpy.types.PropertyGroup):
                                  default = 0)
     Pos_SM : bpy.props.StringProperty(name = 'Pos_SM',
                                  description = 'Pos_SM',
-                                 default = '"Pos_SM"')
+                                 default = '[[0,1],[0,0]]')
     Jrk : bpy.props.StringProperty(name = 'Jrk',
                                  description = 'Jrk',
                                  default = 'Jrk')

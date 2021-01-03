@@ -1,4 +1,5 @@
 import bpy
+import json
 
 from .. Node.SFX_Action_Props import SFX_Action_Props
 
@@ -26,7 +27,7 @@ def write_some_data(context, filepath, action, description):
            action.Pos            +';'+     # 16
            action.VP             +';')     # 17
   
-    f.write(Data)
+    f.write(json.dumps(Data))
     f.close()
 
     return {'FINISHED'}
