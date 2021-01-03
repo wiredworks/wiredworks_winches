@@ -326,7 +326,12 @@ class SFX_UL_List(UIList):
         if item.saved == False:
             split.label(text='', icon ='CHECKBOX_DEHLT')
         else:
-            split.label(text='', icon ='CHECKBOX_HLT')           
+            split.label(text='', icon ='CHECKBOX_HLT') 
+        split1 = layout.split(factor = 0.5)
+        if item.signed == False:
+            split.label(text='', icon ='CHECKBOX_DEHLT')
+        else:
+            split.label(text='', icon ='CHECKBOX_HLT')         
             
 
     def invoke(self, context, event):

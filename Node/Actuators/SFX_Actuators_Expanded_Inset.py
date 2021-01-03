@@ -63,7 +63,7 @@ class SFX_Actuators_Expanded_Inset(bpy.types.PropertyGroup):
         boxA = layout.box()
         row = boxA.row()
         row.label(text='Action Setup') 
-        box1 = boxA.split(factor = 0.5)
+        box1 = boxA.split(factor = 0.6)
         col = box1.column(align = True)
         #col = col.split(factor = 0.5)
 
@@ -94,7 +94,11 @@ class SFX_Actuators_Expanded_Inset(bpy.types.PropertyGroup):
         row = colA.row()
         row.label(text = 'Max Pos')
         row.prop(self,'simple_actuator_HardMax_prop', text='')
-
+        row = colA.row()
+        row.label(text = 'Length')
+        row.prop(self.SFX_actions[self.SFX_actions_index],'length', text='')
+        row.enabled = False
+        
         row = colA.row()
         row.separator()
         row = colA.row()

@@ -207,7 +207,7 @@ class Diagramm(wx.Panel):
 
         self.PrepareGraphs()
 
-    def ClearVarsEntryVedtUnsigned(self):
+    def ClearVarsEntryUnsigned(self):
         ''' Clear Variables'''
         self.CP_P_Points_Limit = [[],[],[]] # Limit Control Points In Pos Domain   [[x-Values],[y-Values],[tangent]]
         self.CP_P_Points       = [[],[],[]] # Control Points In Pos Domain         [[x-Values],[y-Values],[tangent]]
@@ -221,6 +221,7 @@ class Diagramm(wx.Panel):
         self.Vel_P_Limit       = [[],[]]
         self.Vel_P             = [[],[]]
         self.Acc_T             = [[],[]]
+        self.Jrk_T             = [[],[]]
         self.Vel_T             = [[],[]]
         self.Vel_T_Limit       = [[],[]]
 
@@ -257,12 +258,13 @@ class Diagramm(wx.Panel):
         self.VelInTime_tangents = []
         self.Vel_T_SM_markers   = []   
 
-    def ClearVarsEntryVedtSigned(self):
+    def ClearVarsEntrySigned(self):
         ''' Clear Variables'''
 
         self.Vel_P_Limit       = [[],[]]
         self.Vel_P             = [[],[]]
         self.Acc_T             = [[],[]]
+        self.Jrk_T             = [[],[]]
         self.Vel_T             = [[],[]]
         self.Vel_T_Limit       = [[],[]]
 
@@ -303,6 +305,7 @@ class Diagramm(wx.Panel):
         self.Vel_P_Limit       = [[],[]]
         self.Vel_P             = [[],[]]
         self.Acc_T             = [[],[]]
+        self.Jrk_T             = [[],[]]
         self.Vel_T             = [[],[]]
         self.Vel_T_Limit       = [[],[]]
 
@@ -340,14 +343,14 @@ class Diagramm(wx.Panel):
         self.VelInTime_markers  = []
         self.VelInTime_tangents = []
 
-    def EntryVedt(self):
+    def Entry(self):
         ''' Setup of Controlpoints and the BPolys'''
         Vel_T_D_S_09 =[[],[],[]]
         self.Length = float(self.VelEditorFrame.txtUsrLength.GetValue())        
         self.Time_Pos_Values      = np.zeros(1000)
 
         if not(self.Action_Signed):
-            self.ClearVarsEntryVedtUnsigned()
+            self.ClearVarsEntryUnsigned()
             self.canvas.draw()
             self.Jrk_T_D_L,\
             self.Acc_T_D_L,\
@@ -396,7 +399,7 @@ class Diagramm(wx.Panel):
             self.RecalcMove(init = True)
         else:
             self.canvas.draw()
-            self.ClearVarsEntryVedtSigned()
+            self.ClearVarsEntrySigned()
 
             self.Samples = len(self.Vel_T_D_L[0])
             self.X_Time_Values         = np.linspace(0., float(self.CP_T_Points[0][-1]) ,  self.Samples, dtype= np.double)
@@ -418,11 +421,7 @@ class Diagramm(wx.Panel):
             self.RecalcMove(init = False)
         
         self.rezoom          = True
-        self.Plot(init       = True)
-    
-    def EntrySfxact(self):
-        Print('##')
-        pass
+        self.Plot(init       = True)    
 
     def GenerateProfile(self,Length, Acc, Vel, RiseTime, JHeight):
         self.Action_Signed      = False
@@ -615,7 +614,7 @@ class Diagramm(wx.Panel):
         self.linesT += self.axesT.plot(self._xInit,self.Null,  color = "darkblue",        linewidth = 0.5,  linestyle = "-",        pickradius = 0) # Acc_T_SM    [5]
         self.linesT += self.axesT.plot(self._xInit,self.Null,  color = "darkred",         linewidth = 0.5,  linestyle = "--",       pickradius = 0) # Vel_T_SM    [6]
         self.linesT += self.axesT.plot(self._xInit,self.Null,  color = "m",               linewidth = 0.8,  linestyle = "-",        pickradius = 0)
-     #  self.linesT += self.axesT.plot(self._xInit,self.Null,  color = "darkgreen",       linewidth = 0.5,  linestyle = "-.",       pickradius = 0)
+        self.linesT += self.axesT.plot(self._xInit,self.Null,  color = "darkgreen",       linewidth = 0.5,  linestyle = "-.",       pickradius = 0)
 
     def Plot(self, init = True):        
         #self.rezoom = True
@@ -653,7 +652,8 @@ class Diagramm(wx.Panel):
         self.linesT[4].set( xdata = self.Vel_T_D_L[0],    ydata=self.Vel_T_D_L[1])
         self.linesT[5].set( xdata = self.Acc_T_SM[0],     ydata=self.Acc_T_SM[1])
         self.linesT[6].set( xdata = self.Vel_T_SM[0],     ydata=self.Vel_T_SM[1])
-        self.linesT[7].set( xdata = self.intVel_T_SM[0],  ydata=self.intVel_T_SM[1])          
+        self.linesT[7].set( xdata = self.intVel_T_SM[0],  ydata=self.intVel_T_SM[1])
+        self.linesT[8].set( xdata = self.Jrk_T[0],        ydata=self.Jrk_T[1])          
 
         for i in range (len(self.fillT)):
             self.axesT.patches.remove(self.fillT[i])
@@ -950,6 +950,10 @@ class Diagramm(wx.Panel):
         pdt  = self.CP_T_BPoly.derivative(1)
         self.Acc_T[0] = self.X_Time_Values
         self.Acc_T[1] = pdt(self.X_Time_Values)
+
+        pdt1  = self.CP_T_BPoly.derivative(2)
+        self.Jrk_T[0] = self.X_Time_Values
+        self.Jrk_T[1] = pdt1(self.X_Time_Values)
 
         if self.VelEditorFrame:
             maxAcc = abs(max(self.Acc_T[1]))
@@ -1354,7 +1358,7 @@ class VelEditor4C(wx.App):
             dlg.ShowModal()
             print('Invalid Data') 
 
-        self.KeyPointWindow.Diagramm.EntryVedt()
+        self.KeyPointWindow.Diagramm.Entry()
         self.KeyPointWindow.Diagramm.Smooth()
         self.KeyPointWindow.Diagramm.SmoothII()
 
@@ -1382,7 +1386,16 @@ class VelEditor4C(wx.App):
 
     def CompileExportData(self):
         intVel = [self.KeyPointWindow.Diagramm.intVel_T_SM[0].tolist(),\
-                  self.KeyPointWindow.Diagramm.intVel_T_SM[1].tolist()]
+                 self.KeyPointWindow.Diagramm.intVel_T_SM[1].tolist()]           # integrated Vel
+        Jrk    = [self.KeyPointWindow.Diagramm.Jrk_T[0].tolist(),\
+                  self.KeyPointWindow.Diagramm.Jrk_T[1].tolist()]
+        Acc    = [self.KeyPointWindow.Diagramm.Acc_T_SM[0].tolist(),\
+                  self.KeyPointWindow.Diagramm.Acc_T_SM[1].tolist()]
+        Vel    = [self.KeyPointWindow.Diagramm.Vel_T[0].tolist(),\
+                  self.KeyPointWindow.Diagramm.Vel_T[1].tolist()]
+        # Pos    = [self.KeyPointWindow.Diagramm.Pos_T_D[0].tolist(),\
+        #           self.KeyPointWindow.Diagramm.Pos_T_D[1].tolist()]
+
         self.EData =( str(self.KeyPointWindow.Diagramm.Action_ID)                 + ';' +     # 0                                    + ';' +     # 0
             self.KeyPointWindow.Diagramm.Action_Name                              + ';' +     # 1
             str(self.KeyPointWindow.Diagramm.Action_Saved)                        + ';' +     # 2
@@ -1396,10 +1409,15 @@ class VelEditor4C(wx.App):
             str(self.KeyPointWindow.txtUsrLength.GetValue())                      + ';' +     # 8
             str(self.KeyPointWindow.txtUsrDuration.GetValue())                    + ';' +     # 9
             json.dumps(intVel)                                                    + ';' +     # 10
-            json.dumps(self.KeyPointWindow.Diagramm.Action_Jrk.tolist())          + ';' +     # 11
-            json.dumps(self.KeyPointWindow.Diagramm.Action_Acc.tolist())          + ';' +     # 12
-            json.dumps(self.KeyPointWindow.Diagramm.Action_Vel.tolist())          + ';' +     # 13
-            json.dumps(self.KeyPointWindow.Diagramm.Action_Pos_P.tolist())        + ';' +     # 14
+            # json.dumps(self.KeyPointWindow.Diagramm.Action_Jrk.tolist())          + ';' +     # 11
+            # json.dumps(self.KeyPointWindow.Diagramm.Action_Acc.tolist())          + ';' +     # 12
+            # json.dumps(self.KeyPointWindow.Diagramm.Action_Vel.tolist())          + ';' +     # 13
+            # json.dumps(self.KeyPointWindow.Diagramm.Action_Pos_P.tolist())        + ';' +     # 14
+            # json.dumps(self.KeyPointWindow.Diagramm.Action_VelInPos.tolist())     + ';' )     # 15
+            json.dumps(Jrk)                                                       + ';' +     # 11
+            json.dumps(Acc)                                                       + ';' +     # 12
+            json.dumps(Vel)                                                       + ';' +     # 13
+            json.dumps(intVel)                                                    + ';' +     # 14
             json.dumps(self.KeyPointWindow.Diagramm.Action_VelInPos.tolist())     + ';' )     # 15
 
     def ExportData(self,file):
@@ -1660,7 +1678,7 @@ class VelEditor4C(wx.App):
             dlg = wx.MessageDialog(None,'File can not be decoded','Invalid Data',  wx.OK)
             dlg.ShowModal()
             print('Invalid Data')  
-        self.KeyPointWindow.Diagramm.EntryVedt()
+        self.KeyPointWindow.Diagramm.Entry()
 
 if __name__ == "__main__":
     app = VelEditor4C()
