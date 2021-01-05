@@ -206,6 +206,9 @@ class Diagramm(wx.Panel):
         self.Action_Signed       = False
         self.FileLoaded          = False
 
+        self.OldTimeFactor       = 1.0
+        self.OldDuration         = 0.0
+
         self.PrepareGraphs()
 
     def ClearVars(self):
@@ -939,9 +942,10 @@ class Diagramm(wx.Panel):
         if self.VelEditorFrame:
             maxAcc = abs(max(self.Acc_T[1]))
             maxDcc = abs(min(self.Acc_T[1]))
-            self.VelEditorFrame.txtUsrDuration.SetValue('%3.3f'% self.CP_M_Points[0][-1])
-            self.VelEditorFrame.txtUsrTimeFactor.SetValue('%3.3f'% \
-                (float(self.VelEditorFrame.txtUsrDuration.GetValue())/float(self.VelEditorFrame.txtSetupTime.GetValue())))
+            self.OldDuration = self.CP_M_Points[0][-1]
+            self.VelEditorFrame.txtUsrDuration.SetValue('%3.3f'% self.OldDuration)
+            self.OldTimeFactor = (float(self.VelEditorFrame.txtUsrDuration.GetValue())/float(self.VelEditorFrame.txtSetupTime.GetValue()))
+            self.VelEditorFrame.txtUsrTimeFactor.SetValue('%3.3f'% self.OldTimeFactor)
             self.VelEditorFrame.txtProfileMaxAcc.SetValue('%3.3f'% maxAcc)
             self.VelEditorFrame.txtProfileMaxDcc.SetValue('%3.3f'% maxDcc)
 
@@ -1079,6 +1083,44 @@ class Diagramm(wx.Panel):
             
         self.axes.figure.canvas.draw()
         self.Refresh()
+
+    def OnChangeDuration(self):
+        Factor = self.OldDuration/float(self.VelEditorFrame.txtUsrDuration.GetValue())
+        self.CP_M_Points[0] =  self.CP_M_Points[0] / Factor
+        self.CP_M_Points[1] =  self.CP_M_Points[1] * Factor
+
+        self.CP_T_Points[0] =  self.CP_T_Points[0] / Factor
+        self.CP_T_Points[1] =  self.CP_T_Points[1] * Factor
+
+        self.X_Time_Values         = np.linspace(0., float(self.CP_T_Points[0][-1]) ,  self.Samples, dtype= np.double)
+        self.X_Pos_Values          = np.linspace(0., self.Length,            self.Samples, dtype= np.double)
+
+        self.init_T_BPoly()            
+        self.init_P_BPoly()
+        self.Vel_P_Limit = self.Vel_P_D
+
+        self.RecalcMove(init = False)        
+        self.rezoom          = True
+        self.Plot(init       = False)               
+
+    def OnChangeFactor(self):
+        Factor = self.OldTimeFactor/float(self.VelEditorFrame.txtUsrTimeFactor.GetValue())
+        self.CP_M_Points[0] =  self.CP_M_Points[0] / Factor
+        self.CP_M_Points[1] =  self.CP_M_Points[1] * Factor
+
+        self.CP_T_Points[0] =  self.CP_T_Points[0] / Factor
+        self.CP_T_Points[1] =  self.CP_T_Points[1] * Factor
+
+        self.X_Time_Values         = np.linspace(0., float(self.CP_T_Points[0][-1]) ,  self.Samples, dtype= np.double)
+        self.X_Pos_Values          = np.linspace(0., self.Length,            self.Samples, dtype= np.double)
+
+        self.init_T_BPoly()            
+        self.init_P_BPoly()
+        self.Vel_P_Limit = self.Vel_P_D
+
+        self.RecalcMove(init = False)        
+        self.rezoom          = True
+        self.Plot(init       = False)       
 
     def OnScroll(self, evt):
         base_scale = .7
@@ -1270,7 +1312,8 @@ class VelEditor4C(wx.App):
         self.Bind(wx.EVT_BUTTON        , self.OnButtonSign,          self.KeyPointWindow.btnSign)
         self.Bind(wx.EVT_CHECKBOX      , self.OnSmooth,              self.KeyPointWindow.chkSmoothing)
         self.Bind(wx.EVT_CHECKBOX      , self.OnSmoothII,            self.KeyPointWindow.chkSmoothingII)
-
+        self.Bind(wx.EVT_TEXT_ENTER    , self.OnChangeDuration,      self.KeyPointWindow.txtUsrDuration)
+        self.Bind(wx.EVT_TEXT_ENTER    , self.OnChangeFactor,       self.KeyPointWindow.txtUsrTimeFactor)
 
         File = wx.Menu()
         openFile = File.Append(ID_Menu_OpenVelFile,'Open Vel File','This opens a VelFile for editing')
@@ -1294,6 +1337,12 @@ class VelEditor4C(wx.App):
         self.KeyPointWindow.Show()
 
         return True
+
+    def OnChangeDuration(self,evt):
+        self.KeyPointWindow.Diagramm.OnChangeDuration()
+
+    def OnChangeFactor(self,evt):
+        self.KeyPointWindow.Diagramm.OnChangeFactor()
 
     def ImportFile(self,evt):
         with wx.FileDialog(None, "Import SFXACT Vel file", wildcard="SFXAction files (*.sfxact)|*.sfxact",
@@ -1578,7 +1627,6 @@ class VelEditor4C(wx.App):
                 json.dumps((self.KeyPointWindow.Diagramm.intAcc_T_SM[1].tolist()))    + ';' +     # 77
                 json.dumps((self.KeyPointWindow.Diagramm.Vel_P_SM[0].tolist()))       + ';' +     # 78
                 json.dumps((self.KeyPointWindow.Diagramm.Vel_P_SM[1].tolist()))       + ';' )     # 79
-
 
     def Exit(self,evt):
         sys.exit()

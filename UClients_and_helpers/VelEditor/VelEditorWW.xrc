@@ -596,8 +596,7 @@
                                                     <border>0</border>
                                                     <object class="wxTextCtrl" name="txtUsrDuration">
                                                         <size>50,20</size>
-                                                        <style>wxTE_READONLY|wxTE_RIGHT</style>
-                                                        <enabled>0</enabled>
+                                                        <style>wxTE_PROCESS_ENTER|wxTE_RIGHT</style>
                                                         <bg>#FFFFFF</bg>
                                                         <value>0</value>
                                                     </object>
@@ -629,8 +628,7 @@
                                                             <border>0</border>
                                                             <object class="wxTextCtrl" name="txtUsrTimeFactor">
                                                                 <size>50,20</size>
-                                                                <style>wxTE_READONLY|wxTE_RIGHT</style>
-                                                                <enabled>0</enabled>
+                                                                <style>wxTE_PROCESS_ENTER|wxTE_RIGHT</style>
                                                                 <bg>#FFFFFF</bg>
                                                                 <value>0</value>
                                                             </object>
