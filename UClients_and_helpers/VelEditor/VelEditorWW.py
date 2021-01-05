@@ -43,7 +43,7 @@ class Diagramm(wx.Panel):
         self.clickpoint = [0,0]
         self.hpoint=0
         self.parent = parent
-        self.figure = Figure(figsize=(12, 36))
+        self.figure = Figure(figsize=(24, 72))
         self.dpi    = self.figure.get_dpi()
         self.figure.subplots_adjust(left=0.05,right=0.95,bottom=0.05,top=0.95,wspace=0.1,hspace=0.1)
         # with axisartist 

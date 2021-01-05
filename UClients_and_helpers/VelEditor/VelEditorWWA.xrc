@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resource version="2.3.0.1" xmlns="http://www.wxwidgets.org/wxxrc">
     <object class="wxFrame" name="ID_WXFRAME">
-        <style>wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxMAXIMIZE_BOX|wxCLOSE_BOX</style>
+        <style>wxCAPTION|wxRESIZE_BORDER|wxSYSTEM_MENU|wxCLOSE_BOX</style>
         <size>1300,800</size>
         <title>wiredworks winches VelEditor</title>
         <centered>1</centered>
@@ -10,11 +10,11 @@
             <exstyle>wxWS_EX_VALIDATE_RECURSIVELY</exstyle>
             <object class="wxFlexGridSizer">
                 <cols>4</cols>
-                <rows>2</rows>
+                <rows>7</rows>
                 <vgap>0</vgap>
                 <hgap>0</hgap>
                 <growablecols>2</growablecols>
-                <growablerows>1</growablerows>
+                <growablerows>6</growablerows>
                 <object class="spacer">
                     <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
                     <border>0</border>
@@ -49,7 +49,7 @@
                         <vgap>4</vgap>
                         <hgap>4</hgap>
                         <growablecols>1</growablecols>
-                        <growablerows>0</growablerows>
+                        <growablerows>1</growablerows>
                         <object class="sizeritem">
                             <flag>wxALIGN_LEFT|wxALIGN_TOP</flag>
                             <border>0</border>
