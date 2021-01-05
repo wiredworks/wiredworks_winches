@@ -150,6 +150,7 @@ class SFX_Calc_Default_Cue:
         self.PosC = np.append(self.PosC, np.zeros(Teilung, dtype = np.double))   
             
     def CalcDrawFcurves(self):
+        Frames_2_Seconds = bpy.data.scenes["Scene"].render.fps / bpy.data.scenes["Scene"].render.fps_base
         Jrkcurve = self.Dataobject.animation_data.action.fcurves[0]
         Acccurve = self.Dataobject.animation_data.action.fcurves[1]
         Velcurve = self.Dataobject.animation_data.action.fcurves[2]
@@ -158,30 +159,30 @@ class SFX_Calc_Default_Cue:
 
         Acccurve.keyframe_points.insert( 0 , 0) 
         for i in range(1, len(self.X)):
-            self.JrkC[i] = Jrkcurve.evaluate(self.X[i])
-            self.AccC[i] = self.AccC[i-1] + self.JrkC[i] * (self.X[i]-self.X[i-1])
+            self.JrkC[i] = Jrkcurve.evaluate(self.X[i] * Frames_2_Seconds)
+            self.AccC[i] = self.AccC[i-1] + self.JrkC[i] * (self.X[i] * Frames_2_Seconds-self.X[i-1] * Frames_2_Seconds)
         Acccurve.keyframe_points.insert( 0 ,0, options ={'FAST'})                
         for i in range(1,len(self.AccC)):
             if self.X[i] > 0.015:
-                Acccurve.keyframe_points.insert( self.X[i] , self.AccC[i], options ={'FAST'}) 
+                Acccurve.keyframe_points.insert( self.X[i] * Frames_2_Seconds , self.AccC[i], options ={'FAST'}) 
         for i in range(1, len(self.X)):
             #self.AccC[i] = self.Acccurve.evaluate(self.X[i])
-            self.VelC[i] = self.VelC[i-1] + self.AccC[i] * (self.X[i]-self.X[i-1])             
+            self.VelC[i] = self.VelC[i-1] + self.AccC[i] * (self.X[i] * Frames_2_Seconds-self.X[i-1] * Frames_2_Seconds)             
         for i in range(0,len(self.VelC)):
-            Velcurve.keyframe_points.insert( self.X[i] , self.VelC[i], options ={'FAST'})
+            Velcurve.keyframe_points.insert( self.X[i] * Frames_2_Seconds , self.VelC[i], options ={'FAST'})
             
         for i in range(1, len(self.X)):
             #VelC[i] = Velcurve.evaluate(X[i])
-            self.PosC[i] = self.PosC[i-1] + self.VelC[i] * (self.X[i]-self.X[i-1]) 
+            self.PosC[i] = self.PosC[i-1] + self.VelC[i] * (self.X[i] * Frames_2_Seconds-self.X[i-1] * Frames_2_Seconds) 
         for i in range(0,len(self.PosC)):
-            Poscurve.keyframe_points.insert( self.X[i] , self.PosC[i], options ={'FAST'})
+            Poscurve.keyframe_points.insert( self.X[i] * Frames_2_Seconds , self.PosC[i], options ={'FAST'})
 
         VelPos.keyframe_points.insert( 0 , 0)
         VelPos.keyframe_points[0].handle_left   = (VelPos.keyframe_points[0].co[0],-10)
         VelPos.keyframe_points[0].handle_right  = (VelPos.keyframe_points[0].co[0],10)
         for i in range(0,len(self.X)):
-            v = Velcurve.evaluate(self.X[i])
-            p = Poscurve.evaluate(self.X[i])
+            v = Velcurve.evaluate(self.X[i] * Frames_2_Seconds)
+            p = Poscurve.evaluate(self.X[i] * Frames_2_Seconds)
             if p > 0.015:
                 VelPos.keyframe_points.insert( p , v)
         VelPos.keyframe_points[-1].handle_left   = (VelPos.keyframe_points[-1].co[0],10)
@@ -196,16 +197,17 @@ class SFX_Calc_Default_Cue:
         # self.maxTime = self.X[-1]
             
     def Jerk(self, Puls, JH):
+        Frames_2_Seconds = bpy.data.scenes["Scene"].render.fps / bpy.data.scenes["Scene"].render.fps_base
         Jrkcurve = self.Dataobject.animation_data.action.fcurves[0]
         Jer0  = 0
         Jer1  = JH
         Jer2  = JH
         Jer3  = 0
 
-        Jert0    = Puls[0]
-        Jert1    = Puls[0] +  Puls[1]
-        Jert2    = Puls[0] +  Puls[1] +  Puls[2]
-        Jert3    = Puls[0] +  Puls[1] +  Puls[2] +  Puls[3]
+        Jert0    = Puls[0] * Frames_2_Seconds
+        Jert1    = Puls[0] * Frames_2_Seconds +  Puls[1] * Frames_2_Seconds
+        Jert2    = Puls[0] * Frames_2_Seconds +  Puls[1] * Frames_2_Seconds +  Puls[2] * Frames_2_Seconds
+        Jert3    = Puls[0] * Frames_2_Seconds +  Puls[1] * Frames_2_Seconds +  Puls[2] * Frames_2_Seconds +  Puls[3] * Frames_2_Seconds
 
         Jrkcurve.keyframe_points.insert( Jert0 , Jer0)
         Jrkcurve.keyframe_points.insert( Jert1 , Jer1)

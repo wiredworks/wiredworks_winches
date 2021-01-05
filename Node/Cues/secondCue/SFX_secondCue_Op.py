@@ -173,6 +173,7 @@ class SFX_secondCue_Op(bpy.types.Operator):
         return action0
 
     def Plot_Graph_Curves(self, action):
+        Frames_2_Seconds = bpy.data.scenes["Scene"].render.fps / bpy.data.scenes["Scene"].render.fps_base
         Jrk = json.loads(action.Jrk)
         Acc = json.loads(action.Acc)
         Vel = json.loads(action.Vel)
@@ -181,27 +182,27 @@ class SFX_secondCue_Op(bpy.types.Operator):
         self.JrkInTime.keyframe_points.insert(0,0) 
         for i in range(0,len(Jrk[0])):
             if Jrk[0][i]>0.01:
-                A=self.JrkInTime.keyframe_points.insert(Jrk[0][i],Jrk[1][i], options =  {'FAST'}) 
+                A=self.JrkInTime.keyframe_points.insert(Jrk[0][i] * Frames_2_Seconds,Jrk[1][i], options =  {'FAST'}) 
                 A.interpolation = 'LINEAR'
         self.AccInTime.keyframe_points.insert(0,0)
         for i in range(0,len(Acc[0])):
             if Acc[0][i]>0.01:
-                A=self.AccInTime.keyframe_points.insert(Acc[0][i],Acc[1][i], options =  {'FAST'}) 
+                A=self.AccInTime.keyframe_points.insert(Acc[0][i] * Frames_2_Seconds,Acc[1][i], options =  {'FAST'}) 
                 A.interpolation = 'LINEAR'
         self.VelInTime.keyframe_points.insert(0,0)
         for i in range(0,len(Vel[0])):
             if Vel[0][i]>0.01:
-                A=self.VelInTime.keyframe_points.insert(Vel[0][i],Vel[1][i], options =  {'FAST'}) 
+                A=self.VelInTime.keyframe_points.insert(Vel[0][i] * Frames_2_Seconds,Vel[1][i], options =  {'FAST'}) 
                 A.interpolation = 'LINEAR'
         self.PosInTime.keyframe_points.insert(0,0)
         for i in range(0,len(Pos[0])):
             if Pos[0][i]>0.01:
-                A=self.PosInTime.keyframe_points.insert(Pos[0][i],Pos[1][i], options =  {'FAST'}) 
+                A=self.PosInTime.keyframe_points.insert(Pos[0][i] * Frames_2_Seconds,Pos[1][i], options =  {'FAST'}) 
                 A.interpolation = 'LINEAR'
         self.VelPos.keyframe_points.insert(0,0)         
         for i in range(0,len(VP[0])):
             if VP[0][i]>0.01:
-                A=self.VelPos.keyframe_points.insert(VP[0][i],VP[1][i], options =  {'FAST'}) 
+                A=self.VelPos.keyframe_points.insert(VP[0][i] * Frames_2_Seconds,VP[1][i], options =  {'FAST'}) 
                 A.interpolation = 'LINEAR'        
 
 
@@ -219,6 +220,7 @@ class SFX_secondCue_Op(bpy.types.Operator):
         # self.PosInTime.keyframe_points[-1].handle_right = (Point1[0]+1,Point1[1])
 
     def CalcVelAccInTime(self):
+        Frames_2_Seconds = bpy.data.scenes["Scene"].render.fps / bpy.data.scenes["Scene"].render.fps_base
         Teilung = 101
         self.X     = np.linspace(0 , self.Time, num = Teilung, retstep = False, dtype = np.longdouble)
         self.dX    = self.X[1] - self.X[0]
@@ -235,28 +237,28 @@ class SFX_secondCue_Op(bpy.types.Operator):
 
         self.PosC[0] = 0
         for i in range(1, len(self.X)):
-            self.PosC[i] = PosTime.evaluate(self.X[i])
+            self.PosC[i] = PosTime.evaluate(self.X[i] * Frames_2_Seconds)
             self.VelC[i]= (self.PosC[i] - self.PosC[i-1]) / self.dX
         #self.VelC = savgol_filter(self.VelC, 51, 3) # window size 51, polynomial order 3
         for i in range(0,len(self.VelC)):
-            VelTime.keyframe_points.insert( self.X[i] , self.VelC[i])
+            VelTime.keyframe_points.insert( self.X[i] * Frames_2_Seconds , self.VelC[i])
 
         for i in range(1, len(self.X)):
-            self.VelC[i] = VelTime.evaluate(self.X[i])
+            self.VelC[i] = VelTime.evaluate(self.X[i] * Frames_2_Seconds)
             self.AccC[i]= (self.VelC[i] - self.VelC[i-1]) / self.dX 
         #self.AccC = savgol_filter(self.AccC, 51, 3) # window size 51, polynomial order 3                
         for i in range(0,len(self.AccC)):
             AccTime.keyframe_points.insert( self.X[i] , self.AccC[i])
 
         for i in range(1, len(self.X)):
-            self.AccC[i] = AccTime.evaluate(self.X[i])
+            self.AccC[i] = AccTime.evaluate(self.X[i] * Frames_2_Seconds)
             self.JrkC[i]= (self.AccC[i] - self.AccC[i-1]) / self.dX 
         #self.AccC = savgol_filter(self.AccC, 51, 3) # window size 51, polynomial order 3                
         for i in range(0,len(self.JrkC)):
-            JrkTime.keyframe_points.insert( self.X[i] , self.JrkC[i])
+            JrkTime.keyframe_points.insert( self.X[i] * Frames_2_Seconds , self.JrkC[i])
 
         VelPos.keyframe_points.insert( 0 , 0)
-        VelPos.keyframe_points.insert( 10 , 10)
+        VelPos.keyframe_points.insert( 10 * Frames_2_Seconds , 10)
         # VelPos.keyframe_points[0].handle_left   = (VelPos.keyframe_points[0].co[0],-10)
         # VelPos.keyframe_points[0].handle_right  = (VelPos.keyframe_points[0].co[0],10)
         # for i in range(0,len(self.X)):

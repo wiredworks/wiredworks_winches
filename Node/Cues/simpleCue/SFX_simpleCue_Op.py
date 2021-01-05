@@ -149,6 +149,7 @@ class SFX_simpleCue_Op(bpy.types.Operator):
         self.FcurvesInitialized = True
 
     def CalcGrenzVel(self):
+        Frames_2_Seconds = bpy.data.scenes["Scene"].render.fps / bpy.data.scenes["Scene"].render.fps_base
         self.GrenzVel.lock = True
         self.GrenzVel.mute = True        
         max_Pos = sfx.cues[self.MotherNode.name].Actuator_props.simple_actuator_HardMax_prop
@@ -173,25 +174,26 @@ class SFX_simpleCue_Op(bpy.types.Operator):
         if len(self.GrenzVel.keyframe_points)>2:
             self.GrenzVel.keyframe_points[2].co = Point2
         else:
-            self.GrenzVel.keyframe_points.insert( Point2[0],Point2[1] )
+            self.GrenzVel.keyframe_points.insert( Point2[0] * Frames_2_Seconds,Point2[1] )
         self.GrenzVel.keyframe_points[2].interpolation ='LINEAR'
         if len(self.GrenzVel.keyframe_points)>3:
             self.GrenzVel.keyframe_points[3].co = Point3
         else:
-            self.GrenzVel.keyframe_points.insert( Point3[0],Point3[1] )
+            self.GrenzVel.keyframe_points.insert( Point3[0] * Frames_2_Seconds,Point3[1] )
 
         self.CalcGrenzVelCalculated = True
 
     def InitVelInPos(self):
+        Frames_2_Seconds = bpy.data.scenes["Scene"].render.fps / bpy.data.scenes["Scene"].render.fps_base
         max_Pos = sfx.cues[self.MotherNode.name].Actuator_props.simple_actuator_HardMax_prop
         min_Pos = sfx.cues[self.MotherNode.name].Actuator_props.simple_actuator_HardMin_prop
         max_Vel = sfx.cues[self.MotherNode.name].Actuator_props.simple_actuator_VelMax_prop
         max_Acc = sfx.cues[self.MotherNode.name].Actuator_props.simple_actuator_AccMax_prop
 
-        Point0 = (min_Pos*100,0)
-        Point1 = ((min_Pos+((max_Vel*max_Vel)/(2.0*max_Acc))*1.5)*100,max_Vel*90)
-        Point2 = ((max_Pos-((max_Vel*max_Vel)/(2.0*max_Acc))*1.5)*100,max_Vel*90)
-        Point3 = (max_Pos*100,0)
+        Point0 = (min_Pos*100 * Frames_2_Seconds,0)
+        Point1 = ((min_Pos+((max_Vel*max_Vel)/(2.0*max_Acc))*1.5)*100 * Frames_2_Seconds,max_Vel*90)
+        Point2 = ((max_Pos-((max_Vel*max_Vel)/(2.0*max_Acc))*1.5)*100 * Frames_2_Seconds,max_Vel*90)
+        Point3 = (max_Pos*100,0 * Frames_2_Seconds)
         mid_KPos = (max_Pos-min_Pos)/2.0
 
         if Point1[0]>Point2[0]:
@@ -243,6 +245,7 @@ class SFX_simpleCue_Op(bpy.types.Operator):
         self.VelInPos.keyframe_points[-1].handle_right = (Point3[0]+500,0)
 
     def VelFromPosToTime(self):
+        Frames_2_Seconds = bpy.data.scenes["Scene"].render.fps / bpy.data.scenes["Scene"].render.fps_base
         sfx.cues[self.MotherNode.name].confirm = False
         sfx.cues[self.MotherNode.name].confirmen = False
 
@@ -271,13 +274,13 @@ class SFX_simpleCue_Op(bpy.types.Operator):
         self.VelInTime1 = self.action.fcurves.new('Vel In Time Domain Kp')
         self.VelInTime1.lock = True 
         for i in range(0,len(self.Y),10):
-            self.VelInTime1.keyframe_points.insert( self.XT[i],self.Y[i])
+            self.VelInTime1.keyframe_points.insert( self.XT[i] * Frames_2_Seconds,self.Y[i])
 
         self.action.fcurves.remove(self.AccInTime)
         self.AccInTime = self.action.fcurves.new('Acc In Time Domain')
         self.AccInTime.lock = True 
         for i in range(0,len(self.Acc),10):
-            self.AccInTime.keyframe_points.insert( self.XT[i],self.Acc[i])
+            self.AccInTime.keyframe_points.insert( self.XT[i] * Frames_2_Seconds,self.Acc[i])
 
         sfx.cues[self.MotherNode.name].toTime = False
         sfx.cues[self.MotherNode.name].toTime_executed = True

@@ -97,6 +97,7 @@ class SFX_OT_list_actions(bpy.types.Operator):
         return {"FINISHED"}
 
     def update_fcurves(self, context, sfx_actions, index, Nodetype):
+        Frames_2_Seconds = bpy.data.scenes["Scene"].render.fps / bpy.data.scenes["Scene"].render.fps_base
         try:
             IndexTest = sfx_actions[index]
         except IndexError:
@@ -162,27 +163,27 @@ class SFX_OT_list_actions(bpy.types.Operator):
                 Jrkcurve.keyframe_points.insert(0,0) 
                 for i in range(0,len(Jrk[0])):
                     if Jrk[0][i]>0.01:
-                        A=Jrkcurve.keyframe_points.insert(Jrk[0][i],Jrk[1][i], options =  {'FAST'}) 
+                        A=Jrkcurve.keyframe_points.insert(Jrk[0][i] * Frames_2_Seconds,Jrk[1][i], options =  {'FAST'}) 
                         A.interpolation = 'LINEAR'
                 Acccurve.keyframe_points.insert(0,0)
                 for i in range(0,len(Acc[0])):
                     if Acc[0][i]>0.01:
-                        A=Acccurve.keyframe_points.insert(Acc[0][i],Acc[1][i], options =  {'FAST'}) 
+                        A=Acccurve.keyframe_points.insert(Acc[0][i] * Frames_2_Seconds,Acc[1][i], options =  {'FAST'}) 
                         A.interpolation = 'LINEAR'
                 Velcurve.keyframe_points.insert(0,0)
                 for i in range(0,len(Vel[0])):
                     if Vel[0][i]>0.01:
-                        A=Velcurve.keyframe_points.insert(Vel[0][i],Vel[1][i], options =  {'FAST'}) 
+                        A=Velcurve.keyframe_points.insert(Vel[0][i] * Frames_2_Seconds,Vel[1][i], options =  {'FAST'}) 
                         A.interpolation = 'LINEAR'
                 Poscurve.keyframe_points.insert(0,0)
                 for i in range(0,len(Pos[0])):
                     if Pos[0][i]>0.01:
-                        A=Poscurve.keyframe_points.insert(Pos[0][i],Pos[1][i], options =  {'FAST'}) 
+                        A=Poscurve.keyframe_points.insert(Pos[0][i] * Frames_2_Seconds,Pos[1][i], options =  {'FAST'}) 
                         A.interpolation = 'LINEAR'
                 VPcurve.keyframe_points.insert(0,0)         
                 for i in range(0,len(VP[0])):
                     if VP[0][i]>0.01:
-                        A=VPcurve.keyframe_points.insert(VP[0][i],VP[1][i], options =  {'FAST'}) 
+                        A=VPcurve.keyframe_points.insert(VP[0][i] * Frames_2_Seconds,VP[1][i], options =  {'FAST'}) 
                         A.interpolation = 'LINEAR'
 
                 # VPcurve.keyframe_points[-1].handle_right = (VPcurve.keyframe_points[-1].co[0],-5)
@@ -240,27 +241,27 @@ class SFX_OT_list_actions(bpy.types.Operator):
                 JrkInTime.keyframe_points.insert(0,0) 
                 for i in range(0,len(Jrk[0])):
                     if Jrk[0][i]>0.01:
-                        A=JrkInTime.keyframe_points.insert(Jrk[0][i],Jrk[1][i], options =  {'FAST'}) 
+                        A=JrkInTime.keyframe_points.insert(Jrk[0][i] * Frames_2_Seconds,Jrk[1][i], options =  {'FAST'}) 
                         A.interpolation = 'LINEAR'
                 AccInTime.keyframe_points.insert(0,0)
                 for i in range(0,len(Acc[0])):
                     if Acc[0][i]>0.01:
-                        A=AccInTime.keyframe_points.insert(Acc[0][i],Acc[1][i], options =  {'FAST'}) 
+                        A=AccInTime.keyframe_points.insert(Acc[0][i] * Frames_2_Seconds,Acc[1][i], options =  {'FAST'}) 
                         A.interpolation = 'LINEAR'
                 VelInTime.keyframe_points.insert(0,0)
                 for i in range(0,len(Vel[0])):
                     if Vel[0][i]>0.01:
-                        A=VelInTime.keyframe_points.insert(Vel[0][i],Vel[1][i], options =  {'FAST'}) 
+                        A=VelInTime.keyframe_points.insert(Vel[0][i] * Frames_2_Seconds,Vel[1][i], options =  {'FAST'}) 
                         A.interpolation = 'LINEAR'
                 PosInTime.keyframe_points.insert(0,0)
                 for i in range(0,len(Pos[0])):
                     if Pos[0][i]>0.01:
-                        A=PosInTime.keyframe_points.insert(Pos[0][i],Pos[1][i], options =  {'FAST'}) 
+                        A=PosInTime.keyframe_points.insert(Pos[0][i] * Frames_2_Seconds,Pos[1][i], options =  {'FAST'}) 
                         A.interpolation = 'LINEAR'
                 VelPos.keyframe_points.insert(0,0)         
                 for i in range(0,len(VP[0])):
                     if VP[0][i]>0.01:
-                        A=VelPos.keyframe_points.insert(VP[0][i],VP[1][i], options =  {'FAST'}) 
+                        A=VelPos.keyframe_points.insert(VP[0][i] * Frames_2_Seconds,VP[1][i], options =  {'FAST'}) 
                         A.interpolation = 'LINEAR'
 
 class SFX_OT_save_List(bpy.types.Operator):

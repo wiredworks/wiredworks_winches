@@ -277,6 +277,7 @@ class SFX_LinRail_Node(bpy.types.Node):
             pass
 
     def Plot_Driver_Curves(self, action):
+        Frames_2_Seconds = bpy.data.scenes["Scene"].render.fps / bpy.data.scenes["Scene"].render.fps_base
         Jrk = json.loads(action.Jrk)
         Acc = json.loads(action.Acc)
         Vel = json.loads(action.Vel)
@@ -285,27 +286,27 @@ class SFX_LinRail_Node(bpy.types.Node):
         self.Jrkcurve.keyframe_points.insert(0,0) 
         for i in range(0,len(Jrk[0])):
             if Jrk[0][i]>0.01:
-                A=self.Jrkcurve.keyframe_points.insert(Jrk[0][i],Jrk[1][i], options =  {'FAST'}) 
+                A=self.Jrkcurve.keyframe_points.insert(Jrk[0][i] * Frames_2_Seconds,Jrk[1][i], options =  {'FAST'}) 
                 A.interpolation = 'LINEAR'
         self.Acccurve.keyframe_points.insert(0,0)
         for i in range(0,len(Acc[0])):
             if Acc[0][i]>0.01:
-                A=self.Acccurve.keyframe_points.insert(Acc[0][i],Acc[1][i], options =  {'FAST'}) 
+                A=self.Acccurve.keyframe_points.insert(Acc[0][i] * Frames_2_Seconds,Acc[1][i], options =  {'FAST'}) 
                 A.interpolation = 'LINEAR'
         self.Velcurve.keyframe_points.insert(0,0)
         for i in range(0,len(Vel[0])):
             if Vel[0][i]>0.01:
-                A=self.Velcurve.keyframe_points.insert(Vel[0][i],Vel[1][i], options =  {'FAST'}) 
+                A=self.Velcurve.keyframe_points.insert(Vel[0][i] * Frames_2_Seconds,Vel[1][i], options =  {'FAST'}) 
                 A.interpolation = 'LINEAR'
         self.Poscurve.keyframe_points.insert(0,0)
         for i in range(0,len(Pos[0])):
             if Pos[0][i]>0.01:
-                A=self.Poscurve.keyframe_points.insert(Pos[0][i],Pos[1][i], options =  {'FAST'}) 
+                A=self.Poscurve.keyframe_points.insert(Pos[0][i] * Frames_2_Seconds,Pos[1][i], options =  {'FAST'}) 
                 A.interpolation = 'LINEAR'
         self.VPcurve.keyframe_points.insert(0,0)         
         for i in range(0,len(VP[0])):
             if VP[0][i]>0.01:
-                A=self.VPcurve.keyframe_points.insert(VP[0][i],VP[1][i], options =  {'FAST'}) 
+                A=self.VPcurve.keyframe_points.insert(VP[0][i] * Frames_2_Seconds,VP[1][i], options =  {'FAST'}) 
                 A.interpolation = 'LINEAR'        
 
     def Calc_soll_Vel(self):

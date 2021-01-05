@@ -196,10 +196,9 @@ class Diagramm(wx.Panel):
         self.CP_P_Points         = np.asarray([[],[],[]])   # Controlpoints in Position                  [[Time],[Vel],[Steigung]]    len(No after Simplified)
         self.CP_SM_Points        = np.asarray([[],[],[]])   # Controlpoints SmoothII                     [[Time],[Vel],[Steigung]]    len(No after Simplified)
         self.CP_TA_Points        = np.asarray([[],[],[]])   # Controlpoints with given Steigung          [[Time],[Set],[Steigung]]    len(No after Simplified) 
-        self.Vel_T_SM            = [[],[]]      # Smoothed Vel in Time Kurve                 [[Time],[Vel]]               len(self.Samples)
-        self.Vel_P_SM            = [[],[]]      # Smoothed Vel in Pos Kurve                  [[Position],[Vel]]           len(self.Samples)
+        self.Vel_T_SM            = [[],[]]      # Smoothed Vel Kurve                         [[Time],[Vel]]               len(self.Samples) 
         self.intAcc_T_SM         = [[],[]]      # Integrated Acc Smoothed aka. Vel           [[Time],[Vel]]               len(self.Samples) 
-        self.intVel_T_SM         = np.asarray([[],[]])      # Integrated Vel Smoothed aka. Pos           [[Time],[Vel]]               len(self.Samples)
+        self.intVel_T_SM         = [[],[]]      # Integrated Vel Smoothed aka. Pos           [[Time],[Vel]]               len(self.Samples)
         self.Acc_T_SM            = [[],[]]      # Acc Smothed                                [[Time],[Vel]]               len(self.Samples)            
 
         self.Action_Description  = ''
@@ -208,15 +207,16 @@ class Diagramm(wx.Panel):
 
         self.PrepareGraphs()
 
-    def ClearVars(self):
+    def ClearVarsEntryUnsigned(self):
         ''' Clear Variables'''
         self.CP_P_Points_Limit = [[],[],[]] # Limit Control Points In Pos Domain   [[x-Values],[y-Values],[tangent]]
         self.CP_P_Points       = [[],[],[]] # Control Points In Pos Domain         [[x-Values],[y-Values],[tangent]]
         self.CP_T_Points       = [[],[],[]] # Control Points In Time Domain        [[x-Values],[y-Values],[tangent]]
         self.CP_M_Points       = [[],[],[]] # Control points Master InTime         [[x-Values],[y-Values],[tangent]]
         self.CP_T_Points_Limit = [[],[],[]] # Limit Control Points In Time Domain  [[x-Values],[y-Values],[tangent]]
-        self.CP_SM_Points      = [[],[],[]]
         self.CP_TA_Points      = [[],[],[]]
+        
+        self.intVel_T_SM       = [[],[]]
         
         self.Vel_P_Limit       = [[],[]]
         self.Vel_P             = [[],[]]
@@ -224,12 +224,6 @@ class Diagramm(wx.Panel):
         self.Jrk_T             = [[],[]]
         self.Vel_T             = [[],[]]
         self.Vel_T_Limit       = [[],[]]
-
-        self.Jrk_T_D   = [[],[]]
-        self.Acc_T_D   = [[],[]]
-        self.Vel_T_D   = [[],[]]
-        self.Pos_T_D   = [[],[]]
-        self.Vel_P_D   = [[],[]]
 
         self.Jrk_T_D_L   = [[],[]]
         self.Acc_T_D_L   = [[],[]]
@@ -239,37 +233,22 @@ class Diagramm(wx.Panel):
 
         self.TimeScaling    =1.0
         self.TimeScalingAbs =1.0
-
-        self.Jrk_T_D_L         = [[],[]]
-        self.Acc_T_D_L         = [[],[]]
-        
-        self.Pos_T_D_L         = [[],[]]
-        self.Jrk_T_D           = [[],[]]
-        self.Acc_T_D           = [[],[]]
-        self.Vel_T_D           = [[],[]]
-        self.Pos_T_D           = [[],[]]
-        self.Vel_P_D           = [[],[]]
-
-        self.Vel_P_D_L         = [[],[]]
-        self.Vel_P_Limit       = [[],[]]  #
-        self.Vel_P             = [[],[]]  #
-        self.Vel_P_SM          = [[],[]]  #
-
-        self.Vel_T_Limit       = [[],[]]  #
-        self.Vel_T_D_L         = [[],[]]
-        self.intAcc_T_SM       = [[],[]]  #
-        self.Vel_T             = [[],[]]  #
-        self.Acc_T_D_L         = [[],[]]
-        self.Acc_T             = [[],[]]  #
-        self.Acc_T_SM          = [[],[]]  #  
-        self.intVel_T_SM       = [[],[]]  #
-
-        self.lines.clear()
-        self.linesT.clear()           
-        self.axesT.lines.clear()
-        self.axes.lines.clear()
-        self.axes.patches.clear()
-        self.axesT.patches.clear()
+        try:
+            for i in range(len(self.VelInTime_markers)):
+                self.axesT.lines.remove(self.VelInTime_markers[i])
+                #Set to Comment as Smoothing makes Tangent Editing obsolete
+                #self.axesT.lines.remove(self.VelInTime_tangents[i])
+            for i in range (len(self.fillT)):
+                self.axesT.patches.remove(self.fillT[i])
+            for i in range(len(self.VelInPos_markers)):
+                self.axes.lines.remove(self.VelInPos_markers[i])
+                #self.axes.lines.remove(self.VelInPos_tangents[i])
+            for i in range (len(self.fillP)):
+                self.axes.patches.remove(self.fillP[i])
+            for i in range (len(self.fillT)):
+                self.axesT.patches.remove(self.fillT[i])
+        except :#AttributeError:
+            pass
 
         self.fillP              = []
         self.fillT              = [] 
@@ -314,6 +293,56 @@ class Diagramm(wx.Panel):
         self.VelInTime_tangents = []
         self.Vel_T_SM_markers   = []
 
+    def ClearVarsGenerate(self):
+        ''' Clear Variables'''
+        self.CP_P_Points_Limit = [[],[],[]] # Limit Control Points In Pos Domain   [[x-Values],[y-Values],[tangent]]
+        self.CP_P_Points       = [[],[],[]] # Control Points In Pos Domain         [[x-Values],[y-Values],[tangent]]
+        self.CP_T_Points       = [[],[],[]] # Control Points In Time Domain        [[x-Values],[y-Values],[tangent]]
+        self.CP_M_Points       = [[],[],[]] # Control points Master InTime         [[x-Values],[y-Values],[tangent]]
+        self.CP_T_Points_Limit = [[],[],[]] # Limit Control Points In Time Domain  [[x-Values],[y-Values],[tangent]]
+        self.CP_TA_Points      = [[],[],[]]
+        
+        self.Vel_P_Limit       = [[],[]]
+        self.Vel_P             = [[],[]]
+        self.Acc_T             = [[],[]]
+        self.Jrk_T             = [[],[]]
+        self.Vel_T             = [[],[]]
+        self.Vel_T_Limit       = [[],[]]
+
+        self.Jrk_T_D   = [[],[]]
+        self.Acc_T_D   = [[],[]]
+        self.Vel_T_D   = [[],[]]
+        self.Pos_T_D   = [[],[]]
+        self.Vel_P_D   = [[],[]]
+
+        self.CP_SM_Points = [[],[],[]]
+
+        self.TimeScaling    =1.0
+        self.TimeScalingAbs =1.0
+        try:
+            for i in range(len(self.VelInTime_markers)):
+                self.axesT.lines.remove(self.VelInTime_markers[i])
+                #Set to Comment as Smoothing makes Tangent Editing obsolete
+                #self.axesT.lines.remove(self.VelInTime_tangents[i])
+            for i in range (len(self.fillT)):
+                self.axesT.patches.remove(self.fillT[i])
+            for i in range(len(self.VelInPos_markers)):
+                self.axes.lines.remove(self.VelInPos_markers[i])
+                #self.axes.lines.remove(self.VelInPos_tangents[i])
+            for i in range (len(self.fillP)):
+                self.axes.patches.remove(self.fillP[i])
+            for i in range (len(self.fillT)):
+                self.axesT.patches.remove(self.fillT[i])
+        except :#AttributeError:
+            pass
+
+        self.fillP              = []
+        self.fillT              = [] 
+        self.VelInPos_markers   = []
+        self.VelInPos_tangents  = []
+        self.VelInTime_markers  = []
+        self.VelInTime_tangents = []
+
     def Entry(self):
         ''' Setup of Controlpoints and the BPolys'''
         Vel_T_D_S_09 =[[],[],[]]
@@ -321,11 +350,8 @@ class Diagramm(wx.Panel):
         self.Time_Pos_Values      = np.zeros(1000)
 
         if not(self.Action_Signed):
-            self.ClearVars()
-            self.PrepareGraphs()
-            self.Plot(init       = True)
+            self.ClearVarsEntryUnsigned()
             self.canvas.draw()
-            
             self.Jrk_T_D_L,\
             self.Acc_T_D_L,\
             self.Vel_T_D_L,\
@@ -372,25 +398,34 @@ class Diagramm(wx.Panel):
 
             self.RecalcMove(init = True)
         else:
+            self.canvas.draw()
+            self.ClearVarsEntrySigned()
+
             self.Samples = len(self.Vel_T_D_L[0])
             self.X_Time_Values         = np.linspace(0., float(self.CP_T_Points[0][-1]) ,  self.Samples, dtype= np.double)
             self.X_Pos_Values          = np.linspace(0., self.Length,            self.Samples, dtype= np.double)
 
             self.init_T_BPoly()            
+
+            self.Vel_T[0] = self.X_Time_Values
+            self.Vel_T[1] = self.eval_CP_T_Points(self.X_Time_Values,True)
+
             self.init_P_BPoly()
+
             self.Vel_P_Limit = self.Vel_P_D
+
+            self.CP_SM_Points[0] = copy.copy(self.CP_M_Points[0]) 
+            self.CP_SM_Points[1] = copy.copy(self.CP_M_Points[1])
+            self.CP_SM_Points[2] = copy.copy(self.CP_M_Points[2])
            
             self.RecalcMove(init = False)
         
         self.rezoom          = True
-        self.Plot(init       = True)
-  
+        self.Plot(init       = True)    
 
     def GenerateProfile(self,Length, Acc, Vel, RiseTime, JHeight):
         self.Action_Signed      = False
-        self.ClearVars()
-        self.PrepareGraphs()
-        self.Plot(init       = True)
+        self.ClearVarsGenerate()
         self.canvas.draw()
 
         self.VelEditorFrame.chkSmoothing.SetValue(False)
@@ -435,9 +470,6 @@ class Diagramm(wx.Panel):
 
         self.RecalcMove(init = True)
 
-        if not(self.FileLoaded):
-            self.VelEditorFrame.txtSetupTime.SetValue(str(self.CP_M_Points[0][-1]))
-
         if self.VelEditorFrame.chkSmoothing.GetValue() == False:
             self.Smooth()
         if self.VelEditorFrame.chkSmoothingII.GetValue() == False:
@@ -459,11 +491,11 @@ class Diagramm(wx.Panel):
         return Profile_S
        
     def T_2_P(self, x):
-        f=interp1d( self.Pos_T_D[0], self.Pos_T_D[1], kind ='slinear',bounds_error=False, fill_value=np.nan)
+        f=interp1d( self.Pos_T_D[0] * self.TimeScalingAbs, self.Pos_T_D[1], kind ='slinear',bounds_error=False, fill_value=np.nan)
         return f(x)
 
     def P_2_T(self, x):
-        f=interp1d(self.Pos_T_D[1],self.Pos_T_D[0], kind ='slinear',bounds_error=False, fill_value=np.nan)
+        f=interp1d(self.Pos_T_D[1],self.Pos_T_D[0]* self.TimeScalingAbs, kind ='slinear',bounds_error=False, fill_value=np.nan)
         return f(x)
 
     def init_CP_P_Points(self, P_Points):
@@ -560,9 +592,9 @@ class Diagramm(wx.Panel):
         self.Null             = np.zeros(len(self._xInit))
         self.lines = []
         self.lines += self.axes.plot(self._xInit,self.Null, color = "black",              linewidth = 0.5,  linestyle = "-.",       pickradius = 0) # Vel_P_limit  [0]
-        self.lines += self.axes.plot(self._xInit,self.Null, color = "black",              linewidth = 0.5,  linestyle = "--",       pickradius = 0) # Vel_P_D_L    [1]
-        self.lines += self.axes.plot(self._xInit,self.Null, color = "darkred",            linewidth = 0.5,  linestyle = "--",       pickradius = 0) # Vel_P        [1]
-        self.lines += self.axes.plot(self._xInit,self.Null, color = "darkred",            linewidth = 1.0,  linestyle = "-",        pickradius = 0)
+        self.lines += self.axes.plot(self._xInit,self.Null, color = "darkred",            linewidth = 1.0,  linestyle = "-",        pickradius = 0) # Vel_P        [1]
+        self.lines += self.axes.plot(self._xInit,self.Null, color = "black",              linewidth = 1.0,  linestyle = "-.",       pickradius = 0) # Vel_P_D_L    [2]
+      # self.lines += self.axes.plot(self._xInit,self.Null, color = "darkgreen",          linewidth = 1.0,  linestyle = "-",        pickradius = 0)
       # self.lines += self.axes.plot(self._xInit,self.Null, color = "darkblue",           linewidth = 1.0,  linestyle = "-.",       pickradius = 0)
       # self.lines += self.axes.plot(self._xInit,self.Null, color = "darkred",            linewidth = 1.4,  linestyle = "-",        pickradius = 0)
       # self.lines += self.axes.plot(self._xInit,self.Null, color = "darkgreen",          linewidth = 1.4,  linestyle = "-",        pickradius = 0)
@@ -575,24 +607,23 @@ class Diagramm(wx.Panel):
       # self.lines += self.axes.plot(self._xInit,self.Null, color = "green",              linewidth = 0.4,  linestyle = "-",        pickradius = 0
       # self.lines += self.axes.plot(self._xInit,self.Null, color = "blue",               linewidth = 0.4,  linestyle = "-",        pickradius = 0)        
         self.linesT = []
-        self.linesT += self.axesT.plot(self._xInit,self.Null,  color = "black",           linewidth = 0.5,  linestyle = "-.",       pickradius = 0) # Vel_T_limit [0]
-        self.linesT += self.axesT.plot(self._xInit,self.Null,  color = "black",           linewidth = 0.5,  linestyle = "--",       pickradius = 0) # Vel_T       [1]
-        self.linesT += self.axesT.plot(self._xInit,self.Null,  color = "darkred",         linewidth = 1.0,  linestyle = "-",        pickradius = 0) # Acc_T       [2]    
-        self.linesT += self.axesT.plot(self._xInit,self.Null,  color = "darkred",         linewidth = 0.5,  linestyle = ":",        pickradius = 0) # Vel_T_D_L   [4]       
-        self.linesT += self.axesT.plot(self._xInit,self.Null,  color = "darkblue",        linewidth = 0.5,  linestyle = "-.",       pickradius = 0) # Acc_T_SM    [5]
-        self.linesT += self.axesT.plot(self._xInit,self.Null,  color = "darkblue",        linewidth = 0.5,  linestyle = "--",       pickradius = 0) # Vel_T_SM    [6]
-        self.linesT += self.axesT.plot(self._xInit,self.Null,  color = "darkblue",        linewidth = 1.0,  linestyle = "-",        pickradius = 0)
+        self.linesT += self.axesT.plot(self._xInit,self.Null,  color = "black",           linewidth = 1.0,  linestyle = "-.",       pickradius = 0) # Vel_T_limit [0]
+        self.linesT += self.axesT.plot(self._xInit,self.Null,  color = "darkred",         linewidth = 1.0,  linestyle = "-",        pickradius = 0) # Vel_T       [1]
+        self.linesT += self.axesT.plot(self._xInit,self.Null,  color = "darkblue",        linewidth = 0.5,  linestyle = "-.",       pickradius = 0) # Acc_T       [2]    
+        self.linesT += self.axesT.plot(self._xInit,self.Null,  color = "darkblue",        linewidth = 0.5,  linestyle = "-.",       pickradius = 0) # Acc_T_D_L   [3]
+        self.linesT += self.axesT.plot(self._xInit,self.Null,  color = "black",           linewidth = 0.5,  linestyle = "-.",       pickradius = 0) # Vel_T_D_L   [4]       
+        self.linesT += self.axesT.plot(self._xInit,self.Null,  color = "darkblue",        linewidth = 0.5,  linestyle = "-",        pickradius = 0) # Acc_T_SM    [5]
+        self.linesT += self.axesT.plot(self._xInit,self.Null,  color = "darkred",         linewidth = 0.5,  linestyle = "--",       pickradius = 0) # Vel_T_SM    [6]
+        self.linesT += self.axesT.plot(self._xInit,self.Null,  color = "darkred",         linewidth = 1.0,  linestyle = "--",       pickradius = 0)
         self.linesT += self.axesT.plot(self._xInit,self.Null,  color = "m",               linewidth = 0.8,  linestyle = "-",        pickradius = 0)
         #self.linesT += self.axesT.plot(self._xInit,self.Null,  color = "darkgreen",       linewidth = 0.5,  linestyle = "-.",       pickradius = 0)
-        #self.linesT += self.axesT.plot(self._xInit,self.Null,  color = "darkred",         linewidth = 0.5,  linestyle = "--",       pickradius = 0)
 
     def Plot(self, init = True):        
         #self.rezoom = True
+
         self.lines[0].set( xdata = self.Vel_P_D_L[0],      ydata=self.Vel_P_D_L[1])
-        self.lines[1].set( xdata = self.Vel_P_Limit[0],    ydata=self.Vel_P_Limit[1])
-        self.lines[2].set( xdata = self.Vel_P[0],          ydata=self.Vel_P[1])
-        #self.lines[2].set( xdata = [0,15.5],          ydata=[0,5])
-        self.lines[3].set( xdata = self.Vel_P_SM[0],       ydata=self.Vel_P_SM[1])  
+        self.lines[1].set( xdata = self.Vel_P[0],          ydata=self.Vel_P[1])
+        self.lines[2].set( xdata = self.Vel_P_Limit[0],    ydata=self.Vel_P_Limit[1])  
  
         for i in range (len(self.fillP)):
             self.axes.patches.remove(self.fillP[i])
@@ -617,21 +648,21 @@ class Diagramm(wx.Panel):
             #self.VelInPos_tangents += self.axes.plot(x_data,y_data, linewidth=1.0, linestyle="-",  marker ='o',markersize = 4*self.scaleP , color = 'g', fillstyle = 'none')
 
         self.linesT[0].set( xdata = self.Vel_T_Limit[0],        ydata=self.Vel_T_Limit[1])
-        self.linesT[1].set( xdata = self.Vel_T_D_L[0],          ydata=self.Vel_T_D_L[1])
-        self.linesT[2].set( xdata = self.intAcc_T_SM[0],        ydata=self.intAcc_T_SM[1])
-        self.linesT[3].set( xdata = self.Vel_T[0],              ydata=self.Vel_T[1])
-        self.linesT[4].set( xdata = self.Acc_T_D_L[0],          ydata=self.Acc_T_D_L[1])
-        self.linesT[5].set( xdata = self.Acc_T[0],              ydata=self.Acc_T[1])
-        self.linesT[6].set( xdata = self.Acc_T_SM[0],           ydata=self.Acc_T_SM[1])
-        self.linesT[7].set( xdata = self.intVel_T_SM[0],        ydata=self.intVel_T_SM[1])
-        #self.linesT[8].set( xdata = self.Jrk_T[0],              ydata=self.Jrk_T[1])
-        #self.linesT[9].set( xdata = self.Vel_T_SM[0],           ydata=self.Vel_T_SM[1])          
+        self.linesT[1].set( xdata = self.intAcc_T_SM[0],        ydata=self.intAcc_T_SM[1])
+        self.linesT[2].set( xdata = self.Acc_T[0],              ydata=self.Acc_T[1])
+        self.linesT[3].set( xdata = self.Acc_T_D_L[0],          ydata=self.Acc_T_D_L[1])
+        self.linesT[4].set( xdata = self.Vel_T_D_L[0],          ydata=self.Vel_T_D_L[1])
+        self.linesT[5].set( xdata = self.Acc_T_SM[0],           ydata=self.Acc_T_SM[1])
+        self.linesT[6].set( xdata = self.Vel_T_SM[0],           ydata=self.Vel_T_SM[1])
+        self.linesT[7].set( xdata = self.Vel_T[0],              ydata=self.Vel_T[1])
+        self.linesT[8].set( xdata = self.intVel_T_SM[0],        ydata=self.intVel_T_SM[1])
+        #self.linesT[8].set( xdata = self.Jrk_T[0],              ydata=self.Jrk_T[1])          
 
         for i in range (len(self.fillT)):
             self.axesT.patches.remove(self.fillT[i])
         self.fillT =[] 
-        self.fillT += self.axesT.fill(self.Vel_T_Limit[0], self.Vel_T_Limit[1],  color="lightgreen", alpha = 0.2,)               
-        self.fillT += self.axesT.fill(self.intAcc_T_SM[0], self.intAcc_T_SM[1],  color="lightgreen", alpha = 0.2,)
+        self.fillT += self.axesT.fill(self.Vel_T_Limit[0], self.Vel_T_Limit[1] , color="lightgreen", alpha = 0.2,)               
+        self.fillT += self.axesT.fill(self.Vel_T[0],       self.Vel_T[1],        color="lightgreen", alpha = 0.2,)
 
         if init:
             for i in range(len(self.VelInTime_markers)):
@@ -669,7 +700,6 @@ class Diagramm(wx.Panel):
                 # Set to Comment as Smoothing makes Tangent Editing obsolete
                 #self.VelInTime_tangents[i].set(xdata=x_data,ydata=y_data)
 
-        self.canvas.draw()  
         self.Refresh()
 
     def OnPaint(self,evt):
@@ -679,15 +709,15 @@ class Diagramm(wx.Panel):
             #maxlimx = float(self.VelEditorFrame.txtSetupLength.GetValue())+0.05
             maxlimx = float(self.CP_P_Points[0][-1])+0.05
             self.axes.set_xlim(minlimx,maxlimx)
-            m = np.amax(self.Vel_P_D_L[1]) 
-            self.axes.set_ylim(-0.5,m*1.1)
+            m = max(float(self.VelEditorFrame.txtSetupMaxAcc.GetValue()),float(self.VelEditorFrame.txtSetupMaxVel.GetValue())) 
+            self.axes.set_ylim(-0.5,m*1.2)
         if self.modifyP == 'TPoint' or self.rezoom == True:
-            minlimTx = self.Acc_T_SM[0][0]-0.05
-            maxlimTx = self.Acc_T_SM[0][-1]+0.05
+            minlimTx = self.Vel_T[0][0]-0.05
+            maxlimTx = self.Vel_T[0][-1]+0.05
             self.axesT.set_xlim(minlimTx,maxlimTx)
-            ma = np.amax(self.Acc_T_D_L[1])
-            mi = np.amin(self.Acc_T_D_L[1])
-            self.axesT.set_ylim(mi * 1.1, ma * 1.1)
+            ma = max(float(self.VelEditorFrame.txtSetupMaxAcc.GetValue()),float(self.VelEditorFrame.txtSetupMaxVel.GetValue()))
+            mi = min(-float(self.VelEditorFrame.txtSetupMaxAcc.GetValue()),-float(self.VelEditorFrame.txtSetupMaxVel.GetValue()))
+            self.axesT.set_ylim(mi * 1.2, ma * 1.2)
             self.rezoom = False
 
         size =  self.parent.GetClientSize()
@@ -727,13 +757,11 @@ class Diagramm(wx.Panel):
             else:
                 self.VelInTime_markers[self.hpoint].set(color='darkred')
 
-            # if (np.max(self.Acc_T[1]) <=  float(self.VelEditorFrame.txtSetupMaxAcc.GetValue()) and
-            #     abs(np.min(self.Acc_T[1])) <= float(self.VelEditorFrame.txtSetupMaxAcc.GetValue())):
-            self.CP_M_Points[0][self.hpoint] = x
-            self.CP_M_Points[1][self.hpoint] = y
+            if (np.max(self.Acc_T[1]) <=  float(self.VelEditorFrame.txtSetupMaxAcc.GetValue()) and
+                abs(np.min(self.Acc_T[1])) <= float(self.VelEditorFrame.txtSetupMaxAcc.GetValue())):
+                self.CP_M_Points[0][self.hpoint] = x
+                self.CP_M_Points[1][self.hpoint] = y
             
-            self.VelEditorFrame.chkSmoothing.SetValue(False)
-            self.VelEditorFrame.chkSmoothingII.SetValue(False)
             self.RecalcMove(init = False)
 
             self.Refresh()
@@ -753,6 +781,8 @@ class Diagramm(wx.Panel):
         self.x0, self.y0, self.xpress, self.ypress = self.press
 
         if evt.button == 1:
+            self.VelEditorFrame.chkSmoothing.SetValue(False)
+            self.VelEditorFrame.chkSmoothingII.SetValue(False)
             if evt.inaxes == self.axes :
                 for i in range(0,len(self.VelInPos_markers)):
                     if self.VelInPos_markers[i].contains(evt)[0]:
@@ -873,15 +903,13 @@ class Diagramm(wx.Panel):
                 else:
                     self.VelInPos_markers[self.hpoint].set(color='darkred')
 
-                # if (np.max(self.Acc_T[1]) <=  float(self.VelEditorFrame.txtSetupMaxAcc.GetValue()) and
-                #     abs(np.min(self.Acc_T[1])) <= float(self.VelEditorFrame.txtSetupMaxAcc.GetValue())):
-                if (self.P_2_T(x) > self.CP_M_Points[0][self.hpoint-1] and
-                    self.P_2_T(x) < self.CP_M_Points[0][self.hpoint+1]):
-                    self.CP_M_Points[0][self.hpoint] = self.P_2_T(x)
-                    self.CP_M_Points[1][self.hpoint] = y
+                if (np.max(self.Acc_T[1]) <=  float(self.VelEditorFrame.txtSetupMaxAcc.GetValue()) and
+                    abs(np.min(self.Acc_T[1])) <= float(self.VelEditorFrame.txtSetupMaxAcc.GetValue())):
+                    if (self.P_2_T(x) > self.CP_M_Points[0][self.hpoint-1] and
+                        self.P_2_T(x) < self.CP_M_Points[0][self.hpoint+1]):
+                        self.CP_M_Points[0][self.hpoint] = self.P_2_T(x)
+                        self.CP_M_Points[1][self.hpoint] = y
                 
-                self.VelEditorFrame.chkSmoothing.SetValue(False)
-                self.VelEditorFrame.chkSmoothingII.SetValue(False)
                 self.RecalcMove(init = False)
 
                 self.Refresh()
@@ -904,10 +932,7 @@ class Diagramm(wx.Panel):
         self.TimeScalingAbs        = self.X_Time_Values[-1] / self.Pos_T_D[0][-1]
 
         u = self.eval_CP_M_Points(0.1,True)
-        pint = self.CP_M_BPoly.antiderivative(1) 
-
-        self.Pos_T_D[0] = self.X_Time_Values
-        self.Pos_T_D[1] = pint(self.X_Time_Values)
+        pint = self.CP_M_BPoly.antiderivative(1)
 
         self.CP_T_Points[0] = copy.copy(self.CP_M_Points[0])
         self.CP_T_Points[1] = copy.copy(self.CP_M_Points[1])
@@ -923,7 +948,7 @@ class Diagramm(wx.Panel):
         self.Vel_P[0] = self.X_Pos_Values
         self.Vel_P[1] = self.eval_CP_P_Points(self.X_Pos_Values,True)
 
-        self.Vel_T_Limit[0]= self.Vel_T_D[0] * (self.CP_M_Points[0][-1] / self.Vel_T_D[0][-1]) 
+        self.Vel_T_Limit[0]= self.Vel_T_D[0] * self.TimeScalingAbs
         self.Vel_T_Limit[1]= self.Vel_T_D[1]
 
         pdt  = self.CP_T_BPoly.derivative(1)
@@ -933,8 +958,6 @@ class Diagramm(wx.Panel):
         pdt1  = self.CP_T_BPoly.derivative(2)
         self.Jrk_T[0] = self.X_Time_Values
         self.Jrk_T[1] = pdt1(self.X_Time_Values)
-
-
 
         if self.VelEditorFrame:
             maxAcc = abs(max(self.Acc_T[1]))
@@ -965,8 +988,11 @@ class Diagramm(wx.Panel):
 
     def Smooth(self):
         for i in range(1,len(self.CP_M_Points[0])-1):
-            self.CP_M_Points[2][i] = self.CP_M_Points[2][i]/\
-                (float(self.VelEditorFrame.txtUsrDuration.GetValue())/float(self.VelEditorFrame.txtSetupTime.GetValue()))
+            kl = (self.CP_M_Points[1][i]-self.CP_M_Points[1][i-1])/(self.CP_M_Points[0][i]-self.CP_M_Points[0][i-1])
+            kr = (self.CP_M_Points[1][i+1]-self.CP_M_Points[1][i])/(self.CP_M_Points[0][i+1]-self.CP_M_Points[0][i])
+            km = (self.CP_M_Points[1][i+1]-self.CP_M_Points[1][i-1])/(self.CP_M_Points[0][i+1]-self.CP_M_Points[0][i-1])
+            self.CP_M_Points[2][i] = ( kl + kr + km ) / 3.0
+
         self.VelEditorFrame.chkSmoothing.SetValue(True)
 
         self.RecalcMove(init = False)        
@@ -975,13 +1001,10 @@ class Diagramm(wx.Panel):
 
     def SmoothII(self):
         length = int(self.Samples / 35)
-        #length = 1
         mask = np.ones((1,length))/length
         mask = mask[0,:]
         self.Acc_T_SM[1] = np.convolve(self.Acc_T[1],mask, mode ='same')
         self.Acc_T_SM[0] = self.Acc_T[0]
-        self.Acc_T_SM[1][0]  = 0.0
-        self.Acc_T_SM[1][-1] = 0.0
 
         self.integrate_Acc_T_SM()
 
@@ -994,53 +1017,41 @@ class Diagramm(wx.Panel):
             if self.CP_TA_Points[1][i] == 1:
                 self.CP_SM_Points[2][i] = self.CP_TA_Points[2][i]
 
+        self.Vel_T_SM[0] = self.X_Time_Values
+        self.Vel_T_SM[1] = self.eval_CP_SM_Points(self.X_Time_Values,True)
+
         self.CP_M_Points[0] = copy.copy(self.CP_SM_Points[0])
         self.CP_M_Points[1] = copy.copy(self.CP_SM_Points[1])
         self.CP_M_Points[2] = copy.copy(self.CP_SM_Points[2])
 
-        self.CP_M_Points[1][-1] = 0.0
-        self.CP_M_Points[2][-1] = 0.0
+        
 
-        X_Values    = np.linspace(0., self.CP_M_Points[0][-1],  self.Samples, dtype= np.double)
-        self.Vel_P_SM[0] = np.asarray(self.T_2_P(X_Values))       
-        self.Vel_P_SM[1] = np.asarray(self.intAcc_T_SM[1])
-
-        self.integrate_intAcc_T_SM()
-
-        self.RecalcMove(init = False)
-
-        self.Acc_T_SM[0] = self.Acc_T[0]
-        self.Acc_T_SM[1] = self.Acc_T_SM[1]
-        self.Acc_T_SM[1][0]  = 0.0
-        self.Acc_T_SM[1][-1] = 0.0
-
-        self.integrate_Acc_T_SM()
+        self.integrate_Vel_Conf()
 
         self.VelEditorFrame.chkSmoothingII.SetValue(True)
-        #self.rezoom          = True
+
+        self.RecalcMove(init = False)        
+        self.rezoom          = True
         self.Plot(init       = False)
 
-    def integrate_intAcc_T_SM(self):
-        X_Values    = np.linspace(0., self.CP_M_Points[0][-1],  self.Samples, dtype= np.double)
-        self.intVel_T_SM[0] = np.asarray(X_Values)
+    def integrate_Vel_Conf(self):
+        self.intVel_T_SM[0] = self.X_Time_Values
         Pos = [0]
         SV = 0
-        for i in range(1,len(X_Values)):
-            V = (((self.intAcc_T_SM[1][i-1]+self.intAcc_T_SM[1][i])/2)* (X_Values[i]-X_Values[i-1]))
+        for i in range(1,len(self.X_Time_Values)):
+            V = (((self.Vel_T_SM[1][i-1]+self.Vel_T_SM[1][i])/2)* (self.X_Time_Values[i]-self.X_Time_Values[i-1]))
             SV += V
             Pos.append(SV)        
         self.intVel_T_SM[1] = np.asarray(Pos)
 
     def integrate_Acc_T_SM(self):
-        X_Values    = np.linspace(0., self.CP_M_Points[0][-1],  self.Samples, dtype= np.double)
-        self.intAcc_T_SM[0] = X_Values
-        Vel = [0]
+        self.intAcc_T_SM[0] = self.X_Time_Values
+        self.intAcc_T_SM[1] = [0]
         SV = 0
-        for i in range(1,len(X_Values)):
-            V = (((self.Acc_T_SM[1][i-1]+self.Acc_T_SM[1][i])/2)* (X_Values[i]-X_Values[i-1]))
+        for i in range(1,len(self.X_Time_Values)):
+            V = (((self.Acc_T_SM[1][i-1]+self.Acc_T_SM[1][i])/2)* (self.X_Time_Values[i]-self.X_Time_Values[i-1]))
             SV += V
-            Vel.append(SV)
-            self.intAcc_T_SM[1] = np.asarray(Vel)
+            self.intAcc_T_SM[1].append(SV)
 
     def interpVel_T_SM(self,x):
         f=interp1d(self.intAcc_T_SM[0],self.intAcc_T_SM[1], kind ='slinear',bounds_error=False, fill_value=np.nan)
@@ -1136,7 +1147,6 @@ class Diagramm(wx.Panel):
             # Set to Comment as Smoothing makes Tangent Editing obsolete
             #self.VelInTime_tangents[self.hpoint].set(color='g')
         self.modifyP = 'none'
-        
         if self.VelEditorFrame.chkSmoothing.GetValue() == False:
             self.Smooth()
         if self.VelEditorFrame.chkSmoothingII.GetValue() == False:
@@ -1152,10 +1162,6 @@ class Diagramm(wx.Panel):
                 else:
                     self.CP_TA_Points[1][self.hpoint] = 1
                     self.CP_TA_Points[2][self.hpoint] = 0
-            self.VelEditorFrame.chkSmoothing.SetValue(False)
-            self.VelEditorFrame.chkSmoothingII.SetValue(False)
-            self.RecalcMove(init=False)
-            self.Plot(init       = False)
         elif evt.key == 'd':
             if (self.modifyP == 'TPoint' or self.modifyP == 'PPoint') and len(self.CP_P_Points[0]) >= 4:                
                 self.CP_P_Points      = np.delete(self.CP_P_Points,self.hpoint,axis=1)
@@ -1164,8 +1170,6 @@ class Diagramm(wx.Panel):
                 self.CP_SM_Points     = np.delete(self.CP_SM_Points,self.hpoint,axis=1)
                 self.CP_TA_Points     = np.delete(self.CP_TA_Points,self.hpoint,axis=1)
                 self.modifyP = 'none'
-                self.VelEditorFrame.chkSmoothing.SetValue(False)
-                self.VelEditorFrame.chkSmoothingII.SetValue(False)
                 self.RecalcMove(init = False)
                 self.Plot(init = True)
                 self.Refresh()                
@@ -1177,9 +1181,7 @@ class Diagramm(wx.Panel):
                 self.CP_T_Points     = np.insert(self.CP_T_Points,i,[self.clickpoint[0],y,0],axis =1)
                 self.CP_P_Points     = np.insert(self.T_2_P(self.CP_P_Points),i,[self.clickpoint[0],y,0],axis =1)
                 self.CP_SM_Points    = np.insert(self.CP_SM_Points,i,[self.clickpoint[0],y,0],axis =1)
-                self.CP_TA_Points    = np.insert(self.CP_TA_Points,i,[self.clickpoint[0],0,0],axis =1)
-                self.VelEditorFrame.chkSmoothing.SetValue(False)
-                self.VelEditorFrame.chkSmoothingII.SetValue(False)
+                self.CP_TA_Points    = np.insert(self.CP_TA_Points,i,[self.clickpoint[0],0],axis =1)
                 self.RecalcMove(init = False)
                 self.Plot(init = True)
                 self.Refresh()                
@@ -1192,9 +1194,7 @@ class Diagramm(wx.Panel):
                 self.CP_T_Points     = np.insert(self.CP_T_Points,i,[self.P_2_T(self.clickpoint[0]),y,0],axis =1)
                 self.CP_P_Points     = np.insert(self.CP_P_Points,i,[self.clickpoint[0],y,0],axis =1)
                 self.CP_SM_Points    = np.insert(self.CP_SM_Points,i,[self.P_2_T(self.clickpoint[0]),y,0],axis =1)
-                self.CP_TA_Points    = np.insert(self.CP_TA_Points,i,[self.P_2_T(self.clickpoint[0]),0,0],axis =1)
-                self.VelEditorFrame.chkSmoothing.SetValue(False)
-                self.VelEditorFrame.chkSmoothingII.SetValue(False)
+                self.CP_TA_Points    = np.insert(self.CP_TA_Points,i,[self.P_2_T(self.clickpoint[0]),0],axis =1)
                 self.RecalcMove(init = False)
                 self.Plot(init = True)
                 self.Refresh()                
@@ -1313,6 +1313,23 @@ class VelEditor4C(wx.App):
     def ImportData(self,file):
         data = json.loads(file.read())
         file.close()
+        self.CP_P_Points_Limit = [[],[],[]] 
+        self.CP_P_Points       = [[],[],[]]
+        self.CP_T_Points       = [[],[],[]]
+        self.CP_M_Points       = [[],[],[]]
+        self.CP_SM_Points      = [[],[],[]]
+        self.CP_T_Points_Limit = [[],[],[]]
+        self.CP_TA_Points      = [[],[],[]]
+        self.Jrk_T_D_L         = [[],[]]
+        self.Acc_T_D_L         = [[],[]]
+        self.Vel_T_D_L         = [[],[]]
+        self.Pos_T_D_L         = [[],[]]
+        self.Vel_P_D_L         = [[],[]]
+        self.Jrk_T_D           = [[],[]]
+        self.Acc_T_D           = [[],[]]
+        self.Vel_T_D           = [[],[]]
+        self.Pos_T_D           = [[],[]]
+        self.Vel_P_D           = [[],[]]
         
         Data = data.split(';')
         if len(Data) == 19:
@@ -1332,30 +1349,28 @@ class VelEditor4C(wx.App):
             self.KeyPointWindow.Diagramm.Action_maxPos        = float(Data[9])
             self.KeyPointWindow.txtUsrLength.SetValue         (Data[10])
             self.KeyPointWindow.txtUsrDuration.SetValue       (Data[11])
-            self.KeyPointWindow.Diagramm.intVel_T_SM          = json.loads(Data[12])
-            self.KeyPointWindow.Diagramm.Action_Jrk           = json.loads(Data[13])
-            self.KeyPointWindow.Diagramm.Action_Acc           = json.loads(Data[14])
-            self.KeyPointWindow.Diagramm.Action_Vel           = json.loads(Data[15])
-            self.KeyPointWindow.Diagramm.Action_Pos_P         = json.loads(Data[16])
-            self.KeyPointWindow.Diagramm.Action_VelInPos      = json.loads(Data[17])
+            self.KeyPointWindow.Diagramm.intVel_T_SM          = np.asarray(json.loads(Data[12]))
+            self.KeyPointWindow.Diagramm.Action_Jrk           = np.asarray(json.loads(Data[13]))
+            self.KeyPointWindow.Diagramm.Action_Acc           = np.asarray(json.loads(Data[14]))
+            self.KeyPointWindow.Diagramm.Action_Vel           = np.asarray(json.loads(Data[15]))
+            self.KeyPointWindow.Diagramm.Action_Pos_P         = np.asarray(json.loads(Data[16]))
+            self.KeyPointWindow.Diagramm.Action_VelInPos      = np.asarray(json.loads(Data[17]))
             self.KeyPointWindow.txtSetupMaxAcc.SetValue       (Data[6])
             self.KeyPointWindow.txtSetupMaxVel.SetValue       (Data[7])
             self.KeyPointWindow.txtSetupLength.SetValue       (Data[10])
             self.KeyPointWindow.txtSetupTime.SetValue         (Data[11])
 
-            #self.KeyPointWindow.Diagramm.CP_M_Points         = json.loads(Data[15])
-            #self.KeyPointWindow.Diagramm.CP_T_Points         = json.loads(Data[15])
-
             self.KeyPointWindow.Diagramm.FileLoaded           = True
             self.KeyPointWindow.Diagramm.Action_Signed        = False
-            self.KeyPointWindow.chkSmoothing.SetValue(False)
-            self.KeyPointWindow.chkSmoothingII.SetValue(False)
 
         else:
             dlg = wx.MessageDialog(None,'File can not be decoded','Invalid Data',  wx.OK)
             dlg.ShowModal()
+            print('Invalid Data') 
 
         self.KeyPointWindow.Diagramm.Entry()
+        self.KeyPointWindow.Diagramm.Smooth()
+        self.KeyPointWindow.Diagramm.SmoothII()
 
     def ExportFile(self,evt):
         if self.KeyPointWindow.chkSign.GetValue():
@@ -1376,20 +1391,20 @@ class VelEditor4C(wx.App):
         else:  
             dlg = wx.MessageDialog(None,'The Profile has to be Signed','Invalid Data',  wx.OK)
             dlg.ShowModal()
+            print('Invalid Data')       
         pass
 
     def CompileExportData(self):
-        intVel = json.dumps([self.KeyPointWindow.Diagramm.intVel_T_SM[0].tolist(),\
-                             self.KeyPointWindow.Diagramm.intVel_T_SM[1].tolist()])          
-        Jrk    = json.dumps([self.KeyPointWindow.Diagramm.Jrk_T[0].tolist(),\
-                             self.KeyPointWindow.Diagramm.Jrk_T[1].tolist()])
-        Acc    = json.dumps([self.KeyPointWindow.Diagramm.Acc_T_SM[0].tolist(),\
-                             self.KeyPointWindow.Diagramm.Acc_T_SM[1].tolist()])
-        Vel    = json.dumps([self.KeyPointWindow.Diagramm.intAcc_T_SM[0].tolist(),\
-                             self.KeyPointWindow.Diagramm.intAcc_T_SM[1].tolist()])
-        V_P    = json.dumps([self.KeyPointWindow.Diagramm.Vel_P[0].tolist(),
-                             self.KeyPointWindow.Diagramm.Vel_P[1].tolist()])
-
+        intVel = [self.KeyPointWindow.Diagramm.intVel_T_SM[0].tolist(),\
+                 self.KeyPointWindow.Diagramm.intVel_T_SM[1].tolist()]           # integrated Vel
+        Jrk    = [self.KeyPointWindow.Diagramm.Jrk_T[0].tolist(),\
+                  self.KeyPointWindow.Diagramm.Jrk_T[1].tolist()]
+        Acc    = [self.KeyPointWindow.Diagramm.Acc_T_SM[0].tolist(),\
+                  self.KeyPointWindow.Diagramm.Acc_T_SM[1].tolist()]
+        Vel    = [self.KeyPointWindow.Diagramm.Vel_T[0].tolist(),\
+                  self.KeyPointWindow.Diagramm.Vel_T[1].tolist()]
+        # Pos    = [self.KeyPointWindow.Diagramm.Pos_T_D[0].tolist(),\
+        #           self.KeyPointWindow.Diagramm.Pos_T_D[1].tolist()]
 
         self.EData =( str(self.KeyPointWindow.Diagramm.Action_ID)                 + ';' +     # 0                                    + ';' +     # 0
             self.KeyPointWindow.Diagramm.Action_Name                              + ';' +     # 1
@@ -1403,12 +1418,17 @@ class VelEditor4C(wx.App):
             str(self.KeyPointWindow.Diagramm.Action_maxPos)                       + ';' +     # 7
             str(self.KeyPointWindow.txtUsrLength.GetValue())                      + ';' +     # 8
             str(self.KeyPointWindow.txtUsrDuration.GetValue())                    + ';' +     # 9
-            intVel                                                                + ';' +     # 10
-            Jrk                                                                   + ';' +     # 11
-            Acc                                                                   + ';' +     # 12
-            Vel                                                                   + ';' +     # 13
-            intVel                                                                + ';' +     # 14
-            V_P                                                                   + ';' )     # 15
+            json.dumps(intVel)                                                    + ';' +     # 10
+            # json.dumps(self.KeyPointWindow.Diagramm.Action_Jrk.tolist())          + ';' +     # 11
+            # json.dumps(self.KeyPointWindow.Diagramm.Action_Acc.tolist())          + ';' +     # 12
+            # json.dumps(self.KeyPointWindow.Diagramm.Action_Vel.tolist())          + ';' +     # 13
+            # json.dumps(self.KeyPointWindow.Diagramm.Action_Pos_P.tolist())        + ';' +     # 14
+            # json.dumps(self.KeyPointWindow.Diagramm.Action_VelInPos.tolist())     + ';' )     # 15
+            json.dumps(Jrk)                                                       + ';' +     # 11
+            json.dumps(Acc)                                                       + ';' +     # 12
+            json.dumps(Vel)                                                       + ';' +     # 13
+            json.dumps(intVel)                                                    + ';' +     # 14
+            json.dumps(self.KeyPointWindow.Diagramm.Action_VelInPos.tolist())     + ';' )     # 15
 
     def ExportData(self,file):
         file.write(json.dumps(self.EData))
@@ -1429,6 +1449,7 @@ class VelEditor4C(wx.App):
         else:
             dlg = wx.MessageDialog(None,'Invalid Data  Check Accelerations', 'Invalid', wx.OK)
             dlg.ShowModal()
+            print('Invalid Data')
         pass
 
     def OnButtonGenerate(self,evt):
@@ -1456,6 +1477,7 @@ class VelEditor4C(wx.App):
         else:
             dlg = wx.MessageDialog(None,'Invalid Data Check Usr Limits', 'Invalid Data', wx.OK)
             dlg.ShowModal()
+            print('Invalid Data')
         
     def OpenFile(self,evt):
         with wx.FileDialog(None, "Open Vel file", wildcard="Vel files (*.vedt)|*.vedt",
@@ -1491,6 +1513,7 @@ class VelEditor4C(wx.App):
         else:  
             dlg = wx.MessageDialog(None,'The Profile has to be Signed','Invalid Data',  wx.OK)
             dlg.ShowModal()
+            print('Invalid Data')       
         pass
 
     def SaveData(self,file):
@@ -1560,25 +1583,7 @@ class VelEditor4C(wx.App):
                 str(self.KeyPointWindow.txtSetupJerkRiseTime.GetValue())              + ';' +     # 59
                 str(self.KeyPointWindow.txtSetupJerkHeight.GetValue())                + ';' +     # 60
                 str(self.KeyPointWindow.txtUsrJrkRiseTime.GetValue())                 + ';' +     # 61
-                str(self.KeyPointWindow.txtUsrJrkHeight.GetValue())                   + ';' +     # 62
-                str(self.KeyPointWindow.chkSmoothing.GetValue())                      + ';' +     # 63
-                str(self.KeyPointWindow.chkSmoothingII.GetValue())                    + ';' +     # 64
-                json.dumps((self.KeyPointWindow.Diagramm.CP_SM_Points[0]).tolist())   + ';' +     # 65
-                json.dumps((self.KeyPointWindow.Diagramm.CP_SM_Points[1]).tolist())   + ';' +     # 66
-                json.dumps((self.KeyPointWindow.Diagramm.CP_SM_Points[2]).tolist())   + ';' +     # 67
-                json.dumps((self.KeyPointWindow.Diagramm.Vel_T[0]).tolist())          + ';' +     # 68
-                json.dumps((self.KeyPointWindow.Diagramm.Vel_T[1]).tolist())          + ';' +     # 69
-                json.dumps((self.KeyPointWindow.Diagramm.Vel_P[0]).tolist())          + ';' +     # 70
-                json.dumps((self.KeyPointWindow.Diagramm.Vel_P[1]).tolist())          + ';' +     # 71
-                json.dumps((self.KeyPointWindow.Diagramm.intVel_T_SM[0].tolist()))    + ';' +     # 72
-                json.dumps((self.KeyPointWindow.Diagramm.intVel_T_SM[1].tolist()))    + ';' +     # 73
-                json.dumps((self.KeyPointWindow.Diagramm.Acc_T_SM[0].tolist()))       + ';' +     # 74
-                json.dumps((self.KeyPointWindow.Diagramm.Acc_T_SM[1].tolist()))       + ';' +     # 75
-                json.dumps((self.KeyPointWindow.Diagramm.intAcc_T_SM[0].tolist()))    + ';' +     # 76
-                json.dumps((self.KeyPointWindow.Diagramm.intAcc_T_SM[1].tolist()))    + ';' +     # 77
-                json.dumps((self.KeyPointWindow.Diagramm.Vel_P_SM[0].tolist()))       + ';' +     # 78
-                json.dumps((self.KeyPointWindow.Diagramm.Vel_P_SM[1].tolist()))       + ';' )     # 79
-
+                str(self.KeyPointWindow.txtUsrJrkHeight.GetValue())                   + ';' )     # 62
 
     def Exit(self,evt):
         sys.exit()
@@ -1586,22 +1591,26 @@ class VelEditor4C(wx.App):
     def LoadData(self,file):
         data = json.loads(file.read())
         file.close()
-        self.KeyPointWindow.Diagramm.Action_Jrk        = [[],[]]       
-        self.KeyPointWindow.Diagramm.Action_Acc        = [[],[]]     
-        self.KeyPointWindow.Diagramm.Action_Vel        = [[],[]]       
-        self.KeyPointWindow.Diagramm.Action_Pos        = [[],[]]      
-        self.KeyPointWindow.Diagramm.Action_VelInPos   = [[],[]]
-
-        self.KeyPointWindow.chkSmoothing.SetValue(False)
-        self.KeyPointWindow.chkSmoothingII.SetValue(False)
-
-        self.KeyPointWindow.Diagramm.ClearVars()
-        self.KeyPointWindow.Diagramm.PrepareGraphs()
-        self.KeyPointWindow.Diagramm.Plot(init       = True)
-        self.KeyPointWindow.Diagramm.canvas.draw()
+        self.KeyPointWindow.Diagramm.CP_P_Points_Limit = [[],[],[]] 
+        self.KeyPointWindow.Diagramm.CP_P_Points       = [[],[],[]]
+        self.KeyPointWindow.Diagramm.CP_T_Points       = [[],[],[]]
+        self.KeyPointWindow.Diagramm.CP_M_Points       = [[],[],[]]
+        self.KeyPointWindow.Diagramm.CP_SM_Points      = [[],[],[]]
+        self.KeyPointWindow.Diagramm.CP_T_Points_Limit = [[],[],[]]
+        self.KeyPointWindow.Diagramm.CP_TA_Points      = [[],[],[]]
+        self.KeyPointWindow.Diagramm.Jrk_T_D_L         = [[],[]]
+        self.KeyPointWindow.Diagramm.Acc_T_D_L         = [[],[]]
+        self.KeyPointWindow.Diagramm.Vel_T_D_L         = [[],[]]
+        self.KeyPointWindow.Diagramm.Pos_T_D_L         = [[],[]]
+        self.KeyPointWindow.Diagramm.Vel_P_D_L         = [[],[]]
+        self.KeyPointWindow.Diagramm.Jrk_T_D           = [[],[]]
+        self.KeyPointWindow.Diagramm.Acc_T_D           = [[],[]]
+        self.KeyPointWindow.Diagramm.Vel_T_D           = [[],[]]
+        self.KeyPointWindow.Diagramm.Pos_T_D           = [[],[]]
+        self.KeyPointWindow.Diagramm.Vel_P_D           = [[],[]]
         
         Data = data.split(';')
-        if len(Data) == 81:
+        if len(Data) == 64:
             self.KeyPointWindow.Diagramm.Action_ID            = float(Data[0])
             self.KeyPointWindow.Diagramm.Action_Name          = Data[1]
             self.KeyPointWindow.Diagramm.Action_Saved         = bool(Data[2])
@@ -1674,29 +1683,11 @@ class VelEditor4C(wx.App):
             self.KeyPointWindow.txtSetupJerkHeight.SetValue   ('%0.0f'% float(Data[60]))
             self.KeyPointWindow.txtUsrJrkRiseTime.SetValue    ('%3.3f'%  float(Data[61]))
             self.KeyPointWindow.txtUsrJrkHeight.SetValue      ('%0.0f'%  float(Data[62]))
-            self.KeyPointWindow.chkSmoothing.SetValue         (bool(Data[63]))
-            self.KeyPointWindow.chkSmoothingII.SetValue       (bool(Data[64]))
-            self.KeyPointWindow.Diagramm.CP_SM_Points[0]      = np.asarray(json.loads(Data[65]))
-            self.KeyPointWindow.Diagramm.CP_SM_Points[1]      = np.asarray(json.loads(Data[66]))
-            self.KeyPointWindow.Diagramm.CP_SM_Points[2]      = np.asarray(json.loads(Data[67]))
-            self.KeyPointWindow.Diagramm.Vel_T[0]             = np.asarray(json.loads(Data[68]))
-            self.KeyPointWindow.Diagramm.Vel_T[1]             = np.asarray(json.loads(Data[69]))
-            self.KeyPointWindow.Diagramm.Vel_P[0]             = np.asarray(json.loads(Data[70]))
-            self.KeyPointWindow.Diagramm.Vel_P[1]             = np.asarray(json.loads(Data[71]))
-            self.KeyPointWindow.Diagramm.intVel_T_SM[0]       = np.asarray(json.loads(Data[72]))
-            self.KeyPointWindow.Diagramm.intVel_T_SM[1]       = np.asarray(json.loads(Data[73]))
-            self.KeyPointWindow.Diagramm.Acc_T_SM[0]          = np.asarray(json.loads(Data[74]))
-            self.KeyPointWindow.Diagramm.Acc_T_SM[1]          = np.asarray(json.loads(Data[75]))
-            self.KeyPointWindow.Diagramm.intAcc_T_SM[0]       = np.asarray(json.loads(Data[76]))
-            self.KeyPointWindow.Diagramm.intAcc_T_SM[1]       = np.asarray(json.loads(Data[77]))
-            self.KeyPointWindow.Diagramm.Vel_P_SM[0]          = np.asarray(json.loads(Data[78]))
-            self.KeyPointWindow.Diagramm.Vel_P_SM[1]          = np.asarray(json.loads(Data[79]))            
-
-
             self.KeyPointWindow.Diagramm.FileLoaded           = True
         else:
             dlg = wx.MessageDialog(None,'File can not be decoded','Invalid Data',  wx.OK)
             dlg.ShowModal()
+            print('Invalid Data')  
         self.KeyPointWindow.Diagramm.Entry()
 
 if __name__ == "__main__":
